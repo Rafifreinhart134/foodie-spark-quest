@@ -1,42 +1,81 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Dancing+Script:wght@400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
-*/
+/* FoodieApp Design System - Warm, appetizing food-focused theme */
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    /* Core Food-Inspired Palette */
+    --background: 35 15% 98%;
+    --foreground: 20 14% 9%;
 
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card-foreground: 20 14% 9%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover-foreground: 20 14% 9%;
 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    /* Primary - Warm Orange (food primary) */
+    --primary: 24 95% 53%;
+    --primary-glow: 24 100% 60%;
+    --primary-dark: 24 85% 45%;
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    /* Secondary - Warm Red */
+    --secondary: 9 87% 67%;
+    --secondary-glow: 9 100% 75%;
+    --secondary-foreground: 0 0% 100%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    /* Accent - Golden Yellow */
+    --accent: 48 96% 89%;
+    --accent-bright: 48 100% 65%;
+    --accent-foreground: 20 14% 9%;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    /* Neutral Tones */
+    --muted: 35 10% 95%;
+    --muted-foreground: 25 5% 45%;
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    --success: 142 76% 36%;
+    --success-foreground: 0 0% 100%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    --warning: 48 96% 53%;
+    --warning-foreground: 20 14% 9%;
 
-    --radius: 0.5rem;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 35 12% 90%;
+    --input: 35 12% 90%;
+    --ring: 24 95% 53%;
+
+    --radius: 0.75rem;
+
+    /* Food App Specific Colors */
+    --food-red: 9 87% 67%;
+    --food-orange: 24 95% 53%;
+    --food-yellow: 48 96% 65%;
+    --food-green: 142 76% 36%;
+    --food-brown: 25 45% 35%;
+    --food-cream: 48 56% 92%;
+
+    /* Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary-glow)));
+    --gradient-secondary: linear-gradient(135deg, hsl(var(--secondary)), hsl(var(--secondary-glow)));
+    --gradient-warm: linear-gradient(135deg, hsl(var(--food-orange)), hsl(var(--food-red)));
+    --gradient-golden: linear-gradient(135deg, hsl(var(--food-yellow)), hsl(var(--accent-bright)));
+    --gradient-food: linear-gradient(135deg, hsl(var(--food-orange)) 0%, hsl(var(--food-red)) 50%, hsl(var(--food-yellow)) 100%);
+
+    /* Shadows */
+    --shadow-warm: 0 10px 30px -10px hsl(var(--primary) / 0.3);
+    --shadow-glow: 0 0 40px hsl(var(--primary-glow) / 0.3);
+    --shadow-card: 0 4px 20px -2px hsl(var(--primary) / 0.1);
+
+    /* Animations */
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-bounce: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
 
     --sidebar-background: 0 0% 98%;
 
@@ -100,6 +139,108 @@ All colors MUST be HSL.
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground font-poppins;
+  }
+}
+
+@layer utilities {
+  /* Food App Custom Utilities */
+  .gradient-primary {
+    background: var(--gradient-primary);
+  }
+  
+  .gradient-secondary {
+    background: var(--gradient-secondary);
+  }
+  
+  .gradient-warm {
+    background: var(--gradient-warm);
+  }
+  
+  .gradient-golden {
+    background: var(--gradient-golden);
+  }
+  
+  .gradient-food {
+    background: var(--gradient-food);
+  }
+  
+  .shadow-warm {
+    box-shadow: var(--shadow-warm);
+  }
+  
+  .shadow-glow {
+    box-shadow: var(--shadow-glow);
+  }
+  
+  .shadow-card {
+    box-shadow: var(--shadow-card);
+  }
+  
+  .transition-smooth {
+    transition: var(--transition-smooth);
+  }
+  
+  .transition-bounce {
+    transition: var(--transition-bounce);
+  }
+
+  /* Mobile-first Video Container */
+  .video-container {
+    @apply relative w-full h-screen bg-black overflow-hidden;
+  }
+  
+  .video-overlay {
+    @apply absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent;
+  }
+  
+  /* Interactive Elements */
+  .action-button {
+    @apply relative flex items-center justify-center w-12 h-12 rounded-full bg-black/20 backdrop-blur-sm border border-white/20 transition-all duration-300 hover:scale-110 active:scale-95;
+  }
+  
+  .floating-action {
+    @apply fixed bottom-20 right-6 w-14 h-14 rounded-full gradient-primary shadow-glow flex items-center justify-center transition-bounce hover:scale-110 active:scale-95 z-50;
+  }
+
+  /* Food Category Pills */
+  .category-pill {
+    @apply inline-flex items-center px-3 py-1.5 rounded-full text-xs font-medium bg-white/10 backdrop-blur-sm border border-white/20 text-white transition-all duration-300 hover:bg-white/20;
+  }
+}
+
+@layer components {
+  /* TikTok-style Action Buttons */
+  .tiktok-action {
+    @apply flex flex-col items-center space-y-1;
+  }
+  
+  .tiktok-action button {
+    @apply w-12 h-12 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 flex items-center justify-center text-white transition-all duration-300 hover:scale-110 active:scale-95;
+  }
+  
+  .tiktok-action span {
+    @apply text-xs text-white font-medium;
+  }
+
+  /* Bottom Navigation */
+  .nav-item {
+    @apply flex flex-col items-center justify-center space-y-1 py-2 px-3 transition-all duration-300;
+  }
+  
+  .nav-item.active {
+    @apply text-primary;
+  }
+  
+  .nav-item .nav-icon {
+    @apply w-6 h-6 transition-all duration-300;
+  }
+  
+  .nav-item.active .nav-icon {
+    @apply scale-110 text-primary;
+  }
+  
+  .nav-item .nav-label {
+    @apply text-xs font-medium;
   }
 }
