@@ -1,21 +1,29 @@
 import { useState } from 'react';
-import { Camera, Video, Image, MapPin, Tag, DollarSign, Clock, X } from 'lucide-react';
+import { Camera, Video, Image, MapPin, Tag, DollarSign, Clock, X, Upload } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/hooks/useAuth';
+import { useToast } from '@/hooks/use-toast';
 
 const UploadPage = () => {
+  const { user } = useAuth();
+  const { toast } = useToast();
+  
   const [uploadType, setUploadType] = useState<'video' | 'photo' | null>(null);
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState<'resep' | 'hidden_gem' | 'tips' | ''>('');
   const [tags, setTags] = useState<string[]>([]);
   const [newTag, setNewTag] = useState('');
   const [budget, setBudget] = useState('');
   const [cookingTime, setCookingTime] = useState('');
   const [location, setLocation] = useState('');
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
 
   const categories = [
     { id: 'resep', name: 'Resep', emoji: '👨‍🍳', color: 'bg-food-orange' },
@@ -48,18 +56,104 @@ const UploadPage = () => {
     setTags(tags.filter(tag => tag !== tagToRemove));
   };
 
-  const handleSubmit = () => {
-    // Here would be Supabase integration
-    console.log('Upload data:', {
-      type: uploadType,
-      title,
-      description,
-      category: selectedCategory,
-      tags,
-      budget,
-      cookingTime,
-      location
-    });
+  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      setSelectedFile(file);
+    }
+  };
+
+  const handleSubmit = async () => {
+    if (!user) {
+      toast({
+        title: "Authentication required",
+        description: "Please sign in to upload content",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (!selectedFile || !title || !selectedCategory) {
+      toast({
+        title: "Missing information",
+        description: "Please fill in all required fields",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setIsUploading(true);
+
+    try {
+      // Upload file to storage
+      const fileExt = selectedFile.name.split('.').pop();
+      const fileName = `${user.id}/${Date.now()}.${fileExt}`;
+      const bucketName = uploadType === 'video' ? 'videos' : 'thumbnails';
+
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from(bucketName)
+        .upload(fileName, selectedFile);
+
+      if (uploadError) {
+        throw uploadError;
+      }
+
+      // Get public URL
+      const { data: { publicUrl } } = supabase.storage
+        .from(bucketName)
+        .getPublicUrl(fileName);
+
+      // Create video record
+      const videoData = {
+        user_id: user.id,
+        title,
+        description,
+        category: selectedCategory as 'resep' | 'hidden_gem' | 'tips',
+        tags,
+        budget: budget || null,
+        cooking_time: cookingTime || null,
+        location: location || null,
+        is_public: true,
+        ...(uploadType === 'video' 
+          ? { video_url: publicUrl }
+          : { thumbnail_url: publicUrl }
+        )
+      };
+
+      const { error: insertError } = await supabase
+        .from('videos')
+        .insert(videoData);
+
+      if (insertError) {
+        throw insertError;
+      }
+
+      toast({
+        title: "Upload successful!",
+        description: "Your content has been uploaded successfully",
+      });
+
+      // Reset form
+      setUploadType(null);
+      setTitle('');
+      setDescription('');
+      setSelectedCategory('');
+      setTags([]);
+      setBudget('');
+      setCookingTime('');
+      setLocation('');
+      setSelectedFile(null);
+
+    } catch (error: any) {
+      console.error('Upload error:', error);
+      toast({
+        title: "Upload failed",
+        description: error.message || "Failed to upload content",
+        variant: "destructive"
+      });
+    } finally {
+      setIsUploading(false);
+    }
   };
 
   return (
@@ -104,13 +198,39 @@ const UploadPage = () => {
             {/* Media Upload Area */}
             <Card className="p-6">
               <div className="border-2 border-dashed border-muted rounded-lg p-8 text-center">
-                <Camera className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
-                <p className="text-muted-foreground mb-4">
-                  {uploadType === 'video' ? 'Upload video (max 1 menit)' : 'Upload foto'}
-                </p>
-                <Button variant="outline">
-                  Pilih {uploadType === 'video' ? 'Video' : 'Foto'}
-                </Button>
+                {selectedFile ? (
+                  <>
+                    <div className="w-12 h-12 mx-auto mb-4 bg-green-100 rounded-full flex items-center justify-center">
+                      <Upload className="w-6 h-6 text-green-600" />
+                    </div>
+                    <p className="text-sm font-medium mb-2">{selectedFile.name}</p>
+                    <p className="text-xs text-muted-foreground mb-4">
+                      File selected ({(selectedFile.size / (1024 * 1024)).toFixed(2)} MB)
+                    </p>
+                    <Button variant="outline" onClick={() => setSelectedFile(null)}>
+                      Change File
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    <Camera className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
+                    <p className="text-muted-foreground mb-4">
+                      {uploadType === 'video' ? 'Upload video (max 50MB)' : 'Upload foto (max 10MB)'}
+                    </p>
+                    <input
+                      type="file"
+                      accept={uploadType === 'video' ? 'video/*' : 'image/*'}
+                      onChange={handleFileSelect}
+                      className="hidden"
+                      id="file-upload"
+                    />
+                    <Button variant="outline" asChild>
+                      <label htmlFor="file-upload" className="cursor-pointer">
+                        Pilih {uploadType === 'video' ? 'Video' : 'Foto'}
+                      </label>
+                    </Button>
+                  </>
+                )}
               </div>
             </Card>
 
@@ -125,7 +245,7 @@ const UploadPage = () => {
                     className={`h-16 flex flex-col space-y-1 ${
                       selectedCategory === category.id ? 'gradient-primary text-white' : ''
                     }`}
-                    onClick={() => setSelectedCategory(category.id)}
+                    onClick={() => setSelectedCategory(category.id as 'resep' | 'hidden_gem' | 'tips')}
                   >
                     <span className="text-xl">{category.emoji}</span>
                     <span className="text-xs">{category.name}</span>
@@ -241,8 +361,9 @@ const UploadPage = () => {
               <Button 
                 className="w-full h-12 gradient-primary text-white font-semibold shadow-glow"
                 onClick={handleSubmit}
+                disabled={isUploading || !selectedFile || !title || !selectedCategory}
               >
-                Upload Konten
+                {isUploading ? 'Uploading...' : 'Upload Konten'}
               </Button>
             </div>
           </>

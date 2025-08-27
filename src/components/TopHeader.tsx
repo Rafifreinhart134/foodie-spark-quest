@@ -1,9 +1,11 @@
 import { useState } from 'react';
-import { Bell, Search } from 'lucide-react';
+import { Bell, Search, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useAuth } from '@/hooks/useAuth';
 import { Badge } from '@/components/ui/badge';
 
 const TopHeader = () => {
+  const { signOut } = useAuth();
   const [notificationCount] = useState(3);
 
   return (
@@ -35,6 +37,16 @@ const TopHeader = () => {
                 {notificationCount}
               </Badge>
             )}
+          </Button>
+
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            className="text-muted-foreground hover:text-destructive"
+            onClick={signOut}
+            title="Sign out"
+          >
+            <LogOut className="w-5 h-5" />
           </Button>
         </div>
       </div>

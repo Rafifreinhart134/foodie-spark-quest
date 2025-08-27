@@ -1,42 +1,23 @@
 import { useState } from 'react';
 import { Heart, MessageCircle, Share2, Bookmark, MoreHorizontal, Play } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-
-interface VideoData {
-  id: string;
-  user: {
-    username: string;
-    avatar: string;
-  };
-  description: string;
-  videoUrl: string;
-  thumbnailUrl: string;
-  likes: number;
-  comments: number;
-  isLiked: boolean;
-  isSaved: boolean;
-  tags: string[];
-  budget: string;
-  cookingTime: string;
-}
+import { useVideos, Video } from '@/hooks/useVideos';
+import { useAuth } from '@/hooks/useAuth';
 
 interface VideoCardProps {
-  video: VideoData;
+  video: Video;
   isActive: boolean;
+  onLike: (videoId: string) => void;
+  onSave: (videoId: string) => void;
 }
 
-const VideoCard = ({ video, isActive }: VideoCardProps) => {
-  const [isLiked, setIsLiked] = useState(video.isLiked);
-  const [isSaved, setIsSaved] = useState(video.isSaved);
-  const [likes, setLikes] = useState(video.likes);
-
+const VideoCard = ({ video, isActive, onLike, onSave }: VideoCardProps) => {
   const handleLike = () => {
-    setIsLiked(!isLiked);
-    setLikes(isLiked ? likes - 1 : likes + 1);
+    onLike(video.id);
   };
 
   const handleSave = () => {
-    setIsSaved(!isSaved);
+    onSave(video.id);
   };
 
   return (
@@ -44,7 +25,7 @@ const VideoCard = ({ video, isActive }: VideoCardProps) => {
       {/* Video Background */}
       <div 
         className="absolute inset-0 bg-cover bg-center"
-        style={{ backgroundImage: `url(${video.thumbnailUrl})` }}
+        style={{ backgroundImage: `url(${video.thumbnail_url || 'https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=400'})` }}
       >
         <div className="video-overlay" />
       </div>
@@ -67,23 +48,23 @@ const VideoCard = ({ video, isActive }: VideoCardProps) => {
           {/* User Info */}
           <div className="flex items-center space-x-3 mb-3">
             <img
-              src={video.user.avatar}
-              alt={video.user.username}
-              className="w-12 h-12 rounded-full border-2 border-white"
+              src={video.profiles?.avatar_url || 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150'}
+              alt={video.profiles?.display_name || 'User'}
+              className="w-12 h-12 rounded-full border-2 border-white object-cover"
             />
             <div>
-              <h3 className="text-white font-semibold text-lg">@{video.user.username}</h3>
+              <h3 className="text-white font-semibold text-lg">@{video.profiles?.display_name || 'user'}</h3>
             </div>
           </div>
 
           {/* Description */}
           <p className="text-white text-sm mb-3 leading-relaxed max-w-xs">
-            {video.description}
+            {video.description || video.title}
           </p>
 
           {/* Tags and Info */}
           <div className="flex flex-wrap gap-2 mb-2">
-            {video.tags.map((tag, index) => (
+            {video.tags?.map((tag, index) => (
               <span key={index} className="category-pill">
                 #{tag}
               </span>
@@ -91,8 +72,8 @@ const VideoCard = ({ video, isActive }: VideoCardProps) => {
           </div>
 
           <div className="flex space-x-4 text-white text-xs">
-            <span className="category-pill">💰 {video.budget}</span>
-            <span className="category-pill">⏱️ {video.cookingTime}</span>
+            {video.budget && <span className="category-pill">💰 {video.budget}</span>}
+            {video.cooking_time && <span className="category-pill">⏱️ {video.cooking_time}</span>}
           </div>
         </div>
 
@@ -105,14 +86,14 @@ const VideoCard = ({ video, isActive }: VideoCardProps) => {
               size="icon"
               onClick={handleLike}
               className={`w-12 h-12 rounded-full border transition-all duration-300 ${
-                isLiked 
+                video.user_liked 
                   ? 'bg-red-500 border-red-500 text-white' 
                   : 'bg-white/10 backdrop-blur-sm border-white/20 text-white hover:scale-110'
               }`}
             >
-              <Heart className={`w-6 h-6 ${isLiked ? 'fill-current' : ''}`} />
+              <Heart className={`w-6 h-6 ${video.user_liked ? 'fill-current' : ''}`} />
             </Button>
-            <span className="text-xs text-white font-medium">{likes}</span>
+            <span className="text-xs text-white font-medium">{video.like_count}</span>
           </div>
 
           {/* Comment Button */}
@@ -124,7 +105,7 @@ const VideoCard = ({ video, isActive }: VideoCardProps) => {
             >
               <MessageCircle className="w-6 h-6" />
             </Button>
-            <span className="text-xs text-white font-medium">{video.comments}</span>
+            <span className="text-xs text-white font-medium">{video.comment_count}</span>
           </div>
 
           {/* Save Button */}
@@ -134,12 +115,12 @@ const VideoCard = ({ video, isActive }: VideoCardProps) => {
               size="icon"
               onClick={handleSave}
               className={`w-12 h-12 rounded-full border transition-all duration-300 ${
-                isSaved 
+                video.user_saved 
                   ? 'bg-yellow-500 border-yellow-500 text-white' 
                   : 'bg-white/10 backdrop-blur-sm border-white/20 text-white hover:scale-110'
               }`}
             >
-              <Bookmark className={`w-6 h-6 ${isSaved ? 'fill-current' : ''}`} />
+              <Bookmark className={`w-6 h-6 ${video.user_saved ? 'fill-current' : ''}`} />
             </Button>
           </div>
 
@@ -171,66 +152,32 @@ const VideoCard = ({ video, isActive }: VideoCardProps) => {
 };
 
 const VideoFeed = () => {
-  // Mock data for demonstration
-  const mockVideos: VideoData[] = [
-    {
-      id: '1',
-      user: {
-        username: 'chef_maya',
-        avatar: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150',
-      },
-      description: 'Nasi goreng kambing yang super enak! Recipe rahasia dari warung legendaris di Jakarta. Wajib coba guys! 🔥',
-      videoUrl: '',
-      thumbnailUrl: 'https://images.unsplash.com/photo-1603133872878-684f208fb84b?w=400',
-      likes: 24500,
-      comments: 1240,
-      isLiked: false,
-      isSaved: false,
-      tags: ['nasgor', 'kambing', 'jakarta', 'hidden_gem'],
-      budget: 'Rp 25k',
-      cookingTime: '15 menit'
-    },
-    {
-      id: '2',
-      user: {
-        username: 'foodie_rina',
-        avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150',
-      },
-      description: 'Martabak manis dengan topping coklat keju! Resep mudah yang bisa dicoba di rumah 😍',
-      videoUrl: '',
-      thumbnailUrl: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=400',
-      likes: 18300,
-      comments: 892,
-      isLiked: true,
-      isSaved: false,
-      tags: ['martabak', 'dessert', 'coklat', 'keju'],
-      budget: 'Rp 15k',
-      cookingTime: '20 menit'
-    },
-    {
-      id: '3',
-      user: {
-        username: 'warung_pak_budi',
-        avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150',
-      },
-      description: 'Sate ayam madura asli! Bumbu kacang secret recipe turun temurun. Lokasi di Malang guys!',
-      videoUrl: '',
-      thumbnailUrl: 'https://images.unsplash.com/photo-1544025162-d76694265947?w=400',
-      likes: 32100,
-      comments: 2150,
-      isLiked: false,
-      isSaved: true,
-      tags: ['sate', 'ayam', 'madura', 'malang'],
-      budget: 'Rp 20k',
-      cookingTime: '30 menit'
-    }
-  ];
-
+  const { videos, loading, toggleLike, toggleSave } = useVideos();
+  const { user } = useAuth();
   const [currentIndex, setCurrentIndex] = useState(0);
+
+  if (loading) {
+    return (
+      <div className="relative h-screen flex items-center justify-center bg-black">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div>
+      </div>
+    );
+  }
+
+  if (!videos.length) {
+    return (
+      <div className="relative h-screen flex items-center justify-center bg-black text-white">
+        <div className="text-center">
+          <h3 className="text-xl font-semibold mb-2">No videos available</h3>
+          <p className="text-gray-300">Be the first to upload a video!</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="relative h-screen overflow-hidden">
-      {mockVideos.map((video, index) => (
+      {videos.map((video, index) => (
         <div
           key={video.id}
           className={`absolute inset-0 transition-transform duration-300 ${
@@ -238,7 +185,12 @@ const VideoFeed = () => {
             index < currentIndex ? '-translate-y-full' : 'translate-y-full'
           }`}
         >
-          <VideoCard video={video} isActive={index === currentIndex} />
+          <VideoCard 
+            video={video} 
+            isActive={index === currentIndex} 
+            onLike={toggleLike}
+            onSave={toggleSave}
+          />
         </div>
       ))}
       
@@ -250,7 +202,7 @@ const VideoFeed = () => {
         />
         <div 
           className="h-1/2 pointer-events-auto"
-          onClick={() => setCurrentIndex(Math.min(mockVideos.length - 1, currentIndex + 1))}
+          onClick={() => setCurrentIndex(Math.min(videos.length - 1, currentIndex + 1))}
         />
       </div>
     </div>
