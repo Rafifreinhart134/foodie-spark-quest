@@ -85,7 +85,7 @@ const UploadPage = () => {
     setIsUploading(true);
 
     try {
-      // Upload file to storage
+      // Upload file to storage with user-specific folder
       const fileExt = selectedFile.name.split('.').pop();
       const fileName = `${user.id}/${Date.now()}.${fileExt}`;
       const bucketName = uploadType === 'video' ? 'videos' : 'thumbnails';
