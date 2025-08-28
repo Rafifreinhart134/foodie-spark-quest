@@ -4,6 +4,7 @@ import SearchPage from '@/components/SearchPage';
 import UploadPage from '@/components/UploadPage';
 import NotificationPage from '@/components/NotificationPage';
 import ProfilePage from '@/components/ProfilePage';
+import SettingsPage from '@/components/SettingsPage';
 import BottomNavigation from '@/components/BottomNavigation';
 import TopHeader from '@/components/TopHeader';
 
@@ -22,6 +23,8 @@ const Index = () => {
         return <NotificationPage />;
       case 'profile':
         return <ProfilePage />;
+      case 'settings':
+        return <SettingsPage />;
       default:
         return <VideoFeed />;
     }

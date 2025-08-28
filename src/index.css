@@ -4,62 +4,61 @@
 @tailwind components;
 @tailwind utilities;
 
-/* FoodieApp Design System - Warm, appetizing food-focused theme */
+/* FoodTok Design System - Cream & Green Modern Theme */
 
 @layer base {
   :root {
-    /* Core Food-Inspired Palette */
-    --background: 35 15% 98%;
-    --foreground: 20 14% 9%;
+    /* Core Cream & Green Palette */
+    --background: 45 25% 92%; /* #EDE8D0 cream background */
+    --foreground: 152 100% 8%; /* #06402B dark green text */
 
-    --card: 0 0% 100%;
-    --card-foreground: 20 14% 9%;
+    --card: 45 30% 95%; /* lighter cream for cards */
+    --card-foreground: 152 100% 8%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 20 14% 9%;
+    --popover: 45 30% 95%;
+    --popover-foreground: 152 100% 8%;
 
-    /* Primary - Warm Orange (food primary) */
-    --primary: 24 95% 53%;
-    --primary-glow: 24 100% 60%;
-    --primary-dark: 24 85% 45%;
-    --primary-foreground: 0 0% 100%;
+    /* Primary - Deep Green */
+    --primary: 152 85% 12%; /* #06402B deep green */
+    --primary-glow: 152 70% 20%; /* lighter green glow */
+    --primary-dark: 152 95% 8%; /* darker green */
+    --primary-foreground: 45 25% 92%; /* cream text on green */
 
-    /* Secondary - Warm Red */
-    --secondary: 9 87% 67%;
-    --secondary-glow: 9 100% 75%;
-    --secondary-foreground: 0 0% 100%;
+    /* Secondary - Medium Green */
+    --secondary: 152 60% 25%; /* medium green */
+    --secondary-glow: 152 50% 35%;
+    --secondary-foreground: 45 25% 92%;
 
-    /* Accent - Golden Yellow */
-    --accent: 48 96% 89%;
-    --accent-bright: 48 100% 65%;
-    --accent-foreground: 20 14% 9%;
+    /* Accent - Cream tones */
+    --accent: 45 35% 85%; /* warm cream accent */
+    --accent-bright: 45 40% 80%;
+    --accent-foreground: 152 100% 8%;
 
     /* Neutral Tones */
-    --muted: 35 10% 95%;
-    --muted-foreground: 25 5% 45%;
+    --muted: 45 20% 88%; /* muted cream */
+    --muted-foreground: 152 30% 35%; /* muted green */
 
-    --success: 142 76% 36%;
-    --success-foreground: 0 0% 100%;
+    --success: 152 85% 12%; /* green for success */
+    --success-foreground: 45 25% 92%;
 
-    --warning: 48 96% 53%;
-    --warning-foreground: 20 14% 9%;
+    --warning: 38 85% 50%; /* warm warning color */
+    --warning-foreground: 152 100% 8%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 35 12% 90%;
-    --input: 35 12% 90%;
-    --ring: 24 95% 53%;
+    --border: 45 15% 80%; /* cream border */
+    --input: 45 20% 88%; /* cream input */
+    --ring: 152 85% 12%; /* green focus ring */
 
-    --radius: 0.75rem;
+    --radius: 1rem; /* more rounded for modern feel */
 
-    /* Food App Specific Colors */
-    --food-red: 9 87% 67%;
-    --food-orange: 24 95% 53%;
-    --food-yellow: 48 96% 65%;
-    --food-green: 142 76% 36%;
-    --food-brown: 25 45% 35%;
-    --food-cream: 48 56% 92%;
+    /* FoodTok Specific Colors */
+    --foodtok-cream: 45 25% 92%; /* #EDE8D0 */
+    --foodtok-green: 152 85% 12%; /* #06402B */
+    --foodtok-green-light: 152 60% 25%;
+    --foodtok-cream-light: 45 35% 95%;
+    --foodtok-cream-dark: 45 20% 85%;
 
     /* Gradients */
     --gradient-primary: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary-glow)));
@@ -95,33 +94,43 @@
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
+    /* Dark mode: Dark green dominant with cream accents */
+    --background: 152 95% 8%; /* very dark green background */
+    --foreground: 45 30% 95%; /* cream text */
 
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
+    --card: 152 85% 10%; /* dark green cards */
+    --card-foreground: 45 30% 95%;
 
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
+    --popover: 152 85% 10%;
+    --popover-foreground: 45 30% 95%;
 
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
+    /* Primary in dark: cream/light colors */
+    --primary: 45 30% 95%; /* cream primary in dark */
+    --primary-foreground: 152 95% 8%; /* dark green text on cream */
 
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
+    /* Secondary: medium green */
+    --secondary: 152 60% 20%;
+    --secondary-foreground: 45 30% 95%;
 
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
+    /* Accent: warm cream */
+    --accent: 45 25% 85%;
+    --accent-foreground: 152 95% 8%;
 
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
+    --muted: 152 80% 12%; /* dark green muted */
+    --muted-foreground: 45 20% 75%; /* cream muted text */
 
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
+    --success: 152 70% 25%; /* lighter green for success in dark */
+    --success-foreground: 45 30% 95%;
 
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
+    --warning: 38 85% 60%;
+    --warning-foreground: 152 95% 8%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 45 30% 95%;
+
+    --border: 152 70% 15%; /* dark green border */
+    --input: 152 80% 12%; /* dark green input */
+    --ring: 45 30% 95%; /* cream focus ring */
     --sidebar-background: 240 5.9% 10%;
     --sidebar-foreground: 240 4.8% 95.9%;
     --sidebar-primary: 224.3 76.3% 48%;

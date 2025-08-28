@@ -69,16 +69,27 @@ export const useVideos = () => {
       let query = supabase
         .from('videos')
         .select(`
-          *,
-          profiles (
-            display_name,
-            avatar_url
-          )
+          id,
+          user_id,
+          video_url,
+          thumbnail_url,
+          title,
+          description,
+          category,
+          tags,
+          budget,
+          cooking_time,
+          location,
+          like_count,
+          comment_count,
+          is_public,
+          created_at,
+          updated_at
         `)
         .eq('is_public', true)
         .order('created_at', { ascending: false });
 
-      const { data, error } = await query;
+      const { data: videosData, error } = await query;
 
       if (error) {
         console.error('Error fetching videos:', error);
@@ -90,9 +101,31 @@ export const useVideos = () => {
         return;
       }
 
+      // Fetch profiles separately to avoid relationship issues
+      let videosWithProfiles: Video[] = [];
+      if (videosData && videosData.length > 0) {
+        const userIds = [...new Set(videosData.map(v => v.user_id))];
+        
+        const { data: profilesData } = await supabase
+          .from('profiles')
+          .select('user_id, display_name, avatar_url')
+          .in('user_id', userIds);
+
+        const profilesMap = new Map(
+          profilesData?.map(p => [p.user_id, p]) || []
+        );
+
+        videosWithProfiles = videosData.map(video => ({
+          ...video,
+          profiles: profilesMap.get(video.user_id) || null
+        })) as Video[];
+      }
+
+      const finalData = videosWithProfiles;
+
       // Check user likes and saves if authenticated
-      if (user && data) {
-        const videoIds = data.map(v => v.id);
+      if (user && finalData && finalData.length > 0) {
+        const videoIds = finalData.map(v => v.id);
         
         const [likesResponse, savesResponse] = await Promise.all([
           supabase
@@ -110,7 +143,7 @@ export const useVideos = () => {
         const likedVideos = new Set(likesResponse.data?.map(l => l.video_id) || []);
         const savedVideos = new Set(savesResponse.data?.map(s => s.video_id) || []);
 
-        const videosWithUserData = data.map(video => ({
+        const videosWithUserData = finalData.map(video => ({
           ...video,
           user_liked: likedVideos.has(video.id),
           user_saved: savedVideos.has(video.id)
@@ -118,7 +151,7 @@ export const useVideos = () => {
 
         setVideos(videosWithUserData as Video[]);
       } else {
-        setVideos((data as Video[]) || []);
+        setVideos(finalData || []);
       }
     } catch (error) {
       console.error('Error:', error);
