@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Home, Search, Plus, Bell, User } from 'lucide-react';
+import { Home, Search, Plus, Bell, User, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 interface BottomNavigationProps {
