@@ -14,7 +14,6 @@ const BottomNavigation = ({ activeTab, onTabChange }: BottomNavigationProps) => 
     { id: 'upload', icon: Plus, label: 'Upload', isSpecial: true },
     { id: 'notifications', icon: Bell, label: 'Notif' },
     { id: 'profile', icon: User, label: 'Profile' },
-    { id: 'settings', icon: Settings, label: 'Settings' },
   ];
 
   return (

@@ -9,7 +9,11 @@ import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import ProfileEditModal from './ProfileEditModal';
 
-const ProfilePage = () => {
+interface ProfilePageProps {
+  onNavigateToSettings?: () => void;
+}
+
+const ProfilePage = ({ onNavigateToSettings }: ProfilePageProps) => {
   const { user, signOut } = useAuth();
   const { toast } = useToast();
   

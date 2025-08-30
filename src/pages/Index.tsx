@@ -22,7 +22,7 @@ const Index = () => {
       case 'notifications':
         return <NotificationPage />;
       case 'profile':
-        return <ProfilePage />;
+        return <ProfilePage onNavigateToSettings={() => setActiveTab('settings')} />;
       case 'settings':
         return <SettingsPage />;
       default:

@@ -47,6 +47,7 @@ const VideoCard = ({ video, isActive, onLike, onSave, onComment, onShare }: Vide
     video.video_url.includes('.mp4') || 
     video.video_url.includes('.mov') || 
     video.video_url.includes('.avi') ||
+    video.video_url.includes('.webm') ||
     video.video_url.includes('video')
   );
 
@@ -54,24 +55,23 @@ const VideoCard = ({ video, isActive, onLike, onSave, onComment, onShare }: Vide
 
   return (
     <div className="video-container">
-      {/* Video Background */}
-      <div 
-        className="absolute inset-0 bg-cover bg-center"
-        style={{ backgroundImage: `url(${video.thumbnail_url || 'https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=400'})` }}
-      >
-        <div className="video-overlay" />
-      </div>
-      
-      {/* Play Button Overlay - Only for videos */}
-      {isVideo && (
-        <div className="absolute inset-0 flex items-center justify-center">
-          <Button
-            variant="ghost"
-            size="icon"
-            className="w-20 h-20 rounded-full bg-black/30 backdrop-blur-sm border border-white/20 hover:bg-black/40 transition-all duration-300 hover:scale-110"
-          >
-            <Play className="w-8 h-8 text-white ml-1" fill="white" />
-          </Button>
+      {/* Media Content */}
+      {isVideo ? (
+        <video
+          className="absolute inset-0 w-full h-full object-cover"
+          poster={video.thumbnail_url}
+          controls
+          preload="metadata"
+        >
+          <source src={video.video_url} type="video/mp4" />
+          Your browser does not support the video tag.
+        </video>
+      ) : (
+        <div 
+          className="absolute inset-0 bg-cover bg-center"
+          style={{ backgroundImage: `url(${video.thumbnail_url || video.video_url || 'https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=400'})` }}
+        >
+          <div className="video-overlay" />
         </div>
       )}
 
