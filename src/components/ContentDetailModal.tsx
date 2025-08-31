@@ -170,14 +170,14 @@ const ContentDetailModal = ({
             )}
           </div>
 
-          {/* Content Info - 30% of height - Fixed height for buttons */}
-          <div className="bg-background border-t-2 border-border p-4 relative z-20" style={{ height: '30%' }}>
-            {/* Title and Description */}
-            <div className="mb-3">
-              <h3 className="font-semibold text-lg mb-2 line-clamp-1">{content.title}</h3>
+          {/* Content Info - 30% of height - Fully interactive bottom area */}
+          <div className="bg-background border-t-2 border-border relative z-20 pointer-events-auto" style={{ height: '30%' }}>
+            {/* Title and Description Area */}
+            <div className="p-4 pb-2">
+              <h3 className="font-semibold text-lg mb-1 line-clamp-1">{content.title}</h3>
               {content.description && (
                 <div className="text-muted-foreground text-sm">
-                  <p className={showFullDescription ? '' : 'line-clamp-2'}>
+                  <p className={showFullDescription ? '' : 'line-clamp-1'}>
                     {content.description}
                   </p>
                   {content.description.length > 100 && (
@@ -187,7 +187,7 @@ const ContentDetailModal = ({
                         e.stopPropagation();
                         setShowFullDescription(!showFullDescription);
                       }}
-                      className="text-primary text-xs mt-1 hover:underline"
+                      className="text-primary text-xs mt-1 hover:underline pointer-events-auto"
                     >
                       {showFullDescription ? 'Show less' : 'More info'}
                     </button>
@@ -196,61 +196,63 @@ const ContentDetailModal = ({
               )}
             </div>
             
-            {/* Interactive buttons - Ensure they're clickable */}
-            <div className="flex items-center justify-between relative z-30">
-              <div className="flex items-center space-x-6">
-                <button
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    onLike && onLike();
-                  }}
-                  className={`flex flex-col items-center space-y-1 transition-all duration-200 p-2 rounded-lg hover:bg-accent/50 ${
-                    content.user_liked ? 'text-red-500' : 'text-muted-foreground hover:text-red-500'
-                  }`}
-                >
-                  <Heart className={`w-6 h-6 ${content.user_liked ? 'fill-current' : ''}`} />
-                  <span className="text-xs font-medium">{content.like_count}</span>
-                </button>
-                <button
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    onComment && onComment(content.id, content.title);
-                  }}
-                  className="flex flex-col items-center space-y-1 text-muted-foreground hover:text-blue-500 transition-all duration-200 p-2 rounded-lg hover:bg-accent/50"
-                >
-                  <MessageCircle className="w-6 h-6" />
-                  <span className="text-xs font-medium">{content.comment_count}</span>
-                </button>
-                <button 
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    onShare && onShare(content.id, content.title);
-                  }}
-                  className="flex flex-col items-center space-y-1 text-muted-foreground hover:text-green-500 transition-all duration-200 p-2 rounded-lg hover:bg-accent/50"
-                >
-                  <Share className="w-6 h-6" />
-                  <span className="text-xs font-medium">Share</span>
-                </button>
+            {/* Interactive Buttons Area - Dedicated clickable zone */}
+            <div className="px-4 py-2 pointer-events-auto">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-6">
+                  <button
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      onLike && onLike();
+                    }}
+                    className={`flex flex-col items-center space-y-1 transition-all duration-200 p-3 rounded-lg hover:bg-accent/50 pointer-events-auto cursor-pointer ${
+                      content.user_liked ? 'text-red-500' : 'text-muted-foreground hover:text-red-500'
+                    }`}
+                  >
+                    <Heart className={`w-6 h-6 ${content.user_liked ? 'fill-current' : ''}`} />
+                    <span className="text-xs font-medium">{content.like_count}</span>
+                  </button>
+                  <button
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      onComment && onComment(content.id, content.title);
+                    }}
+                    className="flex flex-col items-center space-y-1 text-muted-foreground hover:text-blue-500 transition-all duration-200 p-3 rounded-lg hover:bg-accent/50 pointer-events-auto cursor-pointer"
+                  >
+                    <MessageCircle className="w-6 h-6" />
+                    <span className="text-xs font-medium">{content.comment_count}</span>
+                  </button>
+                  <button 
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      onShare && onShare(content.id, content.title);
+                    }}
+                    className="flex flex-col items-center space-y-1 text-muted-foreground hover:text-green-500 transition-all duration-200 p-3 rounded-lg hover:bg-accent/50 pointer-events-auto cursor-pointer"
+                  >
+                    <Share className="w-6 h-6" />
+                    <span className="text-xs font-medium">Share</span>
+                  </button>
+                </div>
+                
+                {onSave && (
+                  <button
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      onSave && onSave();
+                    }}
+                    className={`flex flex-col items-center space-y-1 transition-all duration-200 p-3 rounded-lg hover:bg-accent/50 pointer-events-auto cursor-pointer ${
+                      content.user_saved ? 'text-yellow-500' : 'text-muted-foreground hover:text-yellow-500'
+                    }`}
+                  >
+                    <Bookmark className={`w-6 h-6 ${content.user_saved ? 'fill-current' : ''}`} />
+                    <span className="text-xs font-medium">{content.user_saved ? 'Saved' : 'Save'}</span>
+                  </button>
+                )}
               </div>
-              
-              {onSave && (
-                <button
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    onSave && onSave();
-                  }}
-                  className={`flex flex-col items-center space-y-1 transition-all duration-200 p-2 rounded-lg hover:bg-accent/50 ${
-                    content.user_saved ? 'text-yellow-500' : 'text-muted-foreground hover:text-yellow-500'
-                  }`}
-                >
-                  <Bookmark className={`w-6 h-6 ${content.user_saved ? 'fill-current' : ''}`} />
-                  <span className="text-xs font-medium">{content.user_saved ? 'Saved' : 'Save'}</span>
-                </button>
-              )}
             </div>
           </div>
         </div>
