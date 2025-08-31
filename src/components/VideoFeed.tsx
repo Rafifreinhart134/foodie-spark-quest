@@ -61,10 +61,7 @@ const VideoCard = ({ video, isActive, onLike, onSave, onComment, onShare }: Vide
 
   const isPhoto = !isVideo;
 
-  const handleVideoClick = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    
+  const handleVideoClick = () => {
     console.log('Video clicked!', { isVideo, isPlaying, hasVideoRef: !!videoRef.current });
     
     if (videoRef.current && isVideo) {
@@ -112,17 +109,18 @@ const VideoCard = ({ video, isActive, onLike, onSave, onComment, onShare }: Vide
   }, [isActive, isVideo]);
 
   return (
-    <div 
-      className="video-container"
-      onTouchStart={handleLongPressStart}
-      onTouchEnd={handleLongPressEnd}
-      onMouseDown={handleLongPressStart}
-      onMouseUp={handleLongPressEnd}
-      onMouseLeave={handleLongPressEnd}
-    >
-      {/* Media Content */}
+    <div className="video-container relative h-screen w-full">
+      {/* Media Content - Direct click handler without interference */}
       {isVideo ? (
-        <div className="absolute inset-0" onClick={handleVideoClick}>
+        <div 
+          className="absolute inset-0 z-10" 
+          onClick={handleVideoClick}
+          onTouchStart={handleLongPressStart}
+          onTouchEnd={handleLongPressEnd}
+          onMouseDown={handleLongPressStart}
+          onMouseUp={handleLongPressEnd}
+          onMouseLeave={handleLongPressEnd}
+        >
           <video
             ref={videoRef}
             className="absolute inset-0 w-full h-full object-contain bg-black"
@@ -144,7 +142,14 @@ const VideoCard = ({ video, isActive, onLike, onSave, onComment, onShare }: Vide
           )}
         </div>
       ) : (
-        <div className="absolute inset-0 flex items-center justify-center bg-black">
+        <div 
+          className="absolute inset-0 flex items-center justify-center bg-black z-10"
+          onTouchStart={handleLongPressStart}
+          onTouchEnd={handleLongPressEnd}
+          onMouseDown={handleLongPressStart}
+          onMouseUp={handleLongPressEnd}
+          onMouseLeave={handleLongPressEnd}
+        >
           <img 
             src={video.thumbnail_url || video.video_url || 'https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=400'}
             alt={video.title}
