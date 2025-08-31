@@ -10,6 +10,9 @@ import { useToast } from '@/hooks/use-toast';
 import { useSavedVideos } from '@/hooks/useSavedVideos';
 import ProfileEditModal from './ProfileEditModal';
 import ContentDetailModal from './ContentDetailModal';
+import { CommentsModal } from './CommentsModal';
+import { ShareModal } from './ShareModal';
+import { useNavigate } from 'react-router-dom';
 
 interface ProfilePageProps {
   onNavigateToSettings?: () => void;
@@ -18,6 +21,7 @@ interface ProfilePageProps {
 const ProfilePage = ({ onNavigateToSettings }: ProfilePageProps) => {
   const { user, signOut } = useAuth();
   const { toast } = useToast();
+  const navigate = useNavigate();
   const { savedVideos: savedVideosData, loading: savedLoading } = useSavedVideos();
   
   const [activeTab, setActiveTab] = useState('videos');
@@ -27,6 +31,12 @@ const ProfilePage = ({ onNavigateToSettings }: ProfilePageProps) => {
   const [isLoading, setIsLoading] = useState(true);
   const [selectedContent, setSelectedContent] = useState<any>(null);
   const [isContentModalOpen, setIsContentModalOpen] = useState(false);
+  
+  // Modal states
+  const [showCommentsModal, setShowCommentsModal] = useState(false);
+  const [showShareModal, setShowShareModal] = useState(false);
+  const [selectedVideoId, setSelectedVideoId] = useState<string>('');
+  const [selectedVideoTitle, setSelectedVideoTitle] = useState<string>('');
 
   useEffect(() => {
     if (user) {
@@ -91,6 +101,139 @@ const ProfilePage = ({ onNavigateToSettings }: ProfilePageProps) => {
       return (num / 1000).toFixed(1) + 'K';
     }
     return num.toString();
+  };
+
+  const handleLike = async (videoId: string) => {
+    if (!user) {
+      toast({
+        title: "Login required",
+        description: "Please login to like content",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    try {
+      const { data: existingLike } = await supabase
+        .from('likes')
+        .select('id')
+        .eq('video_id', videoId)
+        .eq('user_id', user.id)
+        .single();
+
+      if (existingLike) {
+        await supabase
+          .from('likes')
+          .delete()
+          .eq('video_id', videoId)
+          .eq('user_id', user.id);
+      } else {
+        await supabase
+          .from('likes')
+          .insert({
+            video_id: videoId,
+            user_id: user.id,
+            is_like: true
+          });
+      }
+
+      // Update local state for userVideos
+      setUserVideos(prev => prev.map(item => 
+        item.id === videoId 
+          ? { 
+              ...item, 
+              like_count: existingLike ? (item.like_count || 1) - 1 : (item.like_count || 0) + 1,
+              user_liked: !existingLike 
+            }
+          : item
+      ));
+
+      if (selectedContent?.id === videoId) {
+        setSelectedContent(prev => ({
+          ...prev,
+          like_count: existingLike ? (prev.like_count || 1) - 1 : (prev.like_count || 0) + 1,
+          user_liked: !existingLike
+        }));
+      }
+    } catch (error) {
+      console.error('Error toggling like:', error);
+      toast({
+        title: "Error",
+        description: "Failed to like content",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleSave = async (videoId: string) => {
+    if (!user) {
+      toast({
+        title: "Login required",
+        description: "Please login to save content",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    try {
+      const { data: existingSave } = await supabase
+        .from('saved_videos')
+        .select('id')
+        .eq('video_id', videoId)
+        .eq('user_id', user.id)
+        .single();
+
+      if (existingSave) {
+        await supabase
+          .from('saved_videos')
+          .delete()
+          .eq('video_id', videoId)
+          .eq('user_id', user.id);
+        
+        toast({
+          title: "Removed from saved",
+          description: "Content removed from your saved list"
+        });
+      } else {
+        await supabase
+          .from('saved_videos')
+          .insert({
+            video_id: videoId,
+            user_id: user.id
+          });
+        
+        toast({
+          title: "Saved!",
+          description: "Content added to your saved list"
+        });
+      }
+
+      if (selectedContent?.id === videoId) {
+        setSelectedContent(prev => ({
+          ...prev,
+          user_saved: !existingSave
+        }));
+      }
+    } catch (error) {
+      console.error('Error toggling save:', error);
+      toast({
+        title: "Error",
+        description: "Failed to save content",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleComment = (videoId: string, videoTitle: string) => {
+    setSelectedVideoId(videoId);
+    setSelectedVideoTitle(videoTitle);
+    setShowCommentsModal(true);
+  };
+
+  const handleShare = (videoId: string, videoTitle: string) => {
+    setSelectedVideoId(videoId);
+    setSelectedVideoTitle(videoTitle);
+    setShowShareModal(true);
   };
 
   if (isLoading) {
@@ -371,9 +514,39 @@ const ProfilePage = ({ onNavigateToSettings }: ProfilePageProps) => {
             setIsContentModalOpen(false);
             setSelectedContent(null);
           }}
-          content={selectedContent}
+          content={{
+            id: selectedContent.id,
+            title: selectedContent.title,
+            description: selectedContent.description,
+            video_url: selectedContent.video_url,
+            thumbnail_url: selectedContent.thumbnail_url,
+            like_count: selectedContent.like_count || 0,
+            comment_count: selectedContent.comment_count || 0,
+            user_liked: selectedContent.user_liked || false,
+            user_saved: selectedContent.user_saved || false
+          }}
+          onLike={() => handleLike(selectedContent.id)}
+          onComment={() => handleComment(selectedContent.id, selectedContent.title)}
+          onShare={() => handleShare(selectedContent.id, selectedContent.title)}
+          onSave={() => handleSave(selectedContent.id)}
         />
       )}
+
+      {/* Comments Modal */}
+      <CommentsModal
+        isOpen={showCommentsModal}
+        onClose={() => setShowCommentsModal(false)}
+        videoId={selectedVideoId}
+        videoTitle={selectedVideoTitle}
+      />
+
+      {/* Share Modal */}
+      <ShareModal
+        isOpen={showShareModal}
+        onClose={() => setShowShareModal(false)}
+        videoId={selectedVideoId}
+        videoTitle={selectedVideoTitle}
+      />
     </div>
   );
 };
