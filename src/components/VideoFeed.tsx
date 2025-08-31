@@ -223,7 +223,7 @@ const VideoCard = ({ video, isActive, onLike, onSave, onComment, onShare }: Vide
         </div>
 
         {/* Right Side - Action Buttons */}
-        <div className="w-20 flex flex-col justify-end pb-20 pr-4 space-y-6">
+        <div className="w-20 flex flex-col justify-end pb-20 pr-4 space-y-6 pointer-events-auto">
           {/* Like Button */}
           <div className="tiktok-action">
             <Button
