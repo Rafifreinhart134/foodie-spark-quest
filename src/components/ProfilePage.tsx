@@ -31,12 +31,21 @@ const ProfilePage = ({ onNavigateToSettings }: ProfilePageProps) => {
   const [isLoading, setIsLoading] = useState(true);
   const [selectedContent, setSelectedContent] = useState<any>(null);
   const [isContentModalOpen, setIsContentModalOpen] = useState(false);
+  const [currentContentIndex, setCurrentContentIndex] = useState(0);
   
   // Modal states
   const [showCommentsModal, setShowCommentsModal] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
   const [selectedVideoId, setSelectedVideoId] = useState<string>('');
   const [selectedVideoTitle, setSelectedVideoTitle] = useState<string>('');
+
+  // Get current content array based on active tab
+  const getCurrentContentArray = () => {
+    if (activeTab === 'saved') {
+      return savedVideosData;
+    }
+    return userVideos;
+  };
 
   useEffect(() => {
     if (user) {
@@ -236,6 +245,22 @@ const ProfilePage = ({ onNavigateToSettings }: ProfilePageProps) => {
     setShowShareModal(true);
   };
 
+  const handleNavigate = (direction: 'prev' | 'next') => {
+    const contentArray = getCurrentContentArray();
+    let newIndex = currentContentIndex;
+    
+    if (direction === 'prev' && currentContentIndex > 0) {
+      newIndex = currentContentIndex - 1;
+    } else if (direction === 'next' && currentContentIndex < contentArray.length - 1) {
+      newIndex = currentContentIndex + 1;
+    }
+    
+    if (newIndex !== currentContentIndex) {
+      setCurrentContentIndex(newIndex);
+      setSelectedContent(contentArray[newIndex]);
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-background pt-16 pb-20 flex items-center justify-center">
@@ -360,11 +385,14 @@ const ProfilePage = ({ onNavigateToSettings }: ProfilePageProps) => {
                 return (
                   <div 
                     key={video.id} 
-                    className="aspect-video relative group cursor-pointer"
-                    onClick={() => {
-                      setSelectedContent(video);
-                      setIsContentModalOpen(true);
-                    }}
+                     className="aspect-video relative group cursor-pointer"
+                     onClick={() => {
+                       const contentArray = getCurrentContentArray();
+                       const contentIndex = contentArray.findIndex(item => item.id === video.id);
+                       setCurrentContentIndex(contentIndex);
+                       setSelectedContent(video);
+                       setIsContentModalOpen(true);
+                     }}
                   >
                     {isVideoContent ? (
                       <>
@@ -421,11 +449,14 @@ const ProfilePage = ({ onNavigateToSettings }: ProfilePageProps) => {
                   return (
                     <div 
                       key={video.id} 
-                      className="aspect-video relative group cursor-pointer"
-                      onClick={() => {
-                        setSelectedContent(video);
-                        setIsContentModalOpen(true);
-                      }}
+                       className="aspect-video relative group cursor-pointer"
+                       onClick={() => {
+                         const contentArray = getCurrentContentArray();
+                         const contentIndex = contentArray.findIndex(item => item.id === video.id);
+                         setCurrentContentIndex(contentIndex);
+                         setSelectedContent(video);
+                         setIsContentModalOpen(true);
+                       }}
                     >
                       {isVideoContent ? (
                         <video 
@@ -529,6 +560,10 @@ const ProfilePage = ({ onNavigateToSettings }: ProfilePageProps) => {
           onComment={() => handleComment(selectedContent.id, selectedContent.title)}
           onShare={() => handleShare(selectedContent.id, selectedContent.title)}
           onSave={() => handleSave(selectedContent.id)}
+          canNavigate={getCurrentContentArray().length > 1}
+          onNavigate={handleNavigate}
+          currentIndex={currentContentIndex}
+          totalCount={getCurrentContentArray().length}
         />
       )}
 

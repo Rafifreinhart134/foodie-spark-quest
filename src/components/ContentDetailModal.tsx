@@ -83,6 +83,32 @@ const ContentDetailModal = ({
     };
   }, [isOpen, isVideo]);
 
+  // Handle content changes - CRITICAL for fixing the video switching bug
+  useEffect(() => {
+    if (videoRef.current && content) {
+      // Reset video state
+      videoRef.current.pause();
+      videoRef.current.currentTime = 0;
+      setIsPlaying(false);
+      
+      // Force reload the video element with new content
+      if (isVideo && content.video_url) {
+        videoRef.current.load(); // This forces the video to reload
+        
+        // Auto-play the new video if modal is open
+        if (isOpen) {
+          setTimeout(() => {
+            if (videoRef.current) {
+              videoRef.current.muted = false;
+              videoRef.current.play();
+              setIsPlaying(true);
+            }
+          }, 100); // Small delay to ensure video is loaded
+        }
+      }
+    }
+  }, [content?.video_url, content?.id, isVideo, isOpen]); // React to content changes
+
   // Additional cleanup when modal closes
   useEffect(() => {
     if (!isOpen && videoRef.current) {
