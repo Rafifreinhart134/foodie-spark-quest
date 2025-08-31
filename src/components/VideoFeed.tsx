@@ -107,6 +107,15 @@ const VideoCard = ({ video, isActive, onLike, onSave, onComment, onShare }: Vide
       videoRef.current.currentTime = 0; // Reset to beginning
       setIsPlaying(false);
     }
+    
+    // Cleanup function to ensure video stops when component unmounts
+    return () => {
+      if (videoRef.current) {
+        videoRef.current.pause();
+        videoRef.current.currentTime = 0;
+        setIsPlaying(false);
+      }
+    };
   }, [isActive, isVideo]);
 
   return (

@@ -1,7 +1,8 @@
-import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Heart, MessageCircle, Share, X, ChevronLeft, ChevronRight, Bookmark } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
+import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
 
 interface ContentDetailModalProps {
   isOpen: boolean;
@@ -71,7 +72,25 @@ const ContentDetailModal = ({
       videoRef.current.play();
       setIsPlaying(true);
     }
+    
+    // Cleanup function to ensure video stops when modal closes
+    return () => {
+      if (videoRef.current) {
+        videoRef.current.pause();
+        videoRef.current.currentTime = 0;
+        setIsPlaying(false);
+      }
+    };
   }, [isOpen, isVideo]);
+
+  // Additional cleanup when modal closes
+  useEffect(() => {
+    if (!isOpen && videoRef.current) {
+      videoRef.current.pause();
+      videoRef.current.currentTime = 0;
+      setIsPlaying(false);
+    }
+  }, [isOpen]);
 
   // Keyboard navigation for content
   useEffect(() => {
@@ -98,6 +117,10 @@ const ContentDetailModal = ({
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-md w-full h-[90vh] p-0 bg-black">
+        <VisuallyHidden>
+          <DialogTitle>{content?.title || 'Content Detail'}</DialogTitle>
+          <DialogDescription>{content?.description || 'Content details'}</DialogDescription>
+        </VisuallyHidden>
         <div className="flex flex-col h-full">
           {/* Close button */}
           <Button
