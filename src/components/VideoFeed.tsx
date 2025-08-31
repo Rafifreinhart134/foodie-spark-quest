@@ -24,6 +24,8 @@ const VideoCard = ({ video, isActive, onLike, onSave, onComment, onShare }: Vide
   const [isPlaying, setIsPlaying] = useState(false);
   const [showDetails, setShowDetails] = useState(false);
   const [showFullDescription, setShowFullDescription] = useState(false);
+  const [hideUI, setHideUI] = useState(false);
+  const [longPressTimer, setLongPressTimer] = useState<NodeJS.Timeout | null>(null);
   
   const handleLike = () => {
     onLike(video.id);
@@ -68,7 +70,6 @@ const VideoCard = ({ video, isActive, onLike, onSave, onComment, onShare }: Vide
         videoRef.current.pause();
         setIsPlaying(false);
       } else {
-        // Unmute and play video with sound
         videoRef.current.muted = false;
         videoRef.current.play();
         setIsPlaying(true);
@@ -76,21 +77,45 @@ const VideoCard = ({ video, isActive, onLike, onSave, onComment, onShare }: Vide
     }
   };
 
+  const handleLongPressStart = (e: React.TouchEvent | React.MouseEvent) => {
+    e.preventDefault();
+    const timer = setTimeout(() => {
+      setHideUI(true);
+    }, 500); // 500ms for long press
+    setLongPressTimer(timer);
+  };
+
+  const handleLongPressEnd = () => {
+    if (longPressTimer) {
+      clearTimeout(longPressTimer);
+      setLongPressTimer(null);
+    }
+    setHideUI(false);
+  };
+
   useEffect(() => {
     if (videoRef.current && isActive && isVideo) {
       // Autoplay when video comes into view
-      videoRef.current.muted = false; // Enable sound for autoplay
+      videoRef.current.muted = false;
       videoRef.current.play();
       setIsPlaying(true);
     } else if (videoRef.current && !isActive) {
-      // Pause when video goes out of view
+      // Stop and unload when video goes out of view
       videoRef.current.pause();
+      videoRef.current.currentTime = 0; // Reset to beginning
       setIsPlaying(false);
     }
   }, [isActive, isVideo]);
 
   return (
-    <div className="video-container">
+    <div 
+      className="video-container"
+      onTouchStart={handleLongPressStart}
+      onTouchEnd={handleLongPressEnd}
+      onMouseDown={handleLongPressStart}
+      onMouseUp={handleLongPressEnd}
+      onMouseLeave={handleLongPressEnd}
+    >
       {/* Media Content */}
       {isVideo ? (
         <div className="absolute inset-0" onClick={handleVideoClick}>
@@ -126,7 +151,7 @@ const VideoCard = ({ video, isActive, onLike, onSave, onComment, onShare }: Vide
       )}
 
       {/* Content Overlay */}
-      <div className="absolute inset-0 flex">
+      <div className={`absolute inset-0 flex transition-opacity duration-300 ${hideUI ? 'opacity-0' : 'opacity-100'}`}>
         {/* Left Side - Content Info */}
         <div className="flex-1 flex flex-col justify-end p-4 pb-20">
           {/* User Info - Clickable */}

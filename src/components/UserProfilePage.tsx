@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Heart, MessageCircle, Share, MoreHorizontal, Play, Grid3X3 } from 'lucide-react';
+import { ArrowLeft, Heart, MessageCircle, Share, MoreHorizontal, Play, Grid3X3, Award } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import { useVideos } from '@/hooks/useVideos';
 import ContentDetailModal from './ContentDetailModal';
+import UserBadges from './UserBadges';
 
 const UserProfilePage = () => {
   const { userId } = useParams();
@@ -21,6 +22,7 @@ const UserProfilePage = () => {
   const [selectedContent, setSelectedContent] = useState<any>(null);
   const [isContentModalOpen, setIsContentModalOpen] = useState(false);
   const [currentContentIndex, setCurrentContentIndex] = useState(0);
+  const [activeTab, setActiveTab] = useState<'content' | 'badges'>('content');
 
   useEffect(() => {
     if (userId) {
@@ -143,7 +145,7 @@ const UserProfilePage = () => {
               <img
                 src={profile.avatar_url || '/placeholder.svg'}
                 alt={profile.display_name || 'User'}
-                className="w-24 h-24 rounded-full border-4 border-white shadow-lg object-cover"
+                className="w-24 h-24 rounded-full border-4 border-white shadow-lg object-cover aspect-square"
               />
               <div className="ml-4 flex-1">
                 <h1 className="text-xl font-bold">{profile.display_name || 'Anonymous User'}</h1>
@@ -176,15 +178,39 @@ const UserProfilePage = () => {
         </div>
       </div>
 
-      {/* Content Grid */}
-      <div className="p-4">
-        <div className="flex items-center mb-4">
-          <Grid3X3 className="w-5 h-5 mr-2" />
-          <span className="font-semibold">Content</span>
+      {/* Tabs */}
+      <div className="border-b">
+        <div className="flex">
+          <button 
+            className={`flex-1 py-3 text-center font-medium border-b-2 transition-colors ${
+              activeTab === 'content' 
+                ? 'border-primary text-primary' 
+                : 'border-transparent text-muted-foreground hover:text-foreground'
+            }`}
+            onClick={() => setActiveTab('content')}
+          >
+            <Grid3X3 className="w-4 h-4 mx-auto mb-1" />
+            Content
+          </button>
+          <button 
+            className={`flex-1 py-3 text-center font-medium border-b-2 transition-colors ${
+              activeTab === 'badges' 
+                ? 'border-primary text-primary' 
+                : 'border-transparent text-muted-foreground hover:text-foreground'
+            }`}
+            onClick={() => setActiveTab('badges')}
+          >
+            <Award className="w-4 h-4 mx-auto mb-1" />
+            Badges
+          </button>
         </div>
-        
-        <div className="grid grid-cols-3 gap-2">
-          {userVideos.map((video, index) => {
+      </div>
+
+      {/* Tab Content */}
+      {activeTab === 'content' ? (
+        <div className="p-4">
+          <div className="grid grid-cols-3 gap-2">
+            {userVideos.map((video, index) => {
             const isVideoContent = video.video_url && (
               video.video_url.includes('.mp4') || 
               video.video_url.includes('.mov') || 
@@ -200,13 +226,18 @@ const UserProfilePage = () => {
                 onClick={() => handleContentClick(video, index)}
               >
                 {isVideoContent ? (
-                  <video 
-                    className="w-full h-full object-cover rounded-lg"
-                    src={video.video_url}
-                    poster={video.thumbnail_url}
-                    preload="metadata"
-                    muted
-                  />
+                  <div className="relative w-full h-full">
+                    <video 
+                      className="w-full h-full object-cover rounded-lg"
+                      src={video.video_url}
+                      poster={video.thumbnail_url}
+                      preload="metadata"
+                      muted
+                    />
+                    <div className="absolute top-2 left-2">
+                      <Play className="w-4 h-4 text-white" />
+                    </div>
+                  </div>
                 ) : (
                   <img
                     src={video.thumbnail_url || video.video_url || '/placeholder.svg'}
@@ -215,11 +246,6 @@ const UserProfilePage = () => {
                   />
                 )}
                 <div className="absolute inset-0 bg-black/20 rounded-lg group-hover:bg-black/40 transition-all">
-                  {isVideoContent && (
-                    <div className="absolute top-2 left-2">
-                      <Play className="w-4 h-4 text-white" />
-                    </div>
-                  )}
                   <div className="absolute bottom-2 left-2 text-white text-xs">
                     <div className="flex items-center space-x-1">
                       <Heart className="w-3 h-3" />
@@ -233,16 +259,18 @@ const UserProfilePage = () => {
               </div>
             );
           })}
+          {userVideos.length === 0 && (
+            <div className="text-center py-12 text-muted-foreground col-span-3">
+              <Grid3X3 className="w-12 h-12 mx-auto mb-2 opacity-50" />
+              <p>No content yet</p>
+              <p className="text-sm">This user hasn't uploaded any content</p>
+            </div>
+          )}
         </div>
-
-        {userVideos.length === 0 && (
-          <div className="text-center py-12 text-muted-foreground">
-            <Grid3X3 className="w-12 h-12 mx-auto mb-2 opacity-50" />
-            <p>No content yet</p>
-            <p className="text-sm">This user hasn't uploaded any content</p>
-          </div>
-        )}
-      </div>
+        </div>
+      ) : (
+        <UserBadges userId={userId || ''} />
+      )}
 
       {/* Enhanced Content Detail Modal with Navigation */}
       {selectedContent && (
