@@ -100,6 +100,26 @@ export const CommentsModal = ({ isOpen, onClose, videoId, videoTitle }: Comments
 
       if (error) throw error;
 
+      // Get video owner to send notification
+      const { data: videoData } = await supabase
+        .from('videos')
+        .select('user_id')
+        .eq('id', videoId)
+        .single();
+
+      // Create notification if commenting on another user's content
+      if (videoData && videoData.user_id !== user.id) {
+        await supabase
+          .from('notifications')
+          .insert({
+            user_id: videoData.user_id,
+            type: 'comment',
+            content: `${user.user_metadata?.display_name || 'Someone'} commented on your video`,
+            related_video_id: videoId,
+            related_user_id: user.id
+          });
+      }
+
       setNewComment('');
       await fetchComments();
       

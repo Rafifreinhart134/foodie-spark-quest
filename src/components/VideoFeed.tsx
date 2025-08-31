@@ -248,12 +248,12 @@ const VideoFeed = () => {
 
   const handleLike = async (videoId: string) => {
     const video = videos.find(v => v.id === videoId);
-    if (video && !video.user_liked && user) {
+    if (video && !video.user_liked && user && video.user_id !== user.id) {
       // Create notification for video owner
       await createNotification(
         video.user_id,
         'like',
-        `${user.email} liked your video "${video.title}"`,
+        `${user.user_metadata?.display_name || 'Someone'} liked your video "${video.title}"`,
         videoId
       );
     }

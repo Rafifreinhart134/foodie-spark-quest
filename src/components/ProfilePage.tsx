@@ -7,6 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
+import { useSavedVideos } from '@/hooks/useSavedVideos';
 import ProfileEditModal from './ProfileEditModal';
 import ContentDetailModal from './ContentDetailModal';
 
@@ -17,11 +18,11 @@ interface ProfilePageProps {
 const ProfilePage = ({ onNavigateToSettings }: ProfilePageProps) => {
   const { user, signOut } = useAuth();
   const { toast } = useToast();
+  const { savedVideos: savedVideosData, loading: savedLoading } = useSavedVideos();
   
   const [activeTab, setActiveTab] = useState('videos');
   const [profile, setProfile] = useState<any>(null);
   const [userVideos, setUserVideos] = useState<any[]>([]);
-  const [savedVideos, setSavedVideos] = useState<any[]>([]);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedContent, setSelectedContent] = useState<any>(null);
@@ -31,7 +32,6 @@ const ProfilePage = ({ onNavigateToSettings }: ProfilePageProps) => {
     if (user) {
       fetchUserProfile();
       fetchUserVideos();
-      fetchSavedVideos();
     }
   }, [user]);
 
@@ -71,28 +71,6 @@ const ProfilePage = ({ onNavigateToSettings }: ProfilePageProps) => {
     }
   };
 
-  const fetchSavedVideos = async () => {
-    if (!user) return;
-
-    try {
-      const { data, error } = await supabase
-        .from('saved_videos')
-        .select(`
-          *,
-          videos (
-            *,
-            profiles (display_name)
-          )
-        `)
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-      setSavedVideos(data || []);
-    } catch (error) {
-      console.error('Error fetching saved videos:', error);
-    }
-  };
 
   const handleLogout = async () => {
     try {
@@ -278,24 +256,64 @@ const ProfilePage = ({ onNavigateToSettings }: ProfilePageProps) => {
 
           {/* Saved Videos */}
           <TabsContent value="saved" className="mt-4">
-            <div className="space-y-3">
-              {savedVideos.map((savedVideo) => (
-                <Card key={savedVideo.id} className="p-3">
-                  <div className="flex space-x-3">
-                    <img
-                      src={savedVideo.videos?.thumbnail_url || '/placeholder.svg'}
-                      alt={savedVideo.videos?.title}
-                      className="w-16 h-16 rounded-lg object-cover"
-                    />
-                    <div className="flex-1">
-                      <h4 className="font-medium mb-1">{savedVideo.videos?.title}</h4>
-                      <p className="text-sm text-muted-foreground">@{savedVideo.videos?.profiles?.display_name || 'Unknown'}</p>
-                      <p className="text-xs text-muted-foreground">{formatNumber(0)} views</p>
+            {savedLoading ? (
+              <div className="text-center py-12">
+                <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto"></div>
+                <p className="text-muted-foreground mt-2">Loading saved content...</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-3 gap-2">
+                {savedVideosData.map((video) => {
+                  const isVideoContent = video.video_url && (
+                    video.video_url.includes('.mp4') || 
+                    video.video_url.includes('.mov') || 
+                    video.video_url.includes('.avi') ||
+                    video.video_url.includes('.webm') ||
+                    video.video_url.includes('video')
+                  );
+                  
+                  return (
+                    <div 
+                      key={video.id} 
+                      className="aspect-video relative group cursor-pointer"
+                      onClick={() => {
+                        setSelectedContent(video);
+                        setIsContentModalOpen(true);
+                      }}
+                    >
+                      <img
+                        src={video.thumbnail_url || video.video_url || '/placeholder.svg'}
+                        alt={video.title}
+                        className="w-full h-full object-cover rounded-lg"
+                      />
+                      <div className="absolute inset-0 bg-black/20 rounded-lg group-hover:bg-black/40 transition-all">
+                        {isVideoContent && (
+                          <div className="absolute top-2 left-2">
+                            <Play className="w-4 h-4 text-white" />
+                          </div>
+                        )}
+                        <div className="absolute bottom-2 left-2 text-white text-xs">
+                          <div className="flex items-center space-x-1">
+                            <Heart className="w-3 h-3" />
+                            <span>{formatNumber(video.like_count || 0)}</span>
+                          </div>
+                        </div>
+                        <div className="absolute bottom-2 right-2 bg-black/70 text-white text-xs px-1 rounded">
+                          {video.cooking_time || '2:30'}
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                </Card>
-              ))}
-            </div>
+                  );
+                })}
+              </div>
+            )}
+            {!savedLoading && savedVideosData.length === 0 && (
+              <div className="text-center py-12 text-muted-foreground">
+                <Heart className="w-12 h-12 mx-auto mb-2 opacity-50" />
+                <p>No saved content yet</p>
+                <p className="text-sm">Save videos to view them here</p>
+              </div>
+            )}
           </TabsContent>
 
           {/* Badges */}

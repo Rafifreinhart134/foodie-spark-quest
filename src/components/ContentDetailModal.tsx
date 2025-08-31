@@ -75,6 +75,10 @@ const ContentDetailModal = ({ isOpen, onClose, content }: ContentDetailModalProp
                 loop
                 playsInline
                 controls={false}
+                style={{
+                  maxWidth: '100%',
+                  maxHeight: '100%',
+                }}
               >
                 <source src={content.video_url} type="video/mp4" />
                 Your browser does not support the video tag.
@@ -88,11 +92,16 @@ const ContentDetailModal = ({ isOpen, onClose, content }: ContentDetailModalProp
               )}
             </div>
           ) : (
-            <div className="w-full h-full flex items-center justify-center bg-black">
+            <div className="w-full h-full flex items-center justify-center bg-black p-4">
               <img 
                 src={content.thumbnail_url || content.video_url}
                 alt={content.title}
                 className="max-w-full max-h-full object-contain"
+                style={{
+                  aspectRatio: 'auto',
+                  maxWidth: '100%',
+                  maxHeight: '100%',
+                }}
               />
             </div>
           )}

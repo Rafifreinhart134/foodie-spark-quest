@@ -23,9 +23,11 @@ const SearchPage = () => {
   const [appliedFilters, setAppliedFilters] = useState<SearchFilters>({});
 
   useEffect(() => {
-    // Load initial content
-    fetchAllVideos();
-  }, []);
+    // Load initial content when not showing wizard
+    if (!showWizard) {
+      fetchAllVideos();
+    }
+  }, [showWizard]);
 
   const fetchAllVideos = async () => {
     setIsLoading(true);
@@ -210,7 +212,7 @@ const SearchPage = () => {
                 className="w-full mb-4"
               >
                 <Filter className="w-4 h-4 mr-2" />
-                Wizard Pencarian
+                Advanced Filters
               </Button>
 
               {/* Applied Filters */}
