@@ -284,11 +284,21 @@ const ProfilePage = ({ onNavigateToSettings }: ProfilePageProps) => {
                         setIsContentModalOpen(true);
                       }}
                     >
-                      <img
-                        src={isVideoContent ? (video.thumbnail_url || video.video_url) : (video.video_url || video.thumbnail_url) || '/placeholder.svg'}
-                        alt={video.title}
-                        className="w-full h-full object-cover rounded-lg"
-                      />
+                      {isVideoContent ? (
+                        <video 
+                          className="w-full h-full object-cover rounded-lg"
+                          src={video.video_url}
+                          poster={video.thumbnail_url}
+                          preload="metadata"
+                          muted
+                        />
+                      ) : (
+                        <img
+                          src={video.video_url || video.thumbnail_url || '/placeholder.svg'}
+                          alt={video.title}
+                          className="w-full h-full object-cover rounded-lg"
+                        />
+                      )}
                       <div className="absolute inset-0 bg-black/20 rounded-lg group-hover:bg-black/40 transition-all">
                         {isVideoContent && (
                           <div className="absolute top-2 left-2">
