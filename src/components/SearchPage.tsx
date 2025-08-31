@@ -5,8 +5,13 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import SearchWizard from './SearchWizard';
+import ContentDetailModal from './ContentDetailModal';
+import { CommentsModal } from './CommentsModal';
+import { ShareModal } from './ShareModal';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/hooks/useAuth';
 
 interface SearchFilters {
   serving?: string;
@@ -16,11 +21,21 @@ interface SearchFilters {
 
 const SearchPage = () => {
   const { toast } = useToast();
+  const navigate = useNavigate();
+  const { user } = useAuth();
   const [searchQuery, setSearchQuery] = useState('');
   const [showWizard, setShowWizard] = useState(false); // Show all content by default
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [appliedFilters, setAppliedFilters] = useState<SearchFilters>({});
+  
+  // Modal states
+  const [selectedContent, setSelectedContent] = useState<any>(null);
+  const [showContentModal, setShowContentModal] = useState(false);
+  const [showCommentsModal, setShowCommentsModal] = useState(false);
+  const [showShareModal, setShowShareModal] = useState(false);
+  const [selectedVideoId, setSelectedVideoId] = useState<string>('');
+  const [selectedVideoTitle, setSelectedVideoTitle] = useState<string>('');
 
   useEffect(() => {
     // Load all content by default
@@ -226,6 +241,155 @@ const SearchPage = () => {
     return num.toString();
   };
 
+  const handleContentClick = (content: any) => {
+    setSelectedContent(content);
+    setShowContentModal(true);
+  };
+
+  const handleUserClick = (userId: string) => {
+    navigate(`/profile/${userId}`);
+  };
+
+  const handleLike = async (videoId: string) => {
+    if (!user) {
+      toast({
+        title: "Login required",
+        description: "Please login to like content",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    try {
+      const { data: existingLike } = await supabase
+        .from('likes')
+        .select('id')
+        .eq('video_id', videoId)
+        .eq('user_id', user.id)
+        .single();
+
+      if (existingLike) {
+        await supabase
+          .from('likes')
+          .delete()
+          .eq('video_id', videoId)
+          .eq('user_id', user.id);
+      } else {
+        await supabase
+          .from('likes')
+          .insert({
+            video_id: videoId,
+            user_id: user.id,
+            is_like: true
+          });
+      }
+
+      // Update local state
+      setSearchResults(prev => prev.map(item => 
+        item.id === videoId 
+          ? { 
+              ...item, 
+              like_count: existingLike ? (item.like_count || 1) - 1 : (item.like_count || 0) + 1,
+              user_liked: !existingLike 
+            }
+          : item
+      ));
+
+      if (selectedContent?.id === videoId) {
+        setSelectedContent(prev => ({
+          ...prev,
+          like_count: existingLike ? (prev.like_count || 1) - 1 : (prev.like_count || 0) + 1,
+          user_liked: !existingLike
+        }));
+      }
+    } catch (error) {
+      console.error('Error toggling like:', error);
+      toast({
+        title: "Error",
+        description: "Failed to like content",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleSave = async (videoId: string) => {
+    if (!user) {
+      toast({
+        title: "Login required",
+        description: "Please login to save content",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    try {
+      const { data: existingSave } = await supabase
+        .from('saved_videos')
+        .select('id')
+        .eq('video_id', videoId)
+        .eq('user_id', user.id)
+        .single();
+
+      if (existingSave) {
+        await supabase
+          .from('saved_videos')
+          .delete()
+          .eq('video_id', videoId)
+          .eq('user_id', user.id);
+        
+        toast({
+          title: "Removed from saved",
+          description: "Content removed from your saved list"
+        });
+      } else {
+        await supabase
+          .from('saved_videos')
+          .insert({
+            video_id: videoId,
+            user_id: user.id
+          });
+        
+        toast({
+          title: "Saved!",
+          description: "Content added to your saved list"
+        });
+      }
+
+      // Update local state
+      setSearchResults(prev => prev.map(item => 
+        item.id === videoId 
+          ? { ...item, user_saved: !existingSave }
+          : item
+      ));
+
+      if (selectedContent?.id === videoId) {
+        setSelectedContent(prev => ({
+          ...prev,
+          user_saved: !existingSave
+        }));
+      }
+    } catch (error) {
+      console.error('Error toggling save:', error);
+      toast({
+        title: "Error",
+        description: "Failed to save content",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleComment = (videoId: string, videoTitle: string) => {
+    setSelectedVideoId(videoId);
+    setSelectedVideoTitle(videoTitle);
+    setShowCommentsModal(true);
+  };
+
+  const handleShare = (videoId: string, videoTitle: string) => {
+    setSelectedVideoId(videoId);
+    setSelectedVideoTitle(videoTitle);
+    setShowShareModal(true);
+  };
+
   return (
     <div className="min-h-screen bg-background pt-16 pb-20">
       {/* Header */}
@@ -351,7 +515,11 @@ const SearchPage = () => {
               ) : (
                 <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4">
                   {searchResults.map((result) => (
-                    <Card key={result.id} className="overflow-hidden cursor-pointer hover:shadow-md transition-shadow">
+                    <Card 
+                      key={result.id} 
+                      className="overflow-hidden cursor-pointer hover:shadow-md transition-shadow"
+                      onClick={() => handleContentClick(result)}
+                    >
                       <div className="aspect-square relative">
                         {result.video_url ? (
                           // For videos, show thumbnail with play button
@@ -418,7 +586,15 @@ const SearchPage = () => {
                       
                       <div className="p-3">
                         <h3 className="font-semibold text-sm mb-1 line-clamp-2">{result.title}</h3>
-                        <p className="text-xs text-muted-foreground mb-2">@{result.profiles?.display_name || 'Unknown'}</p>
+                        <p 
+                          className="text-xs text-muted-foreground mb-2 cursor-pointer hover:text-primary"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleUserClick(result.user_id);
+                          }}
+                        >
+                          @{result.profiles?.display_name || 'Unknown'}
+                        </p>
                         
                         <div className="flex flex-wrap gap-1 text-xs">
                           {result.budget && (
@@ -441,6 +617,45 @@ const SearchPage = () => {
           )}
         </div>
       </div>
+
+      {/* Content Detail Modal */}
+      {selectedContent && (
+        <ContentDetailModal
+          isOpen={showContentModal}
+          onClose={() => setShowContentModal(false)}
+          content={{
+            id: selectedContent.id,
+            title: selectedContent.title,
+            description: selectedContent.description,
+            video_url: selectedContent.video_url,
+            thumbnail_url: selectedContent.thumbnail_url,
+            like_count: selectedContent.like_count || 0,
+            comment_count: selectedContent.comment_count || 0,
+            user_liked: selectedContent.user_liked || false,
+            user_saved: selectedContent.user_saved || false
+          }}
+          onLike={() => handleLike(selectedContent.id)}
+          onComment={() => handleComment(selectedContent.id, selectedContent.title)}
+          onShare={() => handleShare(selectedContent.id, selectedContent.title)}
+          onSave={() => handleSave(selectedContent.id)}
+        />
+      )}
+
+      {/* Comments Modal */}
+      <CommentsModal
+        isOpen={showCommentsModal}
+        onClose={() => setShowCommentsModal(false)}
+        videoId={selectedVideoId}
+        videoTitle={selectedVideoTitle}
+      />
+
+      {/* Share Modal */}
+      <ShareModal
+        isOpen={showShareModal}
+        onClose={() => setShowShareModal(false)}
+        videoId={selectedVideoId}
+        videoTitle={selectedVideoTitle}
+      />
     </div>
   );
 };
