@@ -19,8 +19,8 @@ interface ContentDetailModalProps {
   };
   onLike?: () => void;
   onSave?: () => void;
-  onComment?: () => void;
-  onShare?: () => void;
+  onComment?: (videoId: string, videoTitle: string) => void;
+  onShare?: (videoId: string, videoTitle: string) => void;
   canNavigate?: boolean;
   onNavigate?: (direction: 'prev' | 'next') => void;
   currentIndex?: number;
@@ -196,14 +196,14 @@ const ContentDetailModal = ({
                   <span className="text-sm">{content.like_count}</span>
                 </button>
                 <button
-                  onClick={onComment}
+                  onClick={() => onComment && onComment(content.id, content.title)}
                   className="flex items-center space-x-2 text-white hover:text-blue-400 transition-colors"
                 >
                   <MessageCircle className="w-5 h-5" />
                   <span className="text-sm">{content.comment_count}</span>
                 </button>
                 <button 
-                  onClick={onShare}
+                  onClick={() => onShare && onShare(content.id, content.title)}
                   className="flex items-center space-x-2 text-white hover:text-blue-400 transition-colors"
                 >
                   <Share className="w-5 h-5" />
