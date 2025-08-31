@@ -30,18 +30,54 @@ const SearchPage = () => {
   const fetchAllVideos = async () => {
     setIsLoading(true);
     try {
-      const { data, error } = await supabase
+      // Fetch videos first
+      const { data: videosData, error: videosError } = await supabase
         .from('videos')
         .select(`
-          *,
-          profiles (display_name)
+          id,
+          user_id,
+          video_url,
+          thumbnail_url,
+          title,
+          description,
+          category,
+          tags,
+          budget,
+          cooking_time,
+          location,
+          like_count,
+          comment_count,
+          is_public,
+          created_at,
+          updated_at
         `)
         .eq('is_public', true)
         .order('created_at', { ascending: false })
         .limit(20);
 
-      if (error) throw error;
-      setSearchResults(data || []);
+      if (videosError) throw videosError;
+
+      // Fetch profiles separately if videos exist
+      let videosWithProfiles = videosData || [];
+      if (videosData && videosData.length > 0) {
+        const userIds = [...new Set(videosData.map(v => v.user_id))];
+        
+        const { data: profilesData } = await supabase
+          .from('profiles')
+          .select('user_id, display_name, avatar_url')
+          .in('user_id', userIds);
+
+        const profilesMap = new Map(
+          profilesData?.map(p => [p.user_id, p]) || []
+        );
+
+        videosWithProfiles = videosData.map(video => ({
+          ...video,
+          profiles: profilesMap.get(video.user_id) || null
+        }));
+      }
+
+      setSearchResults(videosWithProfiles);
     } catch (error) {
       console.error('Error fetching videos:', error);
       toast({
@@ -62,8 +98,22 @@ const SearchPage = () => {
       let queryBuilder = supabase
         .from('videos')
         .select(`
-          *,
-          profiles (display_name)
+          id,
+          user_id,
+          video_url,
+          thumbnail_url,
+          title,
+          description,
+          category,
+          tags,
+          budget,
+          cooking_time,
+          location,
+          like_count,
+          comment_count,
+          is_public,
+          created_at,
+          updated_at
         `)
         .eq('is_public', true);
 
@@ -88,14 +138,35 @@ const SearchPage = () => {
         // You can add serving filter logic here if you have a serving field
       }
 
-      const { data, error } = await queryBuilder
+      const { data: videosData, error } = await queryBuilder
         .order('created_at', { ascending: false })
         .limit(20);
 
       if (error) throw error;
-      setSearchResults(data || []);
+
+      // Fetch profiles separately if videos exist
+      let videosWithProfiles = videosData || [];
+      if (videosData && videosData.length > 0) {
+        const userIds = [...new Set(videosData.map(v => v.user_id))];
+        
+        const { data: profilesData } = await supabase
+          .from('profiles')
+          .select('user_id, display_name, avatar_url')
+          .in('user_id', userIds);
+
+        const profilesMap = new Map(
+          profilesData?.map(p => [p.user_id, p]) || []
+        );
+
+        videosWithProfiles = videosData.map(video => ({
+          ...video,
+          profiles: profilesMap.get(video.user_id) || null
+        }));
+      }
+
+      setSearchResults(videosWithProfiles);
       
-      if (data && data.length === 0) {
+      if (videosWithProfiles && videosWithProfiles.length === 0) {
         toast({
           title: "Tidak ada hasil",
           description: "Coba sesuaikan kriteria pencarian Anda",
