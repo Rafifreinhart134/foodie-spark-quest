@@ -22,6 +22,7 @@ const VideoCard = ({ video, isActive, onLike, onSave, onComment, onShare }: Vide
   const navigate = useNavigate();
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [showDetails, setShowDetails] = useState(false);
   
   const handleLike = () => {
     onLike(video.id);
@@ -145,18 +146,38 @@ const VideoCard = ({ video, isActive, onLike, onSave, onComment, onShare }: Vide
             {video.description || video.title}
           </p>
 
-          {/* Tags and Info */}
-          <div className="flex flex-wrap gap-2 mb-2">
-            {video.tags?.map((tag, index) => (
-              <span key={index} className="category-pill">
-                #{tag}
-              </span>
-            ))}
+          {/* Details Toggle Indicator */}
+          <div 
+            className="flex items-center space-x-2 cursor-pointer hover:opacity-80 transition-opacity mb-2"
+            onClick={() => setShowDetails(!showDetails)}
+          >
+            <div className="w-8 h-1 bg-white/40 rounded-full"></div>
+            <span className="text-white/60 text-xs">More info</span>
           </div>
 
-          <div className="flex space-x-4 text-white text-xs">
-            {video.budget && <span className="category-pill">💰 {video.budget}</span>}
-            {video.cooking_time && <span className="category-pill">⏱️ {video.cooking_time}</span>}
+          {/* Slide-up Details Panel */}
+          <div className={`transition-all duration-300 ease-in-out overflow-hidden ${
+            showDetails ? 'max-h-32 opacity-100' : 'max-h-0 opacity-0'
+          }`}>
+            <div className="bg-black/40 backdrop-blur-sm rounded-lg p-3 mb-3">
+              {/* Tags */}
+              {video.tags && video.tags.length > 0 && (
+                <div className="flex flex-wrap gap-2 mb-2">
+                  {video.tags.map((tag, index) => (
+                    <span key={index} className="category-pill text-xs">
+                      #{tag}
+                    </span>
+                  ))}
+                </div>
+              )}
+              
+              {/* Additional Info */}
+              <div className="flex flex-wrap gap-2 text-white text-xs">
+                {video.budget && <span className="category-pill">💰 {video.budget}</span>}
+                {video.cooking_time && <span className="category-pill">⏱️ {video.cooking_time}</span>}
+                {video.location && <span className="category-pill">📍 {video.location}</span>}
+              </div>
+            </div>
           </div>
         </div>
 
@@ -237,6 +258,7 @@ const VideoFeed = () => {
     videoId: '',
     videoTitle: ''
   });
+  const [startY, setStartY] = useState<number | null>(null);
 
   if (loading) {
     return (
@@ -268,6 +290,30 @@ const VideoFeed = () => {
     setShareModal({ isOpen: true, videoId, videoTitle });
   };
 
+  const handleTouchStart = (e: React.TouchEvent) => {
+    setStartY(e.touches[0].clientY);
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (startY === null) return;
+    
+    const endY = e.changedTouches[0].clientY;
+    const diff = startY - endY;
+    const threshold = 50; // Minimum distance for swipe
+    
+    if (Math.abs(diff) > threshold) {
+      if (diff > 0) {
+        // Swipe up - next video
+        setCurrentIndex(Math.min(videos.length - 1, currentIndex + 1));
+      } else {
+        // Swipe down - previous video
+        setCurrentIndex(Math.max(0, currentIndex - 1));
+      }
+    }
+    
+    setStartY(null);
+  };
+
   if (!videos.length) {
     return (
       <div className="relative h-screen flex items-center justify-center bg-black text-white">
@@ -280,7 +326,11 @@ const VideoFeed = () => {
   }
 
   return (
-    <div className="relative h-screen overflow-hidden">
+    <div 
+      className="relative h-screen overflow-hidden"
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
+    >
       {videos.map((video, index) => (
         <div
           key={video.id}
@@ -299,18 +349,6 @@ const VideoFeed = () => {
           />
         </div>
       ))}
-      
-      {/* Swipe Handlers - Non-conflicting with video tap */}
-      <div className="absolute inset-0 pointer-events-none">
-        <div 
-          className="absolute top-0 left-0 right-20 h-1/2 pointer-events-auto"
-          onClick={() => setCurrentIndex(Math.max(0, currentIndex - 1))}
-        />
-        <div 
-          className="absolute bottom-0 left-0 right-20 h-1/2 pointer-events-auto"
-          onClick={() => setCurrentIndex(Math.min(videos.length - 1, currentIndex + 1))}
-        />
-      </div>
 
       {/* Modals */}
       <CommentsModal
