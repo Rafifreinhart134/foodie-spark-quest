@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Settings, LogOut, Award, Gift, Heart, Play, Users, Video, Edit } from 'lucide-react';
+import { Settings, LogOut, Award, Gift, Heart, Play, Users, Grid3X3, Edit } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
@@ -8,6 +8,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import ProfileEditModal from './ProfileEditModal';
+import ContentDetailModal from './ContentDetailModal';
 
 interface ProfilePageProps {
   onNavigateToSettings?: () => void;
@@ -23,6 +24,8 @@ const ProfilePage = ({ onNavigateToSettings }: ProfilePageProps) => {
   const [savedVideos, setSavedVideos] = useState<any[]>([]);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [selectedContent, setSelectedContent] = useState<any>(null);
+  const [isContentModalOpen, setIsContentModalOpen] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -145,9 +148,14 @@ const ProfilePage = ({ onNavigateToSettings }: ProfilePageProps) => {
                     <h1 className="text-xl font-bold">{profile?.display_name || 'Anonymous User'}</h1>
                     <p className="text-muted-foreground">@{profile?.display_name?.toLowerCase().replace(/\s+/g, '_') || 'user'}</p>
                   </div>
-                  <Button variant="outline" size="icon" onClick={() => setIsEditModalOpen(true)}>
-                    <Edit className="w-5 h-5" />
-                  </Button>
+                  <div className="flex items-center space-x-2">
+                    <Button variant="outline" size="icon" onClick={() => setIsEditModalOpen(true)}>
+                      <Edit className="w-5 h-5" />
+                    </Button>
+                    <Button variant="outline" size="icon" onClick={onNavigateToSettings}>
+                      <Settings className="w-5 h-5" />
+                    </Button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -199,8 +207,8 @@ const ProfilePage = ({ onNavigateToSettings }: ProfilePageProps) => {
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="videos" className="text-xs">
-              <Video className="w-4 h-4 mr-1" />
-              Videos
+              <Grid3X3 className="w-4 h-4 mr-1" />
+              Content
             </TabsTrigger>
             <TabsTrigger value="saved" className="text-xs">
               <Heart className="w-4 h-4 mr-1" />
@@ -216,33 +224,55 @@ const ProfilePage = ({ onNavigateToSettings }: ProfilePageProps) => {
             </TabsTrigger>
           </TabsList>
 
-          {/* My Videos */}
+          {/* My Content */}
           <TabsContent value="videos" className="mt-4">
             <div className="grid grid-cols-3 gap-2">
-              {userVideos.map((video) => (
-                <div key={video.id} className="aspect-video relative group">
-                  <img
-                    src={video.thumbnail_url || '/placeholder.svg'}
-                    alt={video.title}
-                    className="w-full h-full object-cover rounded-lg"
-                  />
-                  <div className="absolute inset-0 bg-black/20 rounded-lg group-hover:bg-black/40 transition-all">
-                    <div className="absolute bottom-2 left-2 text-white text-xs">
-                      <div className="flex items-center space-x-1 mb-1">
-                        <Play className="w-3 h-3" />
-                        <span>{formatNumber(0)}</span>
+              {userVideos.map((video) => {
+                const isVideoContent = video.video_url && (
+                  video.video_url.includes('.mp4') || 
+                  video.video_url.includes('.mov') || 
+                  video.video_url.includes('.avi') ||
+                  video.video_url.includes('.webm') ||
+                  video.video_url.includes('video')
+                );
+                
+                return (
+                  <div 
+                    key={video.id} 
+                    className="aspect-video relative group cursor-pointer"
+                    onClick={() => {
+                      setSelectedContent(video);
+                      setIsContentModalOpen(true);
+                    }}
+                  >
+                    <img
+                      src={video.thumbnail_url || video.video_url || '/placeholder.svg'}
+                      alt={video.title}
+                      className="w-full h-full object-cover rounded-lg"
+                    />
+                    <div className="absolute inset-0 bg-black/20 rounded-lg group-hover:bg-black/40 transition-all">
+                      {isVideoContent && (
+                        <div className="absolute top-2 left-2">
+                          <Play className="w-4 h-4 text-white" />
+                        </div>
+                      )}
+                      <div className="absolute bottom-2 left-2 text-white text-xs">
+                        <div className="flex items-center space-x-1 mb-1">
+                          <Play className="w-3 h-3" />
+                          <span>{formatNumber(0)}</span>
+                        </div>
+                        <div className="flex items-center space-x-1">
+                          <Heart className="w-3 h-3" />
+                          <span>{formatNumber(video.like_count || 0)}</span>
+                        </div>
                       </div>
-                      <div className="flex items-center space-x-1">
-                        <Heart className="w-3 h-3" />
-                        <span>{formatNumber(video.like_count || 0)}</span>
+                      <div className="absolute bottom-2 right-2 bg-black/70 text-white text-xs px-1 rounded">
+                        {video.cooking_time || '2:30'}
                       </div>
-                    </div>
-                    <div className="absolute bottom-2 right-2 bg-black/70 text-white text-xs px-1 rounded">
-                      {video.cooking_time || '2:30'}
                     </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </TabsContent>
 
@@ -301,6 +331,18 @@ const ProfilePage = ({ onNavigateToSettings }: ProfilePageProps) => {
         profile={profile}
         onProfileUpdate={setProfile}
       />
+
+      {/* Content Detail Modal */}
+      {selectedContent && (
+        <ContentDetailModal
+          isOpen={isContentModalOpen}
+          onClose={() => {
+            setIsContentModalOpen(false);
+            setSelectedContent(null);
+          }}
+          content={selectedContent}
+        />
+      )}
     </div>
   );
 };

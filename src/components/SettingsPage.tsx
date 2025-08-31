@@ -82,17 +82,6 @@ const SettingsPage = () => {
           </div>
         </Card>
 
-        {/* Logout Section */}
-        <Card className="p-6">
-          <Button
-            onClick={handleLogout}
-            variant="destructive"
-            className="w-full h-12 flex items-center justify-center space-x-2"
-          >
-            <LogOut className="w-5 h-5" />
-            <span>Keluar</span>
-          </Button>
-        </Card>
 
         {/* App Info */}
         <div className="text-center text-sm text-muted-foreground">

@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Heart, MessageCircle, MoreHorizontal, Play } from 'lucide-react';
+import { useState, useRef, useEffect } from 'react';
+import { Heart, MessageCircle, MoreHorizontal, Share, Bookmark } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { useVideos, Video } from '@/hooks/useVideos';
@@ -20,6 +20,8 @@ interface VideoCardProps {
 
 const VideoCard = ({ video, isActive, onLike, onSave, onComment, onShare }: VideoCardProps) => {
   const navigate = useNavigate();
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
   
   const handleLike = () => {
     onLike(video.id);
@@ -53,19 +55,55 @@ const VideoCard = ({ video, isActive, onLike, onSave, onComment, onShare }: Vide
 
   const isPhoto = !isVideo;
 
+  const handleVideoClick = () => {
+    if (videoRef.current && isVideo) {
+      if (isPlaying) {
+        videoRef.current.pause();
+        setIsPlaying(false);
+      } else {
+        videoRef.current.play();
+        setIsPlaying(true);
+      }
+    }
+  };
+
+  useEffect(() => {
+    if (videoRef.current && isActive && isVideo) {
+      // Autoplay when video comes into view
+      videoRef.current.play();
+      setIsPlaying(true);
+    } else if (videoRef.current && !isActive) {
+      // Pause when video goes out of view
+      videoRef.current.pause();
+      setIsPlaying(false);
+    }
+  }, [isActive, isVideo]);
+
   return (
     <div className="video-container">
       {/* Media Content */}
       {isVideo ? (
-        <video
-          className="absolute inset-0 w-full h-full object-cover"
-          poster={video.thumbnail_url}
-          controls
-          preload="metadata"
-        >
-          <source src={video.video_url} type="video/mp4" />
-          Your browser does not support the video tag.
-        </video>
+        <div className="absolute inset-0" onClick={handleVideoClick}>
+          <video
+            ref={videoRef}
+            className="absolute inset-0 w-full h-full object-cover"
+            poster={video.thumbnail_url}
+            preload="metadata"
+            muted
+            loop
+            playsInline
+          >
+            <source src={video.video_url} type="video/mp4" />
+            Your browser does not support the video tag.
+          </video>
+          {!isPlaying && (
+            <div className="absolute inset-0 flex items-center justify-center bg-black/20">
+              <div className="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center">
+                <div className="w-0 h-0 border-l-[12px] border-l-white border-y-[8px] border-y-transparent ml-1"></div>
+              </div>
+            </div>
+          )}
+        </div>
       ) : (
         <div 
           className="absolute inset-0 bg-cover bg-center"
@@ -160,11 +198,11 @@ const VideoCard = ({ video, isActive, onLike, onSave, onComment, onShare }: Vide
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-40">
                 <DropdownMenuItem onClick={handleSave}>
-                  <Heart className={`w-4 h-4 mr-2 ${video.user_saved ? 'fill-current text-yellow-500' : ''}`} />
+                  <Bookmark className={`w-4 h-4 mr-2 ${video.user_saved ? 'fill-current text-yellow-500' : ''}`} />
                   {video.user_saved ? 'Unsave' : 'Save'}
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={handleShare}>
-                  <MoreHorizontal className="w-4 h-4 mr-2" />
+                  <Share className="w-4 h-4 mr-2" />
                   Share
                 </DropdownMenuItem>
               </DropdownMenuContent>
