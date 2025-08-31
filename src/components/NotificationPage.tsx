@@ -91,7 +91,20 @@ const NotificationPage = () => {
           .single();
 
         if (video) {
-          setSelectedContent(video);
+          // Map the video data to match ContentDetailModal expected format
+          const formattedContent = {
+            id: video.id,
+            title: video.title || 'Video',
+            description: video.description,
+            video_url: video.video_url,
+            thumbnail_url: video.thumbnail_url,
+            like_count: video.like_count || 0,
+            comment_count: video.comment_count || 0,
+            user_liked: false, // Will be determined by useVideos hook
+            user_saved: false  // Will be determined by useVideos hook
+          };
+          
+          setSelectedContent(formattedContent);
           setIsContentModalOpen(true);
         }
       } catch (error) {
