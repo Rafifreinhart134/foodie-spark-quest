@@ -97,7 +97,7 @@ const ContentDetailModal = ({
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-md w-full h-[90vh] p-0 bg-black">
-        <div className="relative w-full h-full">
+        <div className="flex flex-col h-full">
           {/* Close button */}
           <Button
             variant="ghost"
@@ -134,62 +134,67 @@ const ContentDetailModal = ({
             </>
           )}
 
-          {/* Media Content */}
-          {isVideo ? (
-            <div className="w-full h-full" onClick={handleVideoClick}>
-              <video
-                ref={videoRef}
-                className="w-full h-full object-contain bg-black"
-                poster={content.thumbnail_url}
-                preload="metadata"
-                loop
-                playsInline
-                controls={false}
-                style={{
-                  maxWidth: '100%',
-                  maxHeight: '100%',
-                }}
-              >
-                <source src={content.video_url} type="video/mp4" />
-                Your browser does not support the video tag.
-              </video>
-              {!isPlaying && (
-                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                  <div className="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center">
-                    <div className="w-0 h-0 border-l-[12px] border-l-white border-y-[8px] border-y-transparent ml-1"></div>
+          {/* Video Area - 3/4 of height */}
+          <div className="relative bg-black" style={{ height: '75%' }}>
+            {isVideo ? (
+              <div className="w-full h-full" onClick={handleVideoClick}>
+                <video
+                  ref={videoRef}
+                  className="w-full h-full object-contain bg-black"
+                  poster={content.thumbnail_url}
+                  preload="metadata"
+                  loop
+                  playsInline
+                  controls={false}
+                  style={{
+                    maxWidth: '100%',
+                    maxHeight: '100%',
+                  }}
+                >
+                  <source src={content.video_url} type="video/mp4" />
+                  Your browser does not support the video tag.
+                </video>
+                {!isPlaying && (
+                  <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                    <div className="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center">
+                      <div className="w-0 h-0 border-l-[12px] border-l-white border-y-[8px] border-y-transparent ml-1"></div>
+                    </div>
                   </div>
-                </div>
+                )}
+              </div>
+            ) : (
+              <div className="w-full h-full flex items-center justify-center bg-black p-4">
+                <img 
+                  src={content.thumbnail_url || content.video_url}
+                  alt={content.title}
+                  className="max-w-full max-h-full object-contain"
+                  style={{
+                    aspectRatio: 'auto',
+                    maxWidth: '100%',
+                    maxHeight: '100%',
+                  }}
+                />
+              </div>
+            )}
+          </div>
+
+          {/* Content Info - 1/4 of height */}
+          <div className="bg-background p-4" style={{ height: '25%' }}>
+            {/* Title and Description */}
+            <div className="mb-4">
+              <h3 className="font-semibold text-lg mb-2 line-clamp-1">{content.title}</h3>
+              {content.description && (
+                <p className="text-muted-foreground text-sm line-clamp-2">{content.description}</p>
               )}
             </div>
-          ) : (
-            <div className="w-full h-full flex items-center justify-center bg-black p-4">
-              <img 
-                src={content.thumbnail_url || content.video_url}
-                alt={content.title}
-                className="max-w-full max-h-full object-contain"
-                style={{
-                  aspectRatio: 'auto',
-                  maxWidth: '100%',
-                  maxHeight: '100%',
-                }}
-              />
-            </div>
-          )}
-
-          {/* Content overlay */}
-          <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4">
-            <h3 className="text-white font-semibold text-lg mb-2">{content.title}</h3>
-            {content.description && (
-              <p className="text-white/80 text-sm mb-4">{content.description}</p>
-            )}
             
             {/* Interactive buttons */}
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-6">
                 <button
                   onClick={onLike}
-                  className={`flex items-center space-x-2 text-white transition-colors ${
-                    content.user_liked ? 'text-red-400' : 'hover:text-red-400'
+                  className={`flex items-center space-x-2 transition-colors ${
+                    content.user_liked ? 'text-red-500' : 'text-muted-foreground hover:text-red-500'
                   }`}
                 >
                   <Heart className={`w-5 h-5 ${content.user_liked ? 'fill-current' : ''}`} />
@@ -197,14 +202,14 @@ const ContentDetailModal = ({
                 </button>
                 <button
                   onClick={() => onComment && onComment(content.id, content.title)}
-                  className="flex items-center space-x-2 text-white hover:text-blue-400 transition-colors"
+                  className="flex items-center space-x-2 text-muted-foreground hover:text-blue-500 transition-colors"
                 >
                   <MessageCircle className="w-5 h-5" />
                   <span className="text-sm">{content.comment_count}</span>
                 </button>
                 <button 
                   onClick={() => onShare && onShare(content.id, content.title)}
-                  className="flex items-center space-x-2 text-white hover:text-blue-400 transition-colors"
+                  className="flex items-center space-x-2 text-muted-foreground hover:text-blue-500 transition-colors"
                 >
                   <Share className="w-5 h-5" />
                   <span className="text-sm">Share</span>
@@ -214,11 +219,12 @@ const ContentDetailModal = ({
               {onSave && (
                 <button
                   onClick={onSave}
-                  className={`text-white transition-colors ${
-                    content.user_saved ? 'text-yellow-400' : 'hover:text-yellow-400'
+                  className={`flex items-center space-x-2 transition-colors ${
+                    content.user_saved ? 'text-yellow-500' : 'text-muted-foreground hover:text-yellow-500'
                   }`}
                 >
                   <Bookmark className={`w-5 h-5 ${content.user_saved ? 'fill-current' : ''}`} />
+                  <span className="text-sm">{content.user_saved ? 'Saved' : 'Save'}</span>
                 </button>
               )}
             </div>
