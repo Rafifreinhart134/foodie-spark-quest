@@ -288,10 +288,11 @@ const VideoFeed = () => {
     const handleWheel = (e: WheelEvent) => {
       if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
         e.preventDefault();
-        if (e.deltaY > 50) {
-          setCurrentIndex(Math.min(videos.length - 1, currentIndex + 1));
-        } else if (e.deltaY < -50) {
-          setCurrentIndex(Math.max(0, currentIndex - 1));
+        // Increased threshold and reduced sensitivity
+        if (e.deltaY > 100) {
+          setCurrentIndex(prev => Math.min(videos.length - 1, prev + 1));
+        } else if (e.deltaY < -100) {
+          setCurrentIndex(prev => Math.max(0, prev - 1));
         }
       }
     };
@@ -343,15 +344,15 @@ const VideoFeed = () => {
     
     const endY = e.changedTouches[0].clientY;
     const diff = startY - endY;
-    const threshold = 50; // Minimum distance for swipe
+    const threshold = 80; // Increased threshold for less sensitivity
     
     if (Math.abs(diff) > threshold) {
       if (diff > 0) {
-        // Swipe up - next video
-        setCurrentIndex(Math.min(videos.length - 1, currentIndex + 1));
+        // Swipe up - next video (only move one at a time)
+        setCurrentIndex(prev => Math.min(videos.length - 1, prev + 1));
       } else {
-        // Swipe down - previous video
-        setCurrentIndex(Math.max(0, currentIndex - 1));
+        // Swipe down - previous video (only move one at a time)
+        setCurrentIndex(prev => Math.max(0, prev - 1));
       }
     }
     

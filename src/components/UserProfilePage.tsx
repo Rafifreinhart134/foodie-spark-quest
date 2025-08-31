@@ -143,7 +143,7 @@ const UserProfilePage = () => {
               <img
                 src={profile.avatar_url || '/placeholder.svg'}
                 alt={profile.display_name || 'User'}
-                className="w-24 h-24 rounded-full border-4 border-white shadow-lg"
+                className="w-24 h-24 rounded-full border-4 border-white shadow-lg object-cover"
               />
               <div className="ml-4 flex-1">
                 <h1 className="text-xl font-bold">{profile.display_name || 'Anonymous User'}</h1>
@@ -199,11 +199,21 @@ const UserProfilePage = () => {
                 className="aspect-video relative group cursor-pointer"
                 onClick={() => handleContentClick(video, index)}
               >
-                <img
-                  src={video.thumbnail_url || video.video_url || '/placeholder.svg'}
-                  alt={video.title}
-                  className="w-full h-full object-cover rounded-lg"
-                />
+                {isVideoContent ? (
+                  <video 
+                    className="w-full h-full object-cover rounded-lg"
+                    src={video.video_url}
+                    poster={video.thumbnail_url}
+                    preload="metadata"
+                    muted
+                  />
+                ) : (
+                  <img
+                    src={video.thumbnail_url || video.video_url || '/placeholder.svg'}
+                    alt={video.title}
+                    className="w-full h-full object-cover rounded-lg"
+                  />
+                )}
                 <div className="absolute inset-0 bg-black/20 rounded-lg group-hover:bg-black/40 transition-all">
                   {isVideoContent && (
                     <div className="absolute top-2 left-2">

@@ -3,6 +3,10 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { useNotifications } from '@/hooks/useNotifications';
 import { formatDistanceToNow } from 'date-fns';
+import { useNavigate } from 'react-router-dom';
+import { useState } from 'react';
+import { supabase } from '@/integrations/supabase/client';
+import ContentDetailModal from './ContentDetailModal';
 
 interface NotificationItem {
   id: string;
@@ -27,6 +31,9 @@ interface NotificationItem {
 
 const NotificationPage = () => {
   const { notifications, loading, unreadCount, markAsRead, markAllAsRead } = useNotifications();
+  const navigate = useNavigate();
+  const [selectedContent, setSelectedContent] = useState<any>(null);
+  const [isContentModalOpen, setIsContentModalOpen] = useState(false);
 
   const getNotificationIcon = (type: string) => {
     switch (type) {
@@ -59,6 +66,35 @@ const NotificationPage = () => {
         return 'Voucher';
       default:
         return 'Update';
+    }
+  };
+
+  const handleNotificationClick = async (notification: any) => {
+    // Mark as read
+    if (!notification.is_read) {
+      markAsRead(notification.id);
+    }
+
+    // Navigate based on notification type
+    if (notification.related_video_id) {
+      // Fetch video details and open modal
+      try {
+        const { data: video } = await supabase
+          .from('videos')
+          .select(`
+            *,
+            profiles (display_name, avatar_url)
+          `)
+          .eq('id', notification.related_video_id)
+          .single();
+
+        if (video) {
+          setSelectedContent(video);
+          setIsContentModalOpen(true);
+        }
+      } catch (error) {
+        console.error('Error fetching video:', error);
+      }
     }
   };
 
@@ -121,7 +157,7 @@ const NotificationPage = () => {
                     ? 'bg-primary/5 border-primary/20 dark:bg-primary/10 dark:border-primary/30' 
                     : 'hover:bg-muted/50'
                 }`}
-                onClick={() => !notification.is_read && markAsRead(notification.id)}
+                onClick={() => handleNotificationClick(notification)}
               >
                 <div className="flex items-start space-x-3">
                   <div className={`w-2 h-2 rounded-full mt-2 flex-shrink-0 ${
@@ -154,6 +190,20 @@ const NotificationPage = () => {
           </div>
         )}
       </div>
+
+      {/* Content Detail Modal */}
+      {selectedContent && (
+        <ContentDetailModal
+          isOpen={isContentModalOpen}
+          onClose={() => {
+            setIsContentModalOpen(false);
+            setSelectedContent(null);
+          }}
+          content={selectedContent}
+          onLike={() => {}}
+          onSave={() => {}}
+        />
+      )}
     </div>
   );
 };

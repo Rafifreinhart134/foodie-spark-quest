@@ -17,17 +17,15 @@ interface SearchFilters {
 const SearchPage = () => {
   const { toast } = useToast();
   const [searchQuery, setSearchQuery] = useState('');
-  const [showWizard, setShowWizard] = useState(true);
+  const [showWizard, setShowWizard] = useState(false); // Show all content by default
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [appliedFilters, setAppliedFilters] = useState<SearchFilters>({});
 
   useEffect(() => {
-    // Load initial content when not showing wizard
-    if (!showWizard) {
-      fetchAllVideos();
-    }
-  }, [showWizard]);
+    // Load all content by default
+    fetchAllVideos();
+  }, []);
 
   const fetchAllVideos = async () => {
     setIsLoading(true);
