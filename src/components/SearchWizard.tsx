@@ -26,9 +26,10 @@ const SearchWizard = ({ onSearch }: SearchWizardProps) => {
   ];
 
   const budgetOptions = [
-    { id: 'hemat', label: 'Hemat', subtitle: 'Rp 20-50 ribu', icon: '💰' },
-    { id: 'sedang', label: 'Sedang', subtitle: 'Rp 50-100 ribu', icon: '💵' },
-    { id: 'bebas', label: 'Bebas', subtitle: '> Rp 100 ribu', icon: '💸' },
+    { id: 'hemat', label: 'Under Rp 10k', subtitle: 'Hemat banget', icon: '💰' },
+    { id: 'sedang', label: 'Rp 10k - 25k', subtitle: 'Budget sedang', icon: '💵' },
+    { id: 'menengah', label: 'Rp 25k - 50k', subtitle: 'Menengah ke atas', icon: '💸' },
+    { id: 'bebas', label: 'Above Rp 50k', subtitle: 'Budget bebas', icon: '🤑' },
   ];
 
   const preferenceOptions = [

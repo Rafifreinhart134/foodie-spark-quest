@@ -117,9 +117,23 @@ const SearchPage = () => {
         `)
         .eq('is_public', true);
 
-      // Add text search - Fixed array search syntax
-      if (query) {
-        queryBuilder = queryBuilder.or(`title.ilike.%${query}%, description.ilike.%${query}%, tags.cs.{"${query}"}`);
+      // Enhanced text search with user search capability
+      if (query.trim()) {
+        // First, check if searching for a user
+        const { data: userProfiles } = await supabase
+          .from('profiles')
+          .select('user_id')
+          .ilike('display_name', `%${query.trim()}%`);
+        
+        const userIds = userProfiles?.map(p => p.user_id) || [];
+        
+        if (userIds.length > 0) {
+          // Search by user ID if username matches
+          queryBuilder = queryBuilder.or(`title.ilike.%${query}%, description.ilike.%${query}%, user_id.in.(${userIds.join(',')})`);
+        } else {
+          // Regular content search with partial matching
+          queryBuilder = queryBuilder.or(`title.ilike.%${query}%, description.ilike.%${query}%`);
+        }
       }
 
       // Add budget filter - Fixed filter matching
@@ -187,7 +201,8 @@ const SearchPage = () => {
   const getBudgetText = (budgetId: string) => {
     switch (budgetId) {
       case 'hemat': return 'Under Rp 10k';
-      case 'sedang': return 'Rp 10k - 25k'; // Fixed to match database data
+      case 'sedang': return 'Rp 10k - 25k';
+      case 'menengah': return 'Rp 25k - 50k';
       case 'bebas': return 'Above Rp 50k';
       default: return '';
     }
@@ -239,6 +254,14 @@ const SearchPage = () => {
             className="text-xs"
           >
             💰 Sedang
+          </Button>
+          <Button
+            variant={appliedFilters.budget === 'menengah' ? 'default' : 'outline'}
+            size="sm"
+            onClick={() => searchVideos(searchQuery, { ...appliedFilters, budget: 'menengah' })}
+            className="text-xs"
+          >
+            💰 Menengah
           </Button>
           <Button
             variant={appliedFilters.preference === 'cepat' ? 'default' : 'outline'}
@@ -330,11 +353,52 @@ const SearchPage = () => {
                   {searchResults.map((result) => (
                     <Card key={result.id} className="overflow-hidden cursor-pointer hover:shadow-md transition-shadow">
                       <div className="aspect-square relative">
-                        <img
-                          src={result.thumbnail_url || '/placeholder.svg'}
-                          alt={result.title}
-                          className="w-full h-full object-cover"
-                        />
+                        {result.video_url ? (
+                          // For videos, show thumbnail with play button
+                          <>
+                            {result.thumbnail_url ? (
+                              <img
+                                src={result.thumbnail_url}
+                                alt={result.title}
+                                className="w-full h-full object-cover"
+                                onError={(e) => {
+                                  // Fallback to video frame if thumbnail fails
+                                  const target = e.target as HTMLImageElement;
+                                  target.style.display = 'none';
+                                  const video = document.createElement('video');
+                                  video.src = result.video_url;
+                                  video.className = 'w-full h-full object-cover';
+                                  video.muted = true;
+                                  video.currentTime = 1; // Get frame from 1 second
+                                  target.parentNode?.appendChild(video);
+                                }}
+                              />
+                            ) : (
+                              <video
+                                src={result.video_url}
+                                className="w-full h-full object-cover"
+                                muted
+                                onLoadedData={(e) => {
+                                  const video = e.target as HTMLVideoElement;
+                                  video.currentTime = 1; // Show frame from 1 second
+                                }}
+                              />
+                            )}
+                            {/* Play button indicator for videos */}
+                            <div className="absolute inset-0 flex items-center justify-center">
+                              <div className="bg-black/50 rounded-full p-2">
+                                <Play className="w-6 h-6 text-white" fill="white" />
+                              </div>
+                            </div>
+                          </>
+                        ) : (
+                          // For photos, show image directly
+                          <img
+                            src={result.thumbnail_url || '/placeholder.svg'}
+                            alt={result.title}
+                            className="w-full h-full object-cover"
+                          />
+                        )}
                         <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent">
                           <div className="absolute bottom-2 left-2 text-white">
                             <div className="flex items-center space-x-2 text-xs">

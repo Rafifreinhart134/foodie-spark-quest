@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Heart, MessageCircle, Share, MoreHorizontal, Play, Grid3X3, Award } from 'lucide-react';
+import { ArrowLeft, Heart, MessageCircle, Share, MoreHorizontal, Play, Grid3X3, Award, UserPlus, UserMinus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import { useVideos } from '@/hooks/useVideos';
+import { useFollow } from '@/hooks/useFollow';
 import ContentDetailModal from './ContentDetailModal';
 import UserBadges from './UserBadges';
 
@@ -15,6 +16,7 @@ const UserProfilePage = () => {
   const { user } = useAuth();
   const { toast } = useToast();
   const { toggleLike, toggleSave } = useVideos();
+  const { isFollowing, isLoading: followLoading, toggleFollow, canFollow } = useFollow(userId);
   
   const [profile, setProfile] = useState<any>(null);
   const [userVideos, setUserVideos] = useState<any[]>([]);
@@ -156,6 +158,27 @@ const UserProfilePage = () => {
             </div>
 
             <p className="text-sm mb-4">{profile.bio || 'No bio available'}</p>
+
+            {/* Follow Button */}
+            {canFollow && (
+              <div className="mb-4">
+                <Button
+                  onClick={toggleFollow}
+                  disabled={followLoading}
+                  variant={isFollowing ? "outline" : "default"}
+                  className="w-full"
+                >
+                  {followLoading ? (
+                    <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin mr-2" />
+                  ) : isFollowing ? (
+                    <UserMinus className="w-4 h-4 mr-2" />
+                  ) : (
+                    <UserPlus className="w-4 h-4 mr-2" />
+                  )}
+                  {isFollowing ? 'Unfollow' : 'Follow'}
+                </Button>
+              </div>
+            )}
 
             {/* Stats */}
             <div className="flex justify-around py-4 border-t border-b">
