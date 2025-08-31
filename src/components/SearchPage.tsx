@@ -67,19 +67,25 @@ const SearchPage = () => {
         `)
         .eq('is_public', true);
 
-      // Add text search
+      // Add text search - Fixed array search syntax
       if (query) {
-        queryBuilder = queryBuilder.or(`title.ilike.%${query}%, description.ilike.%${query}%, tags.cs.{${query}}`);
+        queryBuilder = queryBuilder.or(`title.ilike.%${query}%, description.ilike.%${query}%, tags.cs.{"${query}"}`);
       }
 
-      // Add budget filter
+      // Add budget filter - Fixed filter matching
       if (filters.budget) {
-        queryBuilder = queryBuilder.eq('budget', getBudgetText(filters.budget));
+        const budgetText = getBudgetText(filters.budget);
+        queryBuilder = queryBuilder.eq('budget', budgetText);
       }
 
-      // Add cooking time filter
+      // Add cooking time filter - Fixed filter matching
       if (filters.preference === 'cepat') {
         queryBuilder = queryBuilder.eq('cooking_time', 'Under 15 menit');
+      }
+
+      // Add serving filter if needed
+      if (filters.serving) {
+        // You can add serving filter logic here if you have a serving field
       }
 
       const { data, error } = await queryBuilder
@@ -91,15 +97,15 @@ const SearchPage = () => {
       
       if (data && data.length === 0) {
         toast({
-          title: "No results found",
-          description: "Try adjusting your search criteria",
+          title: "Tidak ada hasil",
+          description: "Coba sesuaikan kriteria pencarian Anda",
         });
       }
     } catch (error) {
       console.error('Error searching videos:', error);
       toast({
-        title: "Search failed",
-        description: "Failed to search videos",
+        title: "Pencarian gagal",
+        description: "Gagal mencari video",
         variant: "destructive"
       });
     } finally {
@@ -110,7 +116,7 @@ const SearchPage = () => {
   const getBudgetText = (budgetId: string) => {
     switch (budgetId) {
       case 'hemat': return 'Under Rp 10k';
-      case 'sedang': return 'Rp 25k - 50k';
+      case 'sedang': return 'Rp 10k - 25k'; // Fixed to match database data
       case 'bebas': return 'Above Rp 50k';
       default: return '';
     }
