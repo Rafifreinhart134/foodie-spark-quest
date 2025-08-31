@@ -194,13 +194,31 @@
     transition: var(--transition-bounce);
   }
 
-  /* Mobile-first Video Container */
+  /* Responsive Video Container */
   .video-container {
     @apply relative w-full h-screen bg-black overflow-hidden;
   }
   
   .video-overlay {
     @apply absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent;
+  }
+  
+  /* Responsive Media Content */
+  .responsive-media {
+    @apply w-full h-full object-contain;
+  }
+  
+  @media (max-width: 768px) {
+    .responsive-media {
+      @apply object-cover;
+    }
+  }
+  
+  /* Portrait content on desktop */
+  @media (min-width: 768px) {
+    .video-container {
+      @apply flex items-center justify-center;
+    }
   }
   
   /* Interactive Elements */

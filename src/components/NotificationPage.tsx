@@ -1,9 +1,8 @@
-import { useEffect } from 'react';
 import { Heart, MessageCircle, UserPlus, Award, Gift, Bell } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 import { useNotifications } from '@/hooks/useNotifications';
+import { formatDistanceToNow } from 'date-fns';
 
 interface NotificationItem {
   id: string;
@@ -32,17 +31,34 @@ const NotificationPage = () => {
   const getNotificationIcon = (type: string) => {
     switch (type) {
       case 'like':
-        return <Heart className="w-5 h-5 text-red-500" />;
+        return <Heart className="w-4 h-4 text-red-500" />;
       case 'comment':
-        return <MessageCircle className="w-5 h-5 text-blue-500" />;
+        return <MessageCircle className="w-4 h-4 text-blue-500" />;
       case 'follow':
-        return <UserPlus className="w-5 h-5 text-green-500" />;
+        return <UserPlus className="w-4 h-4 text-green-500" />;
       case 'badge':
-        return <Award className="w-5 h-5 text-yellow-500" />;
+        return <Award className="w-4 h-4 text-yellow-500" />;
       case 'voucher':
-        return <Gift className="w-5 h-5 text-purple-500" />;
+        return <Gift className="w-4 h-4 text-purple-500" />;
       default:
-        return <Bell className="w-5 h-5 text-muted-foreground" />;
+        return <Bell className="w-4 h-4 text-muted-foreground" />;
+    }
+  };
+
+  const getNotificationTypeText = (type: string) => {
+    switch (type) {
+      case 'like':
+        return 'Like';
+      case 'comment':
+        return 'Comment';
+      case 'follow':
+        return 'Follow';
+      case 'badge':
+        return 'Badge';
+      case 'voucher':
+        return 'Voucher';
+      default:
+        return 'Update';
     }
   };
 
@@ -57,89 +73,87 @@ const NotificationPage = () => {
   return (
     <div className="min-h-screen bg-background pt-16 pb-20">
       {/* Header */}
-      <div className="p-4 border-b bg-white">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold gradient-primary bg-clip-text text-transparent">
-              Notifikasi
-            </h1>
-            {unreadCount > 0 && (
-              <p className="text-muted-foreground">
-                {unreadCount} notifikasi belum dibaca
-              </p>
-            )}
-          </div>
+      <div className="p-4 border-b bg-card">
+        <div className="flex justify-between items-center">
+          <h1 className="text-2xl font-bold gradient-primary bg-clip-text text-transparent">
+            Notifikasi
+          </h1>
           {unreadCount > 0 && (
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               size="sm"
               onClick={markAllAsRead}
+              className="text-xs"
             >
-              Tandai Semua Dibaca
+              Mark All Read
             </Button>
           )}
         </div>
+        <p className="text-muted-foreground">Update terbaru untuk kamu</p>
+        {unreadCount > 0 && (
+          <p className="text-sm text-primary mt-1">{unreadCount} notifikasi belum dibaca</p>
+        )}
       </div>
 
-      {/* Notifications List */}
-      <div className="p-4 space-y-3">
-        {notifications.map((notification) => (
-          <Card 
-            key={notification.id}
-            className={`p-4 cursor-pointer transition-all hover:shadow-card ${
-              !notification.is_read ? 'border-l-4 border-l-primary bg-primary/5' : ''
-            }`}
-            onClick={() => markAsRead(notification.id)}
-          >
-            <div className="flex space-x-3">
-              {/* Icon or User Avatar */}
-              <div className="flex-shrink-0">
-                <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center">
-                  {getNotificationIcon(notification.type)}
-                </div>
-              </div>
-
-              {/* Content */}
-              <div className="flex-1 min-w-0">
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <p className="text-sm">
-                      <span className={notification.is_read ? 'text-muted-foreground' : ''}>
-                        {notification.content}
+      <div className="p-4">
+        {loading ? (
+          <div className="text-center py-8">
+            <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto"></div>
+            <p className="text-muted-foreground mt-2">Loading notifications...</p>
+          </div>
+        ) : notifications.length === 0 ? (
+          <div className="text-center py-12">
+            <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
+              <Bell className="w-8 h-8 text-muted-foreground" />
+            </div>
+            <h3 className="text-lg font-semibold mb-2">Belum ada notifikasi</h3>
+            <p className="text-muted-foreground text-sm">
+              Notifikasi akan muncul ketika ada aktivitas di konten kamu
+            </p>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {notifications.map((notification) => (
+              <Card 
+                key={notification.id} 
+                className={`p-4 transition-all duration-200 hover:shadow-md cursor-pointer ${
+                  !notification.is_read 
+                    ? 'bg-primary/5 border-primary/20 dark:bg-primary/10 dark:border-primary/30' 
+                    : 'hover:bg-muted/50'
+                }`}
+                onClick={() => !notification.is_read && markAsRead(notification.id)}
+              >
+                <div className="flex items-start space-x-3">
+                  <div className={`w-2 h-2 rounded-full mt-2 flex-shrink-0 ${
+                    !notification.is_read ? 'bg-primary' : 'bg-muted'
+                  }`} />
+                  
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center space-x-2 mb-1">
+                      {getNotificationIcon(notification.type)}
+                      <span className="text-xs text-muted-foreground">
+                        {getNotificationTypeText(notification.type)}
                       </span>
+                    </div>
+                    
+                    <p className={`text-sm leading-relaxed ${
+                      !notification.is_read 
+                        ? 'font-medium text-foreground' 
+                        : 'text-muted-foreground'
+                    }`}>
+                      {notification.content}
                     </p>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      {new Date(notification.created_at).toLocaleString('id-ID', {
-                        day: 'numeric',
-                        month: 'short',
-                        hour: '2-digit',
-                        minute: '2-digit'
-                      })}
+                    
+                    <p className="text-xs text-muted-foreground mt-2">
+                      {formatDistanceToNow(new Date(notification.created_at), { addSuffix: true })}
                     </p>
-
                   </div>
                 </div>
-              </div>
-
-              {/* Unread indicator */}
-              {!notification.is_read && (
-                <div className="w-2 h-2 bg-primary rounded-full mt-2"></div>
-              )}
-            </div>
-          </Card>
-        ))}
+              </Card>
+            ))}
+          </div>
+        )}
       </div>
-
-      {/* Empty state if no notifications */}
-      {notifications.length === 0 && (
-        <div className="flex flex-col items-center justify-center py-16">
-          <Bell className="w-16 h-16 text-muted-foreground mb-4" />
-          <h3 className="text-lg font-semibold mb-2">Belum ada notifikasi</h3>
-          <p className="text-muted-foreground text-center">
-            Notifikasi akan muncul ketika ada yang menyukai atau berkomentar di video kamu
-          </p>
-        </div>
-      )}
     </div>
   );
 };

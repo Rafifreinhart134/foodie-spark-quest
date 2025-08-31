@@ -35,6 +35,7 @@ const ContentDetailModal = ({ isOpen, onClose, content }: ContentDetailModalProp
         videoRef.current.pause();
         setIsPlaying(false);
       } else {
+        videoRef.current.muted = false; // Enable sound
         videoRef.current.play();
         setIsPlaying(true);
       }
@@ -43,6 +44,7 @@ const ContentDetailModal = ({ isOpen, onClose, content }: ContentDetailModalProp
 
   useEffect(() => {
     if (isOpen && videoRef.current && isVideo) {
+      videoRef.current.muted = false; // Enable sound
       videoRef.current.play();
       setIsPlaying(true);
     }
@@ -67,18 +69,18 @@ const ContentDetailModal = ({ isOpen, onClose, content }: ContentDetailModalProp
             <div className="w-full h-full" onClick={handleVideoClick}>
               <video
                 ref={videoRef}
-                className="w-full h-full object-cover"
+                className="w-full h-full object-contain bg-black"
                 poster={content.thumbnail_url}
                 preload="metadata"
-                muted
                 loop
                 playsInline
+                controls={false}
               >
                 <source src={content.video_url} type="video/mp4" />
                 Your browser does not support the video tag.
               </video>
               {!isPlaying && (
-                <div className="absolute inset-0 flex items-center justify-center">
+                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                   <div className="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center">
                     <div className="w-0 h-0 border-l-[12px] border-l-white border-y-[8px] border-y-transparent ml-1"></div>
                   </div>
@@ -86,10 +88,13 @@ const ContentDetailModal = ({ isOpen, onClose, content }: ContentDetailModalProp
               )}
             </div>
           ) : (
-            <div 
-              className="w-full h-full bg-cover bg-center"
-              style={{ backgroundImage: `url(${content.thumbnail_url || content.video_url})` }}
-            />
+            <div className="w-full h-full flex items-center justify-center bg-black">
+              <img 
+                src={content.thumbnail_url || content.video_url}
+                alt={content.title}
+                className="max-w-full max-h-full object-contain"
+              />
+            </div>
           )}
 
           {/* Content overlay */}

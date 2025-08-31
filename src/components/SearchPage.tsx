@@ -137,7 +137,7 @@ const SearchPage = () => {
   return (
     <div className="min-h-screen bg-background pt-16 pb-20">
       {/* Header */}
-      <div className="p-4 border-b bg-white">
+      <div className="p-4 border-b bg-card">
         <h1 className="text-2xl font-bold gradient-primary bg-clip-text text-transparent">
           Cari Resep & Tempat
         </h1>
@@ -145,132 +145,160 @@ const SearchPage = () => {
       </div>
 
       <div className="p-4">
-        {showWizard ? (
-          <SearchWizard onSearch={handleWizardSearch} />
-        ) : (
-          <>
-            {/* Search Bar */}
-            <div className="flex space-x-2 mb-4">
-              <Input
-                placeholder="Cari resep, makanan, atau lokasi..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                onKeyPress={(e) => e.key === 'Enter' && handleTextSearch()}
-                className="flex-1"
-              />
-              <Button 
-                onClick={handleTextSearch}
-                className="gradient-primary text-white"
-                disabled={isLoading}
+        {/* Quick Filter Buttons */}
+        <div className="flex flex-wrap gap-2 mb-4">
+          <Button
+            variant={appliedFilters.budget === 'hemat' ? 'default' : 'outline'}
+            size="sm"
+            onClick={() => searchVideos(searchQuery, { ...appliedFilters, budget: 'hemat' })}
+            className="text-xs"
+          >
+            💰 Hemat
+          </Button>
+          <Button
+            variant={appliedFilters.budget === 'sedang' ? 'default' : 'outline'}
+            size="sm"
+            onClick={() => searchVideos(searchQuery, { ...appliedFilters, budget: 'sedang' })}
+            className="text-xs"
+          >
+            💰 Sedang
+          </Button>
+          <Button
+            variant={appliedFilters.preference === 'cepat' ? 'default' : 'outline'}
+            size="sm"
+            onClick={() => searchVideos(searchQuery, { ...appliedFilters, preference: 'cepat' })}
+            className="text-xs"
+          >
+            ⚡ Cepat
+          </Button>
+          <Button
+            variant={appliedFilters.serving === '1-2' ? 'default' : 'outline'}
+            size="sm"
+            onClick={() => searchVideos(searchQuery, { ...appliedFilters, serving: '1-2' })}
+            className="text-xs"
+          >
+            👤 1-2 orang
+          </Button>
+        </div>
+
+        <div className="space-y-4">
+          {showWizard ? (
+            <SearchWizard onSearch={handleWizardSearch} />
+          ) : (
+            <>
+              {/* Search Bar */}
+              <div className="flex space-x-2 mb-4">
+                <Input
+                  placeholder="Cari resep, makanan, atau lokasi..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onKeyPress={(e) => e.key === 'Enter' && handleTextSearch()}
+                  className="flex-1"
+                />
+                <Button 
+                  onClick={handleTextSearch}
+                  className="gradient-primary text-white"
+                  disabled={isLoading}
+                >
+                  <Search className="w-4 h-4" />
+                </Button>
+              </div>
+              
+              <Button
+                variant="outline"
+                onClick={() => setShowWizard(true)}
+                className="w-full mb-4"
               >
-                <Search className="w-4 h-4" />
+                <Filter className="w-4 h-4 mr-2" />
+                Wizard Pencarian
               </Button>
-            </div>
-            
-            <Button
-              variant="outline"
-              onClick={() => setShowWizard(true)}
-              className="w-full mb-4"
-            >
-              <Filter className="w-4 h-4 mr-2" />
-              Wizard Pencarian
-            </Button>
 
-            {/* Applied Filters */}
-            {(appliedFilters.serving || appliedFilters.budget || appliedFilters.preference) && (
-              <Card className="p-4 mb-4">
-                <p className="text-sm font-medium mb-2">Filter aktif:</p>
-                <div className="flex flex-wrap gap-2">
-                  {appliedFilters.serving && (
-                    <Badge variant="secondary">👤 {appliedFilters.serving} orang</Badge>
-                  )}
-                  {appliedFilters.budget && (
-                    <Badge variant="secondary">💰 Budget {appliedFilters.budget}</Badge>
-                  )}
-                  {appliedFilters.preference && (
-                    <Badge variant="secondary">🍳 {appliedFilters.preference}</Badge>
-                  )}
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => {
-                      setAppliedFilters({});
-                      fetchAllVideos();
-                    }}
-                    className="h-6 px-2 text-xs"
-                  >
-                    Clear All
-                  </Button>
+              {/* Applied Filters */}
+              {(appliedFilters.serving || appliedFilters.budget || appliedFilters.preference) && (
+                <Card className="p-4 mb-4">
+                  <p className="text-sm font-medium mb-2">Filter aktif:</p>
+                  <div className="flex flex-wrap gap-2">
+                    {appliedFilters.serving && (
+                      <Badge variant="secondary">👤 {appliedFilters.serving} orang</Badge>
+                    )}
+                    {appliedFilters.budget && (
+                      <Badge variant="secondary">💰 Budget {appliedFilters.budget}</Badge>
+                    )}
+                    {appliedFilters.preference && (
+                      <Badge variant="secondary">🍳 {appliedFilters.preference}</Badge>
+                    )}
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => {
+                        setAppliedFilters({});
+                        fetchAllVideos();
+                      }}
+                      className="h-6 px-2 text-xs"
+                    >
+                      Clear All
+                    </Button>
+                  </div>
+                </Card>
+              )}
+
+              {/* Results */}
+              {isLoading ? (
+                <div className="text-center py-8">
+                  <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto"></div>
+                  <p className="text-muted-foreground mt-2">Mencari...</p>
                 </div>
-              </Card>
-            )}
-
-            {/* Results */}
-            {isLoading ? (
-              <div className="text-center py-8">
-                <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto"></div>
-                <p className="text-muted-foreground mt-2">Mencari...</p>
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 gap-4">
-                {searchResults.map((result) => (
-                  <Card key={result.id} className="overflow-hidden">
-                    <div className="aspect-video relative">
-                      <img
-                        src={result.thumbnail_url || '/placeholder.svg'}
-                        alt={result.title}
-                        className="w-full h-full object-cover"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent">
-                        <div className="absolute bottom-3 left-3 text-white">
-                          <div className="flex items-center space-x-2 text-xs mb-1">
-                            <div className="flex items-center space-x-1">
-                              <Play className="w-3 h-3" />
-                              <span>0</span>
-                            </div>
-                            <div className="flex items-center space-x-1">
-                              <Heart className="w-3 h-3" />
-                              <span>{formatNumber(result.like_count || 0)}</span>
+              ) : (
+                <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4">
+                  {searchResults.map((result) => (
+                    <Card key={result.id} className="overflow-hidden cursor-pointer hover:shadow-md transition-shadow">
+                      <div className="aspect-square relative">
+                        <img
+                          src={result.thumbnail_url || '/placeholder.svg'}
+                          alt={result.title}
+                          className="w-full h-full object-cover"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent">
+                          <div className="absolute bottom-2 left-2 text-white">
+                            <div className="flex items-center space-x-2 text-xs">
+                              <div className="flex items-center space-x-1">
+                                <Heart className="w-3 h-3" />
+                                <span>{formatNumber(result.like_count || 0)}</span>
+                              </div>
                             </div>
                           </div>
-                        </div>
-                        <div className="absolute bottom-3 right-3 bg-black/70 text-white text-xs px-2 py-1 rounded">
-                          {result.cooking_time || '2:30'}
+                          {result.cooking_time && (
+                            <div className="absolute bottom-2 right-2 bg-black/70 text-white text-xs px-2 py-1 rounded">
+                              {result.cooking_time}
+                            </div>
+                          )}
                         </div>
                       </div>
-                    </div>
-                    
-                    <div className="p-4">
-                      <h3 className="font-semibold mb-1">{result.title}</h3>
-                      <p className="text-sm text-muted-foreground mb-2">@{result.profiles?.display_name || 'Unknown'}</p>
                       
-                      <div className="flex flex-wrap gap-2 text-xs">
-                        {result.budget && (
-                          <div className="flex items-center text-muted-foreground">
-                            <DollarSign className="w-3 h-3 mr-1" />
-                            {result.budget}
-                          </div>
-                        )}
-                        {result.cooking_time && (
-                          <div className="flex items-center text-muted-foreground">
-                            <Clock className="w-3 h-3 mr-1" />
-                            {result.cooking_time}
-                          </div>
-                        )}
-                        {result.location && (
-                          <div className="flex items-center text-muted-foreground">
-                            <MapPin className="w-3 h-3 mr-1" />
-                            {result.location}
-                          </div>
-                        )}
+                      <div className="p-3">
+                        <h3 className="font-semibold text-sm mb-1 line-clamp-2">{result.title}</h3>
+                        <p className="text-xs text-muted-foreground mb-2">@{result.profiles?.display_name || 'Unknown'}</p>
+                        
+                        <div className="flex flex-wrap gap-1 text-xs">
+                          {result.budget && (
+                            <Badge variant="outline" className="text-xs px-2 py-0">
+                              💰 {result.budget.replace('Rp ', '')}
+                            </Badge>
+                          )}
+                          {result.cooking_time && (
+                            <Badge variant="outline" className="text-xs px-2 py-0">
+                              ⏱️ {result.cooking_time.replace(' menit', 'm')}
+                            </Badge>
+                          )}
+                        </div>
                       </div>
-                    </div>
-                  </Card>
-                ))}
-              </div>
-            )}
-          </>
-        )}
+                    </Card>
+                  ))}
+                </div>
+              )}
+            </>
+          )}
+        </div>
       </div>
     </div>
   );

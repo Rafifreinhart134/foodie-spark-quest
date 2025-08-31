@@ -55,12 +55,17 @@ const VideoCard = ({ video, isActive, onLike, onSave, onComment, onShare }: Vide
 
   const isPhoto = !isVideo;
 
-  const handleVideoClick = () => {
+  const handleVideoClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
     if (videoRef.current && isVideo) {
       if (isPlaying) {
         videoRef.current.pause();
         setIsPlaying(false);
       } else {
+        // Unmute and play video with sound
+        videoRef.current.muted = false;
         videoRef.current.play();
         setIsPlaying(true);
       }
@@ -70,6 +75,7 @@ const VideoCard = ({ video, isActive, onLike, onSave, onComment, onShare }: Vide
   useEffect(() => {
     if (videoRef.current && isActive && isVideo) {
       // Autoplay when video comes into view
+      videoRef.current.muted = false; // Enable sound for autoplay
       videoRef.current.play();
       setIsPlaying(true);
     } else if (videoRef.current && !isActive) {
@@ -86,18 +92,18 @@ const VideoCard = ({ video, isActive, onLike, onSave, onComment, onShare }: Vide
         <div className="absolute inset-0" onClick={handleVideoClick}>
           <video
             ref={videoRef}
-            className="absolute inset-0 w-full h-full object-cover"
+            className="absolute inset-0 w-full h-full object-contain bg-black"
             poster={video.thumbnail_url}
             preload="metadata"
-            muted
             loop
             playsInline
+            controls={false}
           >
             <source src={video.video_url} type="video/mp4" />
             Your browser does not support the video tag.
           </video>
           {!isPlaying && (
-            <div className="absolute inset-0 flex items-center justify-center bg-black/20">
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
               <div className="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center">
                 <div className="w-0 h-0 border-l-[12px] border-l-white border-y-[8px] border-y-transparent ml-1"></div>
               </div>
@@ -105,10 +111,12 @@ const VideoCard = ({ video, isActive, onLike, onSave, onComment, onShare }: Vide
           )}
         </div>
       ) : (
-        <div 
-          className="absolute inset-0 bg-cover bg-center"
-          style={{ backgroundImage: `url(${video.thumbnail_url || video.video_url || 'https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=400'})` }}
-        >
+        <div className="absolute inset-0 flex items-center justify-center bg-black">
+          <img 
+            src={video.thumbnail_url || video.video_url || 'https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=400'}
+            alt={video.title}
+            className="max-w-full max-h-full object-contain"
+          />
           <div className="video-overlay" />
         </div>
       )}
@@ -292,14 +300,14 @@ const VideoFeed = () => {
         </div>
       ))}
       
-      {/* Swipe Handlers */}
+      {/* Swipe Handlers - Non-conflicting with video tap */}
       <div className="absolute inset-0 pointer-events-none">
         <div 
-          className="h-1/2 pointer-events-auto"
+          className="absolute top-0 left-0 right-20 h-1/2 pointer-events-auto"
           onClick={() => setCurrentIndex(Math.max(0, currentIndex - 1))}
         />
         <div 
-          className="h-1/2 pointer-events-auto"
+          className="absolute bottom-0 left-0 right-20 h-1/2 pointer-events-auto"
           onClick={() => setCurrentIndex(Math.min(videos.length - 1, currentIndex + 1))}
         />
       </div>
