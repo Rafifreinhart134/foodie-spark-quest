@@ -160,9 +160,9 @@ const VideoCard = ({ video, isActive, onLike, onSave, onComment, onShare }: Vide
       )}
 
       {/* Content Overlay */}
-      <div className={`absolute inset-0 flex transition-opacity duration-300 ${hideUI ? 'opacity-0' : 'opacity-100'} pointer-events-none`}>
+      <div className={`absolute inset-0 flex transition-opacity duration-300 ${hideUI ? 'opacity-0' : 'opacity-100'} z-20`}>
         {/* Left Side - Content Info */}
-        <div className="flex-1 flex flex-col justify-end p-4 pb-20 pointer-events-auto">
+        <div className="flex-1 flex flex-col justify-end p-4 pb-20">
           {/* User Info - Clickable */}
           <div 
             className="flex items-center space-x-3 mb-3 cursor-pointer hover:opacity-80 transition-opacity"
