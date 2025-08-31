@@ -23,6 +23,7 @@ const VideoCard = ({ video, isActive, onLike, onSave, onComment, onShare }: Vide
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [showDetails, setShowDetails] = useState(false);
+  const [showFullDescription, setShowFullDescription] = useState(false);
   
   const handleLike = () => {
     onLike(video.id);
@@ -40,8 +41,10 @@ const VideoCard = ({ video, isActive, onLike, onSave, onComment, onShare }: Vide
     onShare(video.id, video.title);
   };
 
-  const handleUserClick = () => {
-    if (video.profiles?.display_name) {
+  const handleUserClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (video.user_id) {
       navigate(`/profile/${video.user_id}`);
     }
   };
@@ -141,44 +144,44 @@ const VideoCard = ({ video, isActive, onLike, onSave, onComment, onShare }: Vide
             </div>
           </div>
 
-          {/* Description */}
-          <p className="text-white text-sm mb-3 leading-relaxed max-w-xs">
-            {video.description || video.title}
-          </p>
-
-          {/* Details Toggle Indicator */}
-          <div 
-            className="flex items-center space-x-2 cursor-pointer hover:opacity-80 transition-opacity mb-2"
-            onClick={() => setShowDetails(!showDetails)}
-          >
-            <div className="w-8 h-1 bg-white/40 rounded-full"></div>
-            <span className="text-white/60 text-xs">More info</span>
-          </div>
-
-          {/* Slide-up Details Panel */}
-          <div className={`transition-all duration-300 ease-in-out overflow-hidden ${
-            showDetails ? 'max-h-32 opacity-100' : 'max-h-0 opacity-0'
-          }`}>
-            <div className="bg-black/40 backdrop-blur-sm rounded-lg p-3 mb-3">
-              {/* Tags */}
-              {video.tags && video.tags.length > 0 && (
-                <div className="flex flex-wrap gap-2 mb-2">
-                  {video.tags.map((tag, index) => (
-                    <span key={index} className="category-pill text-xs">
-                      #{tag}
-                    </span>
-                  ))}
-                </div>
-              )}
-              
-              {/* Additional Info */}
-              <div className="flex flex-wrap gap-2 text-white text-xs">
-                {video.budget && <span className="category-pill">💰 {video.budget}</span>}
-                {video.cooking_time && <span className="category-pill">⏱️ {video.cooking_time}</span>}
-                {video.location && <span className="category-pill">📍 {video.location}</span>}
+          {/* Description with More/Less functionality */}
+          <div className="text-white text-sm mb-3 leading-relaxed max-w-xs">
+            <p className={`${!showFullDescription ? 'line-clamp-2' : ''}`}>
+              {video.description || video.title}
+            </p>
+            {(video.description || video.title).length > 100 && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setShowFullDescription(!showFullDescription);
+                }}
+                className="text-white/80 text-xs mt-1 hover:text-white transition-colors"
+              >
+                {showFullDescription ? 'less' : 'more'}
+              </button>
+            )}
+            
+            {/* Show hashtags when expanded */}
+            {showFullDescription && video.tags && video.tags.length > 0 && (
+              <div className="flex flex-wrap gap-1 mt-2">
+                {video.tags.map((tag, index) => (
+                  <span key={index} className="text-blue-400 text-xs">
+                    #{tag}
+                  </span>
+                ))}
               </div>
-            </div>
+            )}
+            
+            {/* Show additional info when expanded */}
+            {showFullDescription && (
+              <div className="flex flex-wrap gap-2 mt-2 text-white/80 text-xs">
+                {video.budget && <span className="bg-white/20 px-2 py-1 rounded-full">💰 {video.budget}</span>}
+                {video.cooking_time && <span className="bg-white/20 px-2 py-1 rounded-full">⏱️ {video.cooking_time}</span>}
+                {video.location && <span className="bg-white/20 px-2 py-1 rounded-full">📍 {video.location}</span>}
+              </div>
+            )}
           </div>
+
         </div>
 
         {/* Right Side - Action Buttons */}
@@ -259,6 +262,22 @@ const VideoFeed = () => {
     videoTitle: ''
   });
   const [startY, setStartY] = useState<number | null>(null);
+
+  // Keyboard navigation
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        setCurrentIndex(Math.max(0, currentIndex - 1));
+      } else if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        setCurrentIndex(Math.min(videos.length - 1, currentIndex + 1));
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [currentIndex, videos.length]);
 
   if (loading) {
     return (
