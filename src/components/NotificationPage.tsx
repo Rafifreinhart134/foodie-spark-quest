@@ -4,6 +4,13 @@ import { Card } from '@/components/ui/card';
 import { useNotifications } from '@/hooks/useNotifications';
 import { formatDistanceToNow } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
+import { useState } from 'react';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
+import ContentDetailModal from './ContentDetailModal';
+import { CommentsModal } from './CommentsModal';
+import { ShareModal } from './ShareModal';
+import { useAuth } from '@/hooks/useAuth';
 
 interface NotificationItem {
   id: string;
@@ -29,6 +36,16 @@ interface NotificationItem {
 const NotificationPage = () => {
   const { notifications, loading, unreadCount, markAsRead, markAllAsRead } = useNotifications();
   const navigate = useNavigate();
+  const { toast } = useToast();
+  const { user } = useAuth();
+  
+  // Modal states
+  const [selectedContent, setSelectedContent] = useState<any>(null);
+  const [showContentModal, setShowContentModal] = useState(false);
+  const [showCommentsModal, setShowCommentsModal] = useState(false);
+  const [showShareModal, setShowShareModal] = useState(false);
+  const [selectedVideoId, setSelectedVideoId] = useState<string>('');
+  const [selectedVideoTitle, setSelectedVideoTitle] = useState<string>('');
 
   const getNotificationIcon = (type: string) => {
     switch (type) {
@@ -64,14 +81,218 @@ const NotificationPage = () => {
     }
   };
 
-  const handleNotificationClick = (notification: any) => {
+  const handleNotificationClick = async (notification: any) => {
     // Mark as read
     if (!notification.is_read) {
       markAsRead(notification.id);
     }
 
-    // Navigate directly to home page to show the content
-    navigate('/');
+    // If notification has related video, fetch and show the content
+    if (notification.related_video_id) {
+      try {
+        const { data: videoData, error: videoError } = await supabase
+          .from('videos')
+          .select(`
+            id,
+            user_id,
+            video_url,
+            thumbnail_url,
+            title,
+            description,
+            category,
+            tags,
+            budget,
+            cooking_time,
+            location,
+            like_count,
+            comment_count,
+            is_public,
+            created_at,
+            updated_at
+          `)
+          .eq('id', notification.related_video_id)
+          .single();
+
+        if (videoError) throw videoError;
+
+        if (videoData) {
+          // Fetch profile data for the video owner
+          const { data: profileData } = await supabase
+            .from('profiles')
+            .select('user_id, display_name, avatar_url')
+            .eq('user_id', videoData.user_id)
+            .single();
+
+          // Check if user has liked and saved this video
+          let userLiked = false;
+          let userSaved = false;
+
+          if (user) {
+            const { data: likeData } = await supabase
+              .from('likes')
+              .select('id')
+              .eq('video_id', videoData.id)
+              .eq('user_id', user.id)
+              .single();
+
+            const { data: saveData } = await supabase
+              .from('saved_videos')
+              .select('id')
+              .eq('video_id', videoData.id)
+              .eq('user_id', user.id)
+              .single();
+
+            userLiked = !!likeData;
+            userSaved = !!saveData;
+          }
+
+          const contentWithProfile = {
+            ...videoData,
+            profiles: profileData,
+            user_liked: userLiked,
+            user_saved: userSaved
+          };
+
+          setSelectedContent(contentWithProfile);
+          setShowContentModal(true);
+        }
+      } catch (error) {
+        console.error('Error fetching video content:', error);
+        toast({
+          title: "Error",
+          description: "Failed to load content",
+          variant: "destructive"
+        });
+      }
+    } else if (notification.related_user_id && notification.type === 'follow') {
+      // Navigate to user profile if it's a follow notification
+      navigate(`/profile/${notification.related_user_id}`);
+    } else {
+      // For other types (badge, voucher), navigate to profile
+      navigate('/profile');
+    }
+  };
+
+  const handleLike = async (videoId: string) => {
+    if (!user) {
+      toast({
+        title: "Login required",
+        description: "Please login to like content",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    try {
+      const { data: existingLike } = await supabase
+        .from('likes')
+        .select('id')
+        .eq('video_id', videoId)
+        .eq('user_id', user.id)
+        .single();
+
+      if (existingLike) {
+        await supabase
+          .from('likes')
+          .delete()
+          .eq('video_id', videoId)
+          .eq('user_id', user.id);
+      } else {
+        await supabase
+          .from('likes')
+          .insert({
+            video_id: videoId,
+            user_id: user.id,
+            is_like: true
+          });
+      }
+
+      if (selectedContent?.id === videoId) {
+        setSelectedContent(prev => ({
+          ...prev,
+          like_count: existingLike ? (prev.like_count || 1) - 1 : (prev.like_count || 0) + 1,
+          user_liked: !existingLike
+        }));
+      }
+    } catch (error) {
+      console.error('Error toggling like:', error);
+      toast({
+        title: "Error",
+        description: "Failed to like content",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleSave = async (videoId: string) => {
+    if (!user) {
+      toast({
+        title: "Login required",
+        description: "Please login to save content",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    try {
+      const { data: existingSave } = await supabase
+        .from('saved_videos')
+        .select('id')
+        .eq('video_id', videoId)
+        .eq('user_id', user.id)
+        .single();
+
+      if (existingSave) {
+        await supabase
+          .from('saved_videos')
+          .delete()
+          .eq('video_id', videoId)
+          .eq('user_id', user.id);
+        
+        toast({
+          title: "Removed from saved",
+          description: "Content removed from your saved list"
+        });
+      } else {
+        await supabase
+          .from('saved_videos')
+          .insert({
+            video_id: videoId,
+            user_id: user.id
+          });
+        
+        toast({
+          title: "Saved!",
+          description: "Content added to your saved list"
+        });
+      }
+
+      if (selectedContent?.id === videoId) {
+        setSelectedContent(prev => ({
+          ...prev,
+          user_saved: !existingSave
+        }));
+      }
+    } catch (error) {
+      console.error('Error toggling save:', error);
+      toast({
+        title: "Error",
+        description: "Failed to save content",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleComment = (videoId: string, videoTitle: string) => {
+    setSelectedVideoId(videoId);
+    setSelectedVideoTitle(videoTitle);
+    setShowCommentsModal(true);
+  };
+
+  const handleShare = (videoId: string, videoTitle: string) => {
+    setSelectedVideoId(videoId);
+    setSelectedVideoTitle(videoTitle);
+    setShowShareModal(true);
   };
 
   if (loading) {
@@ -166,6 +387,45 @@ const NotificationPage = () => {
           </div>
         )}
       </div>
+
+      {/* Content Detail Modal */}
+      {selectedContent && (
+        <ContentDetailModal
+          isOpen={showContentModal}
+          onClose={() => setShowContentModal(false)}
+          content={{
+            id: selectedContent.id,
+            title: selectedContent.title,
+            description: selectedContent.description,
+            video_url: selectedContent.video_url,
+            thumbnail_url: selectedContent.thumbnail_url,
+            like_count: selectedContent.like_count || 0,
+            comment_count: selectedContent.comment_count || 0,
+            user_liked: selectedContent.user_liked || false,
+            user_saved: selectedContent.user_saved || false
+          }}
+          onLike={() => handleLike(selectedContent.id)}
+          onComment={() => handleComment(selectedContent.id, selectedContent.title)}
+          onShare={() => handleShare(selectedContent.id, selectedContent.title)}
+          onSave={() => handleSave(selectedContent.id)}
+        />
+      )}
+
+      {/* Comments Modal */}
+      <CommentsModal
+        isOpen={showCommentsModal}
+        onClose={() => setShowCommentsModal(false)}
+        videoId={selectedVideoId}
+        videoTitle={selectedVideoTitle}
+      />
+
+      {/* Share Modal */}
+      <ShareModal
+        isOpen={showShareModal}
+        onClose={() => setShowShareModal(false)}
+        videoId={selectedVideoId}
+        videoTitle={selectedVideoTitle}
+      />
 
     </div>
   );
