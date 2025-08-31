@@ -167,10 +167,10 @@ const VideoCard = ({ video, isActive, onLike, onSave, onComment, onShare }: Vide
         style={{ 
           left: '25%', 
           right: '25%', 
-          pointerEvents: 'auto'
+          pointerEvents: isVideo ? 'auto' : 'none'
         }}
       >
-        {!isPlaying && (
+        {isVideo && !isPlaying && (
           <div className="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center pointer-events-none">
             <div className="w-0 h-0 border-l-[12px] border-l-white border-y-[8px] border-y-transparent ml-1"></div>
           </div>
