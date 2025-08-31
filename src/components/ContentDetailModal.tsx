@@ -207,19 +207,19 @@ const ContentDetailModal = ({
             
             {/* Interactive buttons - Ensure they're clickable */}
             <div className="flex items-center justify-between relative z-30">
-              <div className="flex items-center space-x-8">
+              <div className="flex items-center space-x-6">
                 <button
                   onClick={(e) => {
                     e.preventDefault();
                     e.stopPropagation();
                     onLike && onLike();
                   }}
-                  className={`flex items-center space-x-2 transition-colors p-2 rounded-lg hover:bg-muted/50 ${
+                  className={`flex flex-col items-center space-y-1 transition-all duration-200 p-2 rounded-lg hover:bg-accent/50 ${
                     content.user_liked ? 'text-red-500' : 'text-muted-foreground hover:text-red-500'
                   }`}
                 >
                   <Heart className={`w-6 h-6 ${content.user_liked ? 'fill-current' : ''}`} />
-                  <span className="text-sm font-medium">{content.like_count}</span>
+                  <span className="text-xs font-medium">{content.like_count}</span>
                 </button>
                 <button
                   onClick={(e) => {
@@ -227,10 +227,10 @@ const ContentDetailModal = ({
                     e.stopPropagation();
                     onComment && onComment(content.id, content.title);
                   }}
-                  className="flex items-center space-x-2 text-muted-foreground hover:text-blue-500 transition-colors p-2 rounded-lg hover:bg-muted/50"
+                  className="flex flex-col items-center space-y-1 text-muted-foreground hover:text-blue-500 transition-all duration-200 p-2 rounded-lg hover:bg-accent/50"
                 >
                   <MessageCircle className="w-6 h-6" />
-                  <span className="text-sm font-medium">{content.comment_count}</span>
+                  <span className="text-xs font-medium">{content.comment_count}</span>
                 </button>
                 <button 
                   onClick={(e) => {
@@ -238,10 +238,10 @@ const ContentDetailModal = ({
                     e.stopPropagation();
                     onShare && onShare(content.id, content.title);
                   }}
-                  className="flex items-center space-x-2 text-muted-foreground hover:text-blue-500 transition-colors p-2 rounded-lg hover:bg-muted/50"
+                  className="flex flex-col items-center space-y-1 text-muted-foreground hover:text-green-500 transition-all duration-200 p-2 rounded-lg hover:bg-accent/50"
                 >
                   <Share className="w-6 h-6" />
-                  <span className="text-sm font-medium">Share</span>
+                  <span className="text-xs font-medium">Share</span>
                 </button>
               </div>
               
@@ -252,12 +252,12 @@ const ContentDetailModal = ({
                     e.stopPropagation();
                     onSave && onSave();
                   }}
-                  className={`flex items-center space-x-2 transition-colors p-2 rounded-lg hover:bg-muted/50 ${
+                  className={`flex flex-col items-center space-y-1 transition-all duration-200 p-2 rounded-lg hover:bg-accent/50 ${
                     content.user_saved ? 'text-yellow-500' : 'text-muted-foreground hover:text-yellow-500'
                   }`}
                 >
                   <Bookmark className={`w-6 h-6 ${content.user_saved ? 'fill-current' : ''}`} />
-                  <span className="text-sm font-medium">{content.user_saved ? 'Saved' : 'Save'}</span>
+                  <span className="text-xs font-medium">{content.user_saved ? 'Saved' : 'Save'}</span>
                 </button>
               )}
             </div>
