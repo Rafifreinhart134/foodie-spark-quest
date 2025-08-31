@@ -42,6 +42,7 @@ const ContentDetailModal = ({
 }: ContentDetailModalProps) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [showFullDescription, setShowFullDescription] = useState(false);
 
   const isVideo = content.video_url && (
     content.video_url.includes('.mp4') || 
@@ -134,10 +135,10 @@ const ContentDetailModal = ({
             </>
           )}
 
-          {/* Video Area - 3/4 of height */}
-          <div className="relative bg-black" style={{ height: '75%' }}>
+          {/* Video Area - 3/4 of height - Limited to video interaction only */}
+          <div className="relative bg-black pointer-events-none" style={{ height: '75%' }}>
             {isVideo ? (
-              <div className="w-full h-full" onClick={handleVideoClick}>
+              <div className="w-full h-full pointer-events-auto" onClick={handleVideoClick}>
                 <video
                   ref={videoRef}
                   className="w-full h-full object-contain bg-black"
@@ -178,11 +179,30 @@ const ContentDetailModal = ({
             )}
           </div>
 
-          {/* Content Info - 1/4 of height - Completely separated */}
-          <div className="bg-background border-t border-border p-4 relative z-20" style={{ height: '25%' }}>
-            {/* Title only */}
-            <div className="mb-4">
-              <h3 className="font-semibold text-lg line-clamp-2">{content.title}</h3>
+          {/* Content Info - 1/4 of height - Completely separated from video */}
+          <div className="bg-background border-t-2 border-border p-4 relative z-20 pointer-events-auto" style={{ height: '25%' }}>
+            {/* Title and Description */}
+            <div className="mb-4 overflow-y-auto max-h-16">
+              <h3 className="font-semibold text-lg mb-2 line-clamp-1">{content.title}</h3>
+              {content.description && (
+                <div className="text-muted-foreground text-sm">
+                  <p className={showFullDescription ? '' : 'line-clamp-2'}>
+                    {content.description}
+                  </p>
+                  {content.description.length > 100 && (
+                    <button
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        setShowFullDescription(!showFullDescription);
+                      }}
+                      className="text-primary text-xs mt-1 hover:underline"
+                    >
+                      {showFullDescription ? 'Show less' : 'More info'}
+                    </button>
+                  )}
+                </div>
+              )}
             </div>
             
             {/* Interactive buttons - Ensure they're clickable */}
