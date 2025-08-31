@@ -160,10 +160,27 @@ const VideoCard = ({ video, isActive, onLike, onSave, onComment, onShare }: Vide
         </div>
       )}
 
+      {/* Middle Area - Video Play/Pause Control */}
+      <div 
+        className="absolute inset-0 z-30 flex items-center justify-center"
+        onClick={handleVideoClick}
+        style={{ 
+          left: '25%', 
+          right: '25%', 
+          pointerEvents: 'auto'
+        }}
+      >
+        {!isPlaying && (
+          <div className="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center pointer-events-none">
+            <div className="w-0 h-0 border-l-[12px] border-l-white border-y-[8px] border-y-transparent ml-1"></div>
+          </div>
+        )}
+      </div>
+
       {/* Content Overlay */}
-      <div className={`absolute inset-0 flex transition-opacity duration-300 ${hideUI ? 'opacity-0' : 'opacity-100'} ${isPlaying ? 'pointer-events-none' : 'pointer-events-none'} z-20`}>
+      <div className={`absolute inset-0 flex transition-opacity duration-300 ${hideUI ? 'opacity-0' : 'opacity-100'} z-20`}>
         {/* Left Side - Content Info */}
-        <div className={`flex-1 flex flex-col justify-end p-4 pb-20 ${isPlaying ? 'pointer-events-none' : 'pointer-events-auto'}`}>
+        <div className="flex-1 flex flex-col justify-end p-4 pb-20 pointer-events-auto">
           {/* User Info - Clickable */}
           <div 
             className="flex items-center space-x-3 mb-3 cursor-pointer hover:opacity-80 transition-opacity"
@@ -224,7 +241,7 @@ const VideoCard = ({ video, isActive, onLike, onSave, onComment, onShare }: Vide
         </div>
 
         {/* Right Side - Action Buttons */}
-        <div className={`w-20 flex flex-col justify-end pb-20 pr-4 space-y-6 ${isPlaying ? 'pointer-events-none' : 'pointer-events-auto'}`}>
+        <div className="w-20 flex flex-col justify-end pb-20 pr-4 space-y-6 pointer-events-auto">
           {/* Like Button */}
           <div className="tiktok-action">
             <Button
