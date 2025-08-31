@@ -67,6 +67,10 @@ const AppRoutes = () => {
         path="/" 
         element={user ? <Index /> : <Navigate to="/auth" replace />} 
       />
+      <Route 
+        path="/profile/:userId" 
+        element={user ? <Index /> : <Navigate to="/auth" replace />} 
+      />
       <Route path="*" element={<NotFound />} />
     </Routes>
   );

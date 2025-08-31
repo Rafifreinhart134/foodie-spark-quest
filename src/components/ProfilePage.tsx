@@ -224,7 +224,7 @@ const ProfilePage = ({ onNavigateToSettings }: ProfilePageProps) => {
                     }}
                   >
                     <img
-                      src={video.thumbnail_url || video.video_url || '/placeholder.svg'}
+                      src={isVideoContent ? (video.thumbnail_url || video.video_url) : (video.video_url || video.thumbnail_url) || '/placeholder.svg'}
                       alt={video.title}
                       className="w-full h-full object-cover rounded-lg"
                     />
@@ -282,7 +282,7 @@ const ProfilePage = ({ onNavigateToSettings }: ProfilePageProps) => {
                       }}
                     >
                       <img
-                        src={video.thumbnail_url || video.video_url || '/placeholder.svg'}
+                        src={isVideoContent ? (video.thumbnail_url || video.video_url) : (video.video_url || video.thumbnail_url) || '/placeholder.svg'}
                         alt={video.title}
                         className="w-full h-full object-cover rounded-lg"
                       />

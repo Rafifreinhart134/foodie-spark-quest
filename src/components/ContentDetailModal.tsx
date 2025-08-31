@@ -1,6 +1,6 @@
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Heart, MessageCircle, Share, X } from 'lucide-react';
+import { Heart, MessageCircle, Share, X, ChevronLeft, ChevronRight, Bookmark } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
 
 interface ContentDetailModalProps {
@@ -14,10 +14,28 @@ interface ContentDetailModalProps {
     thumbnail_url?: string;
     like_count: number;
     comment_count: number;
+    user_liked?: boolean;
+    user_saved?: boolean;
   };
+  onLike?: () => void;
+  onSave?: () => void;
+  canNavigate?: boolean;
+  onNavigate?: (direction: 'prev' | 'next') => void;
+  currentIndex?: number;
+  totalCount?: number;
 }
 
-const ContentDetailModal = ({ isOpen, onClose, content }: ContentDetailModalProps) => {
+const ContentDetailModal = ({ 
+  isOpen, 
+  onClose, 
+  content, 
+  onLike, 
+  onSave, 
+  canNavigate = false, 
+  onNavigate, 
+  currentIndex = 0, 
+  totalCount = 1 
+}: ContentDetailModalProps) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
 
@@ -50,6 +68,28 @@ const ContentDetailModal = ({ isOpen, onClose, content }: ContentDetailModalProp
     }
   }, [isOpen, isVideo]);
 
+  // Keyboard navigation for content
+  useEffect(() => {
+    if (!isOpen || !canNavigate || !onNavigate) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'ArrowLeft') {
+        e.preventDefault();
+        if (currentIndex > 0) {
+          onNavigate('prev');
+        }
+      } else if (e.key === 'ArrowRight') {
+        e.preventDefault();
+        if (currentIndex < totalCount - 1) {
+          onNavigate('next');
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, canNavigate, onNavigate, currentIndex, totalCount]);
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-md w-full h-[90vh] p-0 bg-black">
@@ -63,6 +103,32 @@ const ContentDetailModal = ({ isOpen, onClose, content }: ContentDetailModalProp
           >
             <X className="w-5 h-5" />
           </Button>
+
+          {/* Navigation buttons */}
+          {canNavigate && onNavigate && (
+            <>
+              {currentIndex > 0 && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => onNavigate('prev')}
+                  className="absolute left-4 top-1/2 -translate-y-1/2 z-10 bg-black/50 text-white hover:bg-black/70"
+                >
+                  <ChevronLeft className="w-6 h-6" />
+                </Button>
+              )}
+              {currentIndex < totalCount - 1 && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => onNavigate('next')}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 z-10 bg-black/50 text-white hover:bg-black/70"
+                >
+                  <ChevronRight className="w-6 h-6" />
+                </Button>
+              )}
+            </>
+          )}
 
           {/* Media Content */}
           {isVideo ? (
@@ -113,20 +179,38 @@ const ContentDetailModal = ({ isOpen, onClose, content }: ContentDetailModalProp
               <p className="text-white/80 text-sm mb-4">{content.description}</p>
             )}
             
-            {/* Stats */}
-            <div className="flex items-center space-x-6">
-              <div className="flex items-center space-x-2 text-white">
-                <Heart className="w-5 h-5" />
-                <span className="text-sm">{content.like_count}</span>
+            {/* Interactive buttons */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-6">
+                <button
+                  onClick={onLike}
+                  className={`flex items-center space-x-2 text-white transition-colors ${
+                    content.user_liked ? 'text-red-400' : 'hover:text-red-400'
+                  }`}
+                >
+                  <Heart className={`w-5 h-5 ${content.user_liked ? 'fill-current' : ''}`} />
+                  <span className="text-sm">{content.like_count}</span>
+                </button>
+                <div className="flex items-center space-x-2 text-white">
+                  <MessageCircle className="w-5 h-5" />
+                  <span className="text-sm">{content.comment_count}</span>
+                </div>
+                <button className="flex items-center space-x-2 text-white hover:text-blue-400 transition-colors">
+                  <Share className="w-5 h-5" />
+                  <span className="text-sm">Share</span>
+                </button>
               </div>
-              <div className="flex items-center space-x-2 text-white">
-                <MessageCircle className="w-5 h-5" />
-                <span className="text-sm">{content.comment_count}</span>
-              </div>
-              <div className="flex items-center space-x-2 text-white">
-                <Share className="w-5 h-5" />
-                <span className="text-sm">Share</span>
-              </div>
+              
+              {onSave && (
+                <button
+                  onClick={onSave}
+                  className={`text-white transition-colors ${
+                    content.user_saved ? 'text-yellow-400' : 'hover:text-yellow-400'
+                  }`}
+                >
+                  <Bookmark className={`w-5 h-5 ${content.user_saved ? 'fill-current' : ''}`} />
+                </button>
+              )}
             </div>
           </div>
         </div>

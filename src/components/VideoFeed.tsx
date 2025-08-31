@@ -149,19 +149,8 @@ const VideoCard = ({ video, isActive, onLike, onSave, onComment, onShare }: Vide
             <p className={`${!showFullDescription ? 'line-clamp-2' : ''}`}>
               {video.description || video.title}
             </p>
-            {(video.description || video.title).length > 100 && (
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setShowFullDescription(!showFullDescription);
-                }}
-                className="text-white/80 text-xs mt-1 hover:text-white transition-colors"
-              >
-                {showFullDescription ? 'less' : 'more'}
-              </button>
-            )}
             
-            {/* Show hashtags when expanded */}
+            {/* Show hashtags only when expanded */}
             {showFullDescription && video.tags && video.tags.length > 0 && (
               <div className="flex flex-wrap gap-1 mt-2">
                 {video.tags.map((tag, index) => (
@@ -172,13 +161,28 @@ const VideoCard = ({ video, isActive, onLike, onSave, onComment, onShare }: Vide
               </div>
             )}
             
-            {/* Show additional info when expanded */}
+            {/* Show additional info only when expanded */}
             {showFullDescription && (
               <div className="flex flex-wrap gap-2 mt-2 text-white/80 text-xs">
                 {video.budget && <span className="bg-white/20 px-2 py-1 rounded-full">💰 {video.budget}</span>}
                 {video.cooking_time && <span className="bg-white/20 px-2 py-1 rounded-full">⏱️ {video.cooking_time}</span>}
                 {video.location && <span className="bg-white/20 px-2 py-1 rounded-full">📍 {video.location}</span>}
               </div>
+            )}
+            
+            {/* More/Less button */}
+            {((video.description || video.title).length > 100 || 
+              (video.tags && video.tags.length > 0) || 
+              video.budget || video.cooking_time || video.location) && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setShowFullDescription(!showFullDescription);
+                }}
+                className="text-white/80 text-xs mt-1 hover:text-white transition-colors"
+              >
+                {showFullDescription ? 'less' : 'more'}
+              </button>
             )}
           </div>
 
@@ -263,7 +267,7 @@ const VideoFeed = () => {
   });
   const [startY, setStartY] = useState<number | null>(null);
 
-  // Keyboard navigation
+  // Keyboard and trackpad navigation
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'ArrowUp') {
@@ -272,11 +276,32 @@ const VideoFeed = () => {
       } else if (e.key === 'ArrowDown') {
         e.preventDefault();
         setCurrentIndex(Math.min(videos.length - 1, currentIndex + 1));
+      } else if (e.key === 'ArrowLeft') {
+        e.preventDefault();
+        setCurrentIndex(Math.max(0, currentIndex - 1));
+      } else if (e.key === 'ArrowRight') {
+        e.preventDefault();
+        setCurrentIndex(Math.min(videos.length - 1, currentIndex + 1));
+      }
+    };
+
+    const handleWheel = (e: WheelEvent) => {
+      if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
+        e.preventDefault();
+        if (e.deltaY > 50) {
+          setCurrentIndex(Math.min(videos.length - 1, currentIndex + 1));
+        } else if (e.deltaY < -50) {
+          setCurrentIndex(Math.max(0, currentIndex - 1));
+        }
       }
     };
 
     window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+    window.addEventListener('wheel', handleWheel, { passive: false });
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('wheel', handleWheel);
+    };
   }, [currentIndex, videos.length]);
 
   if (loading) {
