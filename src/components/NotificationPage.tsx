@@ -4,10 +4,6 @@ import { Card } from '@/components/ui/card';
 import { useNotifications } from '@/hooks/useNotifications';
 import { formatDistanceToNow } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
-import { useState } from 'react';
-import { supabase } from '@/integrations/supabase/client';
-import ContentDetailModal from './ContentDetailModal';
-import { useVideos } from '@/hooks/useVideos';
 
 interface NotificationItem {
   id: string;
@@ -32,10 +28,7 @@ interface NotificationItem {
 
 const NotificationPage = () => {
   const { notifications, loading, unreadCount, markAsRead, markAllAsRead } = useNotifications();
-  const { toggleLike, toggleSave } = useVideos();
   const navigate = useNavigate();
-  const [selectedContent, setSelectedContent] = useState<any>(null);
-  const [isContentModalOpen, setIsContentModalOpen] = useState(false);
 
   const getNotificationIcon = (type: string) => {
     switch (type) {
@@ -71,46 +64,14 @@ const NotificationPage = () => {
     }
   };
 
-  const handleNotificationClick = async (notification: any) => {
+  const handleNotificationClick = (notification: any) => {
     // Mark as read
     if (!notification.is_read) {
       markAsRead(notification.id);
     }
 
-    // Navigate based on notification type
-    if (notification.related_video_id) {
-      // Fetch video details and open modal
-      try {
-        const { data: video } = await supabase
-          .from('videos')
-          .select(`
-            *,
-            profiles (display_name, avatar_url)
-          `)
-          .eq('id', notification.related_video_id)
-          .single();
-
-        if (video) {
-          // Map the video data to match ContentDetailModal expected format
-          const formattedContent = {
-            id: video.id,
-            title: video.title || 'Video',
-            description: video.description,
-            video_url: video.video_url,
-            thumbnail_url: video.thumbnail_url,
-            like_count: video.like_count || 0,
-            comment_count: video.comment_count || 0,
-            user_liked: false, // Will be determined by useVideos hook
-            user_saved: false  // Will be determined by useVideos hook
-          };
-          
-          setSelectedContent(formattedContent);
-          setIsContentModalOpen(true);
-        }
-      } catch (error) {
-        console.error('Error fetching video:', error);
-      }
-    }
+    // Navigate directly to home page to show the content
+    navigate('/');
   };
 
   if (loading) {
@@ -206,19 +167,6 @@ const NotificationPage = () => {
         )}
       </div>
 
-      {/* Content Detail Modal */}
-      {selectedContent && (
-        <ContentDetailModal
-          isOpen={isContentModalOpen}
-          onClose={() => {
-            setIsContentModalOpen(false);
-            setSelectedContent(null);
-          }}
-          content={selectedContent}
-          onLike={() => toggleLike(selectedContent.id)}
-          onSave={() => toggleSave(selectedContent.id)}
-        />
-      )}
     </div>
   );
 };
