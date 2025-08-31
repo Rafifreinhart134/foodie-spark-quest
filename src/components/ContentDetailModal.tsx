@@ -135,22 +135,18 @@ const ContentDetailModal = ({
             </>
           )}
 
-          {/* Video Area - 3/4 of height - Limited to video interaction only */}
-          <div className="relative bg-black pointer-events-none" style={{ height: '75%' }}>
+          {/* Video Area - 70% of height - Click area limited to video only */}
+          <div className="relative bg-black flex items-center justify-center" style={{ height: '70%' }}>
             {isVideo ? (
-              <div className="w-full h-full pointer-events-auto" onClick={handleVideoClick}>
+              <div className="relative w-4/5 h-4/5 pointer-events-auto" onClick={handleVideoClick}>
                 <video
                   ref={videoRef}
-                  className="w-full h-full object-contain bg-black"
+                  className="w-full h-full object-contain bg-black rounded-lg"
                   poster={content.thumbnail_url}
                   preload="metadata"
                   loop
                   playsInline
                   controls={false}
-                  style={{
-                    maxWidth: '100%',
-                    maxHeight: '100%',
-                  }}
                 >
                   <source src={content.video_url} type="video/mp4" />
                   Your browser does not support the video tag.
@@ -164,25 +160,20 @@ const ContentDetailModal = ({
                 )}
               </div>
             ) : (
-              <div className="w-full h-full flex items-center justify-center bg-black p-4">
+              <div className="w-4/5 h-4/5 flex items-center justify-center bg-black rounded-lg">
                 <img 
                   src={content.thumbnail_url || content.video_url}
                   alt={content.title}
-                  className="max-w-full max-h-full object-contain"
-                  style={{
-                    aspectRatio: 'auto',
-                    maxWidth: '100%',
-                    maxHeight: '100%',
-                  }}
+                  className="max-w-full max-h-full object-contain rounded-lg"
                 />
               </div>
             )}
           </div>
 
-          {/* Content Info - 1/4 of height - Completely separated from video */}
-          <div className="bg-background border-t-2 border-border p-4 relative z-20 pointer-events-auto" style={{ height: '25%' }}>
+          {/* Content Info - 30% of height - Fixed height for buttons */}
+          <div className="bg-background border-t-2 border-border p-4 relative z-20" style={{ height: '30%' }}>
             {/* Title and Description */}
-            <div className="mb-4 overflow-y-auto max-h-16">
+            <div className="mb-3">
               <h3 className="font-semibold text-lg mb-2 line-clamp-1">{content.title}</h3>
               {content.description && (
                 <div className="text-muted-foreground text-sm">
