@@ -223,29 +223,32 @@ const ProfilePage = ({ onNavigateToSettings }: ProfilePageProps) => {
                       setIsContentModalOpen(true);
                     }}
                   >
-                    <img
-                      src={isVideoContent ? (video.thumbnail_url || video.video_url) : (video.video_url || video.thumbnail_url) || '/placeholder.svg'}
-                      alt={video.title}
-                      className="w-full h-full object-cover rounded-lg"
-                    />
+                    {isVideoContent ? (
+                      <>
+                        <video 
+                          className="w-full h-full object-cover rounded-lg"
+                          src={video.video_url}
+                          poster={video.thumbnail_url}
+                          preload="metadata"
+                          muted
+                        />
+                        <div className="absolute top-2 left-2 bg-black/50 rounded-full p-1">
+                          <Play className="w-3 h-3 text-white" />
+                        </div>
+                      </>
+                    ) : (
+                      <img
+                        src={video.thumbnail_url || video.video_url || '/placeholder.svg'}
+                        alt={video.title}
+                        className="w-full h-full object-cover rounded-lg"
+                      />
+                    )}
                     <div className="absolute inset-0 bg-black/20 rounded-lg group-hover:bg-black/40 transition-all">
-                      {isVideoContent && (
-                        <div className="absolute top-2 left-2">
-                          <Play className="w-4 h-4 text-white" />
-                        </div>
-                      )}
                       <div className="absolute bottom-2 left-2 text-white text-xs">
-                        <div className="flex items-center space-x-1 mb-1">
-                          <Play className="w-3 h-3" />
-                          <span>{formatNumber(0)}</span>
-                        </div>
                         <div className="flex items-center space-x-1">
                           <Heart className="w-3 h-3" />
                           <span>{formatNumber(video.like_count || 0)}</span>
                         </div>
-                      </div>
-                      <div className="absolute bottom-2 right-2 bg-black/70 text-white text-xs px-1 rounded">
-                        {video.cooking_time || '2:30'}
                       </div>
                     </div>
                   </div>
