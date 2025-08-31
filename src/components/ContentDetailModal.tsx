@@ -19,6 +19,8 @@ interface ContentDetailModalProps {
   };
   onLike?: () => void;
   onSave?: () => void;
+  onComment?: () => void;
+  onShare?: () => void;
   canNavigate?: boolean;
   onNavigate?: (direction: 'prev' | 'next') => void;
   currentIndex?: number;
@@ -31,6 +33,8 @@ const ContentDetailModal = ({
   content, 
   onLike, 
   onSave, 
+  onComment,
+  onShare,
   canNavigate = false, 
   onNavigate, 
   currentIndex = 0, 
@@ -191,11 +195,17 @@ const ContentDetailModal = ({
                   <Heart className={`w-5 h-5 ${content.user_liked ? 'fill-current' : ''}`} />
                   <span className="text-sm">{content.like_count}</span>
                 </button>
-                <div className="flex items-center space-x-2 text-white">
+                <button
+                  onClick={onComment}
+                  className="flex items-center space-x-2 text-white hover:text-blue-400 transition-colors"
+                >
                   <MessageCircle className="w-5 h-5" />
                   <span className="text-sm">{content.comment_count}</span>
-                </div>
-                <button className="flex items-center space-x-2 text-white hover:text-blue-400 transition-colors">
+                </button>
+                <button 
+                  onClick={onShare}
+                  className="flex items-center space-x-2 text-white hover:text-blue-400 transition-colors"
+                >
                   <Share className="w-5 h-5" />
                   <span className="text-sm">Share</span>
                 </button>
