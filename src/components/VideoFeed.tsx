@@ -161,9 +161,9 @@ const VideoCard = ({ video, isActive, onLike, onSave, onComment, onShare }: Vide
       )}
 
       {/* Content Overlay */}
-      <div className={`absolute inset-0 flex transition-opacity duration-300 ${hideUI ? 'opacity-0' : 'opacity-100'} ${isPlaying ? 'pointer-events-none' : 'pointer-events-none'} z-20`}>
+      <div className={`absolute inset-0 flex transition-opacity duration-300 ${hideUI ? 'opacity-0' : 'opacity-100'} pointer-events-none z-20`}>
         {/* Left Side - Content Info */}
-        <div className={`flex-1 flex flex-col justify-end p-4 pb-20 ${!isPlaying ? 'pointer-events-auto' : 'pointer-events-none'}`}>
+        <div className="flex-1 flex flex-col justify-end p-4 pb-20 pointer-events-auto">
           {/* User Info - Clickable */}
           <div 
             className="flex items-center space-x-3 mb-3 cursor-pointer hover:opacity-80 transition-opacity"
@@ -224,7 +224,7 @@ const VideoCard = ({ video, isActive, onLike, onSave, onComment, onShare }: Vide
         </div>
 
         {/* Right Side - Action Buttons */}
-        <div className={`w-20 flex flex-col justify-end pb-20 pr-4 space-y-6 ${!isPlaying ? 'pointer-events-auto' : 'pointer-events-none'}`}>
+        <div className="w-20 flex flex-col justify-end pb-20 pr-4 space-y-6 pointer-events-auto">
           {/* Like Button */}
           <div className="tiktok-action">
             <Button
