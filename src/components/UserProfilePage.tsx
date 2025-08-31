@@ -142,11 +142,13 @@ const UserProfilePage = () => {
           {/* Profile info */}
           <div className="px-4 pb-6">
             <div className="flex items-end -mt-16 mb-4">
-              <img
-                src={profile.avatar_url || '/placeholder.svg'}
-                alt={profile.display_name || 'User'}
-                className="w-24 h-24 rounded-full border-4 border-white shadow-lg object-cover aspect-square"
-              />
+              <div className="w-24 h-24 rounded-full border-4 border-white shadow-lg overflow-hidden">
+                <img
+                  src={profile.avatar_url || '/placeholder.svg'}
+                  alt={profile.display_name || 'User'}
+                  className="w-full h-full object-cover"
+                />
+              </div>
               <div className="ml-4 flex-1">
                 <h1 className="text-xl font-bold">{profile.display_name || 'Anonymous User'}</h1>
                 <p className="text-muted-foreground">@{profile.display_name?.toLowerCase().replace(/\s+/g, '_') || 'user'}</p>
@@ -226,7 +228,7 @@ const UserProfilePage = () => {
                 onClick={() => handleContentClick(video, index)}
               >
                 {isVideoContent ? (
-                  <div className="relative w-full h-full">
+                  <>
                     <video 
                       className="w-full h-full object-cover rounded-lg"
                       src={video.video_url}
@@ -234,10 +236,10 @@ const UserProfilePage = () => {
                       preload="metadata"
                       muted
                     />
-                    <div className="absolute top-2 left-2">
-                      <Play className="w-4 h-4 text-white" />
+                    <div className="absolute top-2 left-2 bg-black/50 rounded-full p-1">
+                      <Play className="w-3 h-3 text-white" />
                     </div>
-                  </div>
+                  </>
                 ) : (
                   <img
                     src={video.thumbnail_url || video.video_url || '/placeholder.svg'}
@@ -251,9 +253,6 @@ const UserProfilePage = () => {
                       <Heart className="w-3 h-3" />
                       <span>{formatNumber(video.like_count || 0)}</span>
                     </div>
-                  </div>
-                  <div className="absolute bottom-2 right-2 bg-black/70 text-white text-xs px-1 rounded">
-                    {video.cooking_time || '2:30'}
                   </div>
                 </div>
               </div>

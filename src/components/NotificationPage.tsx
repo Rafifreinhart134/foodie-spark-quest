@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import ContentDetailModal from './ContentDetailModal';
+import { useVideos } from '@/hooks/useVideos';
 
 interface NotificationItem {
   id: string;
@@ -31,6 +32,7 @@ interface NotificationItem {
 
 const NotificationPage = () => {
   const { notifications, loading, unreadCount, markAsRead, markAllAsRead } = useNotifications();
+  const { toggleLike, toggleSave } = useVideos();
   const navigate = useNavigate();
   const [selectedContent, setSelectedContent] = useState<any>(null);
   const [isContentModalOpen, setIsContentModalOpen] = useState(false);
@@ -200,8 +202,8 @@ const NotificationPage = () => {
             setSelectedContent(null);
           }}
           content={selectedContent}
-          onLike={() => {}}
-          onSave={() => {}}
+          onLike={() => toggleLike(selectedContent.id)}
+          onSave={() => toggleSave(selectedContent.id)}
         />
       )}
     </div>
