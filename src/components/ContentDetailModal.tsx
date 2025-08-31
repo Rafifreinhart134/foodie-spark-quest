@@ -178,53 +178,66 @@ const ContentDetailModal = ({
             )}
           </div>
 
-          {/* Content Info - 1/4 of height */}
-          <div className="bg-background p-4" style={{ height: '25%' }}>
-            {/* Title and Description */}
+          {/* Content Info - 1/4 of height - Completely separated */}
+          <div className="bg-background border-t border-border p-4 relative z-20" style={{ height: '25%' }}>
+            {/* Title only */}
             <div className="mb-4">
-              <h3 className="font-semibold text-lg mb-2 line-clamp-1">{content.title}</h3>
-              {content.description && (
-                <p className="text-muted-foreground text-sm line-clamp-2">{content.description}</p>
-              )}
+              <h3 className="font-semibold text-lg line-clamp-2">{content.title}</h3>
             </div>
             
-            {/* Interactive buttons */}
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-6">
+            {/* Interactive buttons - Ensure they're clickable */}
+            <div className="flex items-center justify-between relative z-30">
+              <div className="flex items-center space-x-8">
                 <button
-                  onClick={onLike}
-                  className={`flex items-center space-x-2 transition-colors ${
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    onLike && onLike();
+                  }}
+                  className={`flex items-center space-x-2 transition-colors p-2 rounded-lg hover:bg-muted/50 ${
                     content.user_liked ? 'text-red-500' : 'text-muted-foreground hover:text-red-500'
                   }`}
                 >
-                  <Heart className={`w-5 h-5 ${content.user_liked ? 'fill-current' : ''}`} />
-                  <span className="text-sm">{content.like_count}</span>
+                  <Heart className={`w-6 h-6 ${content.user_liked ? 'fill-current' : ''}`} />
+                  <span className="text-sm font-medium">{content.like_count}</span>
                 </button>
                 <button
-                  onClick={() => onComment && onComment(content.id, content.title)}
-                  className="flex items-center space-x-2 text-muted-foreground hover:text-blue-500 transition-colors"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    onComment && onComment(content.id, content.title);
+                  }}
+                  className="flex items-center space-x-2 text-muted-foreground hover:text-blue-500 transition-colors p-2 rounded-lg hover:bg-muted/50"
                 >
-                  <MessageCircle className="w-5 h-5" />
-                  <span className="text-sm">{content.comment_count}</span>
+                  <MessageCircle className="w-6 h-6" />
+                  <span className="text-sm font-medium">{content.comment_count}</span>
                 </button>
                 <button 
-                  onClick={() => onShare && onShare(content.id, content.title)}
-                  className="flex items-center space-x-2 text-muted-foreground hover:text-blue-500 transition-colors"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    onShare && onShare(content.id, content.title);
+                  }}
+                  className="flex items-center space-x-2 text-muted-foreground hover:text-blue-500 transition-colors p-2 rounded-lg hover:bg-muted/50"
                 >
-                  <Share className="w-5 h-5" />
-                  <span className="text-sm">Share</span>
+                  <Share className="w-6 h-6" />
+                  <span className="text-sm font-medium">Share</span>
                 </button>
               </div>
               
               {onSave && (
                 <button
-                  onClick={onSave}
-                  className={`flex items-center space-x-2 transition-colors ${
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    onSave && onSave();
+                  }}
+                  className={`flex items-center space-x-2 transition-colors p-2 rounded-lg hover:bg-muted/50 ${
                     content.user_saved ? 'text-yellow-500' : 'text-muted-foreground hover:text-yellow-500'
                   }`}
                 >
-                  <Bookmark className={`w-5 h-5 ${content.user_saved ? 'fill-current' : ''}`} />
-                  <span className="text-sm">{content.user_saved ? 'Saved' : 'Save'}</span>
+                  <Bookmark className={`w-6 h-6 ${content.user_saved ? 'fill-current' : ''}`} />
+                  <span className="text-sm font-medium">{content.user_saved ? 'Saved' : 'Save'}</span>
                 </button>
               )}
             </div>
