@@ -8,6 +8,8 @@ import { useToast } from '@/hooks/use-toast';
 import { useVideos } from '@/hooks/useVideos';
 import { useFollow } from '@/hooks/useFollow';
 import ContentDetailModal from './ContentDetailModal';
+import { CommentsModal } from './CommentsModal';
+import { ShareModal } from './ShareModal';
 import UserBadges from './UserBadges';
 
 const UserProfilePage = () => {
@@ -25,6 +27,12 @@ const UserProfilePage = () => {
   const [isContentModalOpen, setIsContentModalOpen] = useState(false);
   const [currentContentIndex, setCurrentContentIndex] = useState(0);
   const [activeTab, setActiveTab] = useState<'content' | 'badges'>('content');
+  
+  // Modal states for comments and share
+  const [showCommentsModal, setShowCommentsModal] = useState(false);
+  const [showShareModal, setShowShareModal] = useState(false);
+  const [selectedVideoId, setSelectedVideoId] = useState<string>('');
+  const [selectedVideoTitle, setSelectedVideoTitle] = useState<string>('');
 
   useEffect(() => {
     if (userId) {
@@ -97,6 +105,139 @@ const UserProfilePage = () => {
     
     setCurrentContentIndex(newIndex);
     setSelectedContent(userVideos[newIndex]);
+  };
+
+  const handleLike = async (videoId: string) => {
+    if (!user) {
+      toast({
+        title: "Login required",
+        description: "Please login to like content",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    try {
+      const { data: existingLike } = await supabase
+        .from('likes')
+        .select('id')
+        .eq('video_id', videoId)
+        .eq('user_id', user.id)
+        .single();
+
+      if (existingLike) {
+        await supabase
+          .from('likes')
+          .delete()
+          .eq('video_id', videoId)
+          .eq('user_id', user.id);
+      } else {
+        await supabase
+          .from('likes')
+          .insert({
+            video_id: videoId,
+            user_id: user.id,
+            is_like: true
+          });
+      }
+
+      // Update local state
+      setUserVideos(prev => prev.map(item => 
+        item.id === videoId 
+          ? { 
+              ...item, 
+              like_count: existingLike ? (item.like_count || 1) - 1 : (item.like_count || 0) + 1,
+              user_liked: !existingLike 
+            }
+          : item
+      ));
+
+      if (selectedContent?.id === videoId) {
+        setSelectedContent(prev => ({
+          ...prev,
+          like_count: existingLike ? (prev.like_count || 1) - 1 : (prev.like_count || 0) + 1,
+          user_liked: !existingLike
+        }));
+      }
+    } catch (error) {
+      console.error('Error toggling like:', error);
+      toast({
+        title: "Error",
+        description: "Failed to like content",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleSave = async (videoId: string) => {
+    if (!user) {
+      toast({
+        title: "Login required",
+        description: "Please login to save content",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    try {
+      const { data: existingSave } = await supabase
+        .from('saved_videos')
+        .select('id')
+        .eq('video_id', videoId)
+        .eq('user_id', user.id)
+        .single();
+
+      if (existingSave) {
+        await supabase
+          .from('saved_videos')
+          .delete()
+          .eq('video_id', videoId)
+          .eq('user_id', user.id);
+        
+        toast({
+          title: "Removed from saved",
+          description: "Content removed from your saved list"
+        });
+      } else {
+        await supabase
+          .from('saved_videos')
+          .insert({
+            video_id: videoId,
+            user_id: user.id
+          });
+        
+        toast({
+          title: "Saved!",
+          description: "Content added to your saved list"
+        });
+      }
+
+      if (selectedContent?.id === videoId) {
+        setSelectedContent(prev => ({
+          ...prev,
+          user_saved: !existingSave
+        }));
+      }
+    } catch (error) {
+      console.error('Error toggling save:', error);
+      toast({
+        title: "Error",
+        description: "Failed to save content",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleComment = (videoId: string, videoTitle: string) => {
+    setSelectedVideoId(videoId);
+    setSelectedVideoTitle(videoTitle);
+    setShowCommentsModal(true);
+  };
+
+  const handleShare = (videoId: string, videoTitle: string) => {
+    setSelectedVideoId(videoId);
+    setSelectedVideoTitle(videoTitle);
+    setShowShareModal(true);
   };
 
   if (isLoading) {
@@ -303,14 +444,32 @@ const UserProfilePage = () => {
             setSelectedContent(null);
           }}
           content={selectedContent}
-          onLike={() => toggleLike(selectedContent.id)}
-          onSave={() => toggleSave(selectedContent.id)}
+          onLike={() => handleLike(selectedContent.id)}
+          onComment={() => handleComment(selectedContent.id, selectedContent.title)}
+          onShare={() => handleShare(selectedContent.id, selectedContent.title)}
+          onSave={() => handleSave(selectedContent.id)}
           canNavigate={userVideos.length > 1}
           onNavigate={handleNavigation}
           currentIndex={currentContentIndex}
           totalCount={userVideos.length}
         />
       )}
+
+      {/* Comments Modal */}
+      <CommentsModal
+        isOpen={showCommentsModal}
+        onClose={() => setShowCommentsModal(false)}
+        videoId={selectedVideoId}
+        videoTitle={selectedVideoTitle}
+      />
+
+      {/* Share Modal */}
+      <ShareModal
+        isOpen={showShareModal}
+        onClose={() => setShowShareModal(false)}
+        videoId={selectedVideoId}
+        videoTitle={selectedVideoTitle}
+      />
     </div>
   );
 };
