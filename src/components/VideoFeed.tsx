@@ -65,11 +65,15 @@ const VideoCard = ({ video, isActive, onLike, onSave, onComment, onShare }: Vide
     e.preventDefault();
     e.stopPropagation();
     
+    console.log('Video clicked!', { isVideo, isPlaying, hasVideoRef: !!videoRef.current });
+    
     if (videoRef.current && isVideo) {
       if (isPlaying) {
+        console.log('Pausing video');
         videoRef.current.pause();
         setIsPlaying(false);
       } else {
+        console.log('Playing video');
         videoRef.current.muted = false;
         videoRef.current.play();
         setIsPlaying(true);
