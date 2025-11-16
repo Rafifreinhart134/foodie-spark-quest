@@ -24,7 +24,7 @@ export default {
 		extend: {
 			fontFamily: {
 				'poppins': ['Poppins', 'sans-serif'],
-				'dancing': ['Dancing Script', 'cursive'],
+				'inter': ['Inter', 'sans-serif'],
 			},
 			colors: {
 				border: 'hsl(var(--border))',
@@ -34,27 +34,15 @@ export default {
 				foreground: 'hsl(var(--foreground))',
 				primary: {
 					DEFAULT: 'hsl(var(--primary))',
-					glow: 'hsl(var(--primary-glow))',
-					dark: 'hsl(var(--primary-dark))',
 					foreground: 'hsl(var(--primary-foreground))'
 				},
 				secondary: {
 					DEFAULT: 'hsl(var(--secondary))',
-					glow: 'hsl(var(--secondary-glow))',
 					foreground: 'hsl(var(--secondary-foreground))'
 				},
 				accent: {
 					DEFAULT: 'hsl(var(--accent))',
-					bright: 'hsl(var(--accent-bright))',
 					foreground: 'hsl(var(--accent-foreground))'
-				},
-				success: {
-					DEFAULT: 'hsl(var(--success))',
-					foreground: 'hsl(var(--success-foreground))'
-				},
-				warning: {
-					DEFAULT: 'hsl(var(--warning))',
-					foreground: 'hsl(var(--warning-foreground))'
 				},
 				destructive: {
 					DEFAULT: 'hsl(var(--destructive))',
@@ -72,20 +60,53 @@ export default {
 					DEFAULT: 'hsl(var(--card))',
 					foreground: 'hsl(var(--card-foreground))'
 				},
-				// Food App Specific Colors
-				food: {
-					red: 'hsl(var(--food-red))',
-					orange: 'hsl(var(--food-orange))',
-					yellow: 'hsl(var(--food-yellow))',
-					green: 'hsl(var(--food-green))',
-					brown: 'hsl(var(--food-brown))',
-					cream: 'hsl(var(--food-cream))',
+				// COFRE Brand Colors
+				green: {
+					900: 'hsl(var(--green-900))',
+					800: 'hsl(var(--green-800))',
+					700: 'hsl(var(--green-700))',
+					600: 'hsl(var(--green-600))',
+					300: 'hsl(var(--green-300))',
+					100: 'hsl(var(--green-100))',
+				},
+				cream: {
+					100: 'hsl(var(--cream-100))',
+					200: 'hsl(var(--cream-200))',
+					300: 'hsl(var(--cream-300))',
+					400: 'hsl(var(--cream-400))',
+					700: 'hsl(var(--cream-700))',
+					900: 'hsl(var(--cream-900))',
+				},
+				dark: {
+					900: 'hsl(var(--dark-900))',
+					800: 'hsl(var(--dark-800))',
+					700: 'hsl(var(--dark-700))',
+					600: 'hsl(var(--dark-600))',
+					400: 'hsl(var(--dark-400))',
+					200: 'hsl(var(--dark-200))',
+					100: 'hsl(var(--dark-100))',
+				},
+				error: 'hsl(var(--error))',
+				warning: 'hsl(var(--warning))',
+				success: 'hsl(var(--success))',
+				info: 'hsl(var(--info))',
+				sidebar: {
+					DEFAULT: 'hsl(var(--sidebar-background))',
+					foreground: 'hsl(var(--sidebar-foreground))',
+					primary: 'hsl(var(--sidebar-primary))',
+					'primary-foreground': 'hsl(var(--sidebar-primary-foreground))',
+					accent: 'hsl(var(--sidebar-accent))',
+					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
+					border: 'hsl(var(--sidebar-border))',
+					ring: 'hsl(var(--sidebar-ring))',
 				}
 			},
 			borderRadius: {
-				lg: 'var(--radius)',
-				md: 'calc(var(--radius) - 2px)',
-				sm: 'calc(var(--radius) - 4px)'
+				lg: '1rem',      // 16px - cards
+				md: '0.75rem',   // 12px - buttons, inputs
+				sm: '0.625rem',  // 10px - chips
+				'2xl': '1rem',   // 16px
+				'xl': '0.75rem', // 12px
 			},
 			keyframes: {
 				'accordion-down': {

@@ -1,136 +1,128 @@
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Dancing+Script:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* FoodTok Design System - Cream & Green Modern Theme */
+/* COFRE Design System - Natural Culinary Modern Theme */
 
 @layer base {
   :root {
-    /* Core Cream & Green Palette */
-    --background: 45 25% 92%; /* #EDE8D0 cream background */
-    --foreground: 152 100% 8%; /* #06402B dark green text */
+    /* COFRE Brand Colors - Light Mode */
+    --green-900: 150 85% 7%;    /* #032017 */
+    --green-800: 150 85% 13%;   /* #06402B */
+    --green-700: 150 85% 20%;   /* #095D3E */
+    --green-600: 150 85% 27%;   /* #0C7B52 */
+    --green-300: 150 45% 50%;   /* #4EA982 */
+    --green-100: 150 45% 85%;   /* #C9E7D9 */
 
-    --card: 45 30% 95%; /* lighter cream for cards */
-    --card-foreground: 152 100% 8%;
+    /* Cream Neutrals */
+    --cream-100: 0 0% 100%;      /* #FFFFFF */
+    --cream-200: 45 60% 95%;     /* #F7F4E7 */
+    --cream-300: 45 40% 88%;     /* #EDE8D0 */
+    --cream-400: 45 30% 85%;     /* #DCD6BE */
+    --cream-700: 45 10% 52%;     /* #918B74 */
+    --cream-900: 45 10% 23%;     /* #3D3A30 */
 
-    --popover: 45 30% 95%;
-    --popover-foreground: 152 100% 8%;
+    /* Semantic Colors */
+    --error: 0 65% 55%;          /* #D64545 */
+    --warning: 45 75% 60%;       /* #EAC54F */
+    --success: 150 85% 27%;      /* #0C7B52 */
+    --info: 210 45% 45%;         /* #3A6EA5 */
 
-    /* Primary - Deep Green */
-    --primary: 152 85% 12%; /* #06402B deep green */
-    --primary-glow: 152 70% 20%; /* lighter green glow */
-    --primary-dark: 152 95% 8%; /* darker green */
-    --primary-foreground: 45 25% 92%; /* cream text on green */
+    /* Core Tokens - Light Mode */
+    --background: 45 40% 88%;    /* #EDE8D0 cream background */
+    --foreground: 45 10% 23%;    /* #3D3A30 primary text */
 
-    /* Secondary - Medium Green */
-    --secondary: 152 60% 25%; /* medium green */
-    --secondary-glow: 152 50% 35%;
-    --secondary-foreground: 45 25% 92%;
+    --card: 0 0% 100%;           /* #FFFFFF cards */
+    --card-foreground: 45 10% 23%;
 
-    /* Accent - Cream tones */
-    --accent: 45 35% 85%; /* warm cream accent */
-    --accent-bright: 45 40% 80%;
-    --accent-foreground: 152 100% 8%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 45 10% 23%;
 
-    /* Neutral Tones */
-    --muted: 45 20% 88%; /* muted cream */
-    --muted-foreground: 152 30% 35%; /* muted green */
+    --primary: 150 85% 13%;      /* #06402B deep green */
+    --primary-foreground: 0 0% 100%;
 
-    --success: 152 85% 12%; /* green for success */
-    --success-foreground: 45 25% 92%;
+    --secondary: 150 45% 50%;    /* #4EA982 medium green */
+    --secondary-foreground: 0 0% 100%;
 
-    --warning: 38 85% 50%; /* warm warning color */
-    --warning-foreground: 152 100% 8%;
+    --accent: 150 45% 85%;       /* #C9E7D9 soft green accent */
+    --accent-foreground: 150 85% 13%;
 
-    --destructive: 0 84% 60%;
+    --muted: 45 30% 85%;         /* #DCD6BE muted cream */
+    --muted-foreground: 45 10% 52%; /* #918B74 */
+
+    --destructive: 0 65% 55%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 45 15% 80%; /* cream border */
-    --input: 45 20% 88%; /* cream input */
-    --ring: 152 85% 12%; /* green focus ring */
+    --border: 45 30% 85%;        /* #DCD6BE */
+    --input: 0 0% 100%;          /* #FFFFFF */
+    --ring: 150 85% 13%;         /* #06402B focus ring */
 
-    --radius: 1rem; /* more rounded for modern feel */
-
-    /* FoodTok Specific Colors */
-    --foodtok-cream: 45 25% 92%; /* #EDE8D0 */
-    --foodtok-green: 152 85% 12%; /* #06402B */
-    --foodtok-green-light: 152 60% 25%;
-    --foodtok-cream-light: 45 35% 95%;
-    --foodtok-cream-dark: 45 20% 85%;
-
-    /* Gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary-glow)));
-    --gradient-secondary: linear-gradient(135deg, hsl(var(--secondary)), hsl(var(--secondary-glow)));
-    --gradient-warm: linear-gradient(135deg, hsl(var(--food-orange)), hsl(var(--food-red)));
-    --gradient-golden: linear-gradient(135deg, hsl(var(--food-yellow)), hsl(var(--accent-bright)));
-    --gradient-food: linear-gradient(135deg, hsl(var(--food-orange)) 0%, hsl(var(--food-red)) 50%, hsl(var(--food-yellow)) 100%);
+    --radius: 0.75rem;           /* 12px default radius */
 
     /* Shadows */
-    --shadow-warm: 0 10px 30px -10px hsl(var(--primary) / 0.3);
-    --shadow-glow: 0 0 40px hsl(var(--primary-glow) / 0.3);
-    --shadow-card: 0 4px 20px -2px hsl(var(--primary) / 0.1);
+    --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.06);
+    --shadow-elevated: 0 4px 12px rgba(0, 0, 0, 0.08);
 
     /* Animations */
-    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    --transition-bounce: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    --transition-fast: 100ms ease-out;
+    --transition-base: 280ms cubic-bezier(0.22, 0.61, 0.36, 1);
+    --transition-smooth: 320ms ease-in-out;
 
     --sidebar-background: 0 0% 98%;
-
     --sidebar-foreground: 240 5.3% 26.1%;
-
     --sidebar-primary: 240 5.9% 10%;
-
     --sidebar-primary-foreground: 0 0% 98%;
-
     --sidebar-accent: 240 4.8% 95.9%;
-
     --sidebar-accent-foreground: 240 5.9% 10%;
-
     --sidebar-border: 220 13% 91%;
-
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
 
   .dark {
-    /* Dark mode: Dark green dominant with cream accents */
-    --background: 152 95% 8%; /* very dark green background */
-    --foreground: 45 30% 95%; /* cream text */
+    /* COFRE Dark Mode - Deep Green Base */
+    --dark-900: 150 90% 5%;      /* #02150F darkest */
+    --dark-800: 150 85% 7%;      /* #032017 main bg */
+    --dark-700: 150 80% 12%;     /* #063425 surfaces */
+    --dark-600: 150 75% 18%;     /* #094A33 elevated */
+    --dark-400: 150 60% 30%;     /* #1C6B4C accents */
+    --dark-200: 150 45% 45%;     /* #3C8F6C secondary */
+    --dark-100: 150 40% 75%;     /* #A8DCC4 soft text */
 
-    --card: 152 85% 10%; /* dark green cards */
-    --card-foreground: 45 30% 95%;
+    /* Light Text for Dark Mode */
+    --text-primary: 45 70% 98%;   /* #FDFCF8 */
+    --text-secondary: 45 50% 90%; /* #E7E4D9 */
+    --text-tertiary: 45 30% 82%;  /* #CFCBBE */
 
-    --popover: 152 85% 10%;
-    --popover-foreground: 45 30% 95%;
+    --background: 150 85% 7%;     /* #032017 dark green bg */
+    --foreground: 45 70% 98%;     /* #FDFCF8 cream text */
 
-    /* Primary in dark: cream/light colors */
-    --primary: 45 30% 95%; /* cream primary in dark */
-    --primary-foreground: 152 95% 8%; /* dark green text on cream */
+    --card: 150 80% 12%;          /* #063425 dark green cards */
+    --card-foreground: 45 70% 98%;
 
-    /* Secondary: medium green */
-    --secondary: 152 60% 20%;
-    --secondary-foreground: 45 30% 95%;
+    --popover: 150 80% 12%;
+    --popover-foreground: 45 70% 98%;
 
-    /* Accent: warm cream */
-    --accent: 45 25% 85%;
-    --accent-foreground: 152 95% 8%;
+    --primary: 150 40% 75%;       /* #A8DCC4 light green in dark */
+    --primary-foreground: 150 90% 5%; /* #02150F dark text on light */
 
-    --muted: 152 80% 12%; /* dark green muted */
-    --muted-foreground: 45 20% 75%; /* cream muted text */
+    --secondary: 150 60% 30%;     /* #1C6B4C */
+    --secondary-foreground: 45 70% 98%;
 
-    --success: 152 70% 25%; /* lighter green for success in dark */
-    --success-foreground: 45 30% 95%;
+    --accent: 150 60% 30%;
+    --accent-foreground: 45 70% 98%;
 
-    --warning: 38 85% 60%;
-    --warning-foreground: 152 95% 8%;
+    --muted: 150 75% 18%;         /* #094A33 */
+    --muted-foreground: 45 30% 82%; /* #CFCBBE */
 
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 45 30% 95%;
+    --destructive: 0 65% 55%;
+    --destructive-foreground: 45 70% 98%;
 
-    --border: 152 70% 15%; /* dark green border */
-    --input: 152 80% 12%; /* dark green input */
-    --ring: 45 30% 95%; /* cream focus ring */
+    --border: 150 75% 18%;        /* #094A33 */
+    --input: 150 80% 12%;         /* #063425 */
+    --ring: 150 40% 75%;          /* #A8DCC4 focus ring */
+
     --sidebar-background: 240 5.9% 10%;
     --sidebar-foreground: 240 4.8% 95.9%;
     --sidebar-primary: 224.3 76.3% 48%;
@@ -148,91 +140,62 @@
   }
 
   body {
-    @apply bg-background text-foreground font-poppins;
+    @apply bg-background text-foreground;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  }
+
+  h1, h2, h3, h4, h5, h6, button {
+    font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   }
 }
 
 @layer utilities {
-  /* Food App Custom Utilities */
-  .gradient-primary {
-    background: var(--gradient-primary);
-  }
-  
-  .gradient-secondary {
-    background: var(--gradient-secondary);
-  }
-  
-  .gradient-warm {
-    background: var(--gradient-warm);
-  }
-  
-  .gradient-golden {
-    background: var(--gradient-golden);
-  }
-  
-  .gradient-food {
-    background: var(--gradient-food);
-  }
-  
-  .shadow-warm {
-    box-shadow: var(--shadow-warm);
-  }
-  
-  .shadow-glow {
-    box-shadow: var(--shadow-glow);
-  }
-  
+  /* COFRE Custom Utilities */
   .shadow-card {
     box-shadow: var(--shadow-card);
+  }
+  
+  .shadow-elevated {
+    box-shadow: var(--shadow-elevated);
+  }
+  
+  .transition-fast {
+    transition: var(--transition-fast);
+  }
+  
+  .transition-base {
+    transition: var(--transition-base);
   }
   
   .transition-smooth {
     transition: var(--transition-smooth);
   }
+
+  /* COFRE Card Grid System */
+  .cofre-card-grid {
+    @apply grid grid-cols-2 gap-4 p-4;
+  }
   
-  .transition-bounce {
-    transition: var(--transition-bounce);
+  .cofre-card {
+    @apply bg-card rounded-2xl overflow-hidden shadow-card transition-transform duration-200 hover:scale-[1.02];
+  }
+  
+  .cofre-card-thumbnail {
+    @apply w-full aspect-[4/5] object-cover;
+  }
+  
+  .cofre-card-content {
+    @apply p-3 space-y-2;
   }
 
-  /* Responsive Video Container */
-  .video-container {
-    @apply relative w-full h-screen bg-black overflow-hidden;
-  }
-  
-  .video-overlay {
-    @apply absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent;
-  }
-  
-  /* Responsive Media Content */
-  .responsive-media {
-    @apply w-full h-full object-contain;
-  }
-  
-  @media (max-width: 768px) {
-    .responsive-media {
-      @apply object-cover;
-    }
-  }
-  
-  /* Portrait content on desktop */
-  @media (min-width: 768px) {
-    .video-container {
-      @apply flex items-center justify-center;
-    }
-  }
-  
   /* Interactive Elements */
   .action-button {
-    @apply relative flex items-center justify-center w-12 h-12 rounded-full bg-black/20 backdrop-blur-sm border border-white/20 transition-all duration-300 hover:scale-110 active:scale-95;
-  }
-  
-  .floating-action {
-    @apply fixed bottom-20 right-6 w-14 h-14 rounded-full gradient-primary shadow-glow flex items-center justify-center transition-bounce hover:scale-110 active:scale-95 z-50;
+    @apply relative flex items-center justify-center w-12 h-12 rounded-xl bg-card/80 backdrop-blur-sm border border-border transition-fast hover:scale-110 active:scale-95;
   }
 
-  /* Food Category Pills */
-  .category-pill {
-    @apply inline-flex items-center px-3 py-1.5 rounded-full text-xs font-medium bg-white/10 backdrop-blur-sm border border-white/20 text-white transition-all duration-300 hover:bg-white/20;
+  /* Category Pills - COFRE Style */
+  .cofre-chip {
+    @apply inline-flex items-center px-3 py-1 rounded-[10px] text-xs font-medium bg-accent text-accent-foreground transition-fast;
   }
 
   /* Text truncation utilities */
@@ -245,22 +208,9 @@
 }
 
 @layer components {
-  /* TikTok-style Action Buttons */
-  .tiktok-action {
-    @apply flex flex-col items-center space-y-1;
-  }
-  
-  .tiktok-action button {
-    @apply w-12 h-12 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 flex items-center justify-center text-white transition-all duration-300 hover:scale-110 active:scale-95;
-  }
-  
-  .tiktok-action span {
-    @apply text-xs text-white font-medium;
-  }
-
-  /* Bottom Navigation */
+  /* COFRE Bottom Navigation */
   .nav-item {
-    @apply flex flex-col items-center justify-center space-y-1 py-2 px-3 transition-all duration-300;
+    @apply flex flex-col items-center justify-center space-y-1 py-2 px-3 transition-fast;
   }
   
   .nav-item.active {
@@ -268,7 +218,7 @@
   }
   
   .nav-item .nav-icon {
-    @apply w-6 h-6 transition-all duration-300;
+    @apply w-6 h-6 transition-fast;
   }
   
   .nav-item.active .nav-icon {
@@ -276,6 +226,6 @@
   }
   
   .nav-item .nav-label {
-    @apply text-xs font-medium;
+    @apply text-[10px] font-medium;
   }
 }
