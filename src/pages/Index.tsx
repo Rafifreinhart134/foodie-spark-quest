@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useLocation } from 'react-router-dom';
-import { Search, Bell } from 'lucide-react';
+import { Search, Inbox } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import VideoFeed from '@/components/VideoFeed';
 import SearchPage from '@/components/SearchPage';
@@ -67,26 +67,28 @@ const Index = () => {
         />
       )}
 
-      {/* Floating Search and Notification buttons for home page */}
+      {/* Floating Search button for home page - Left */}
       {isHomePage && (
-        <div className="fixed top-4 left-4 z-40 flex gap-2">
-          <Button 
-            variant="ghost" 
-            size="icon" 
-            className="bg-background/80 backdrop-blur-md shadow-lg hover:bg-background"
-            onClick={() => setActiveTab('search')}
-          >
-            <Search className="w-5 h-5 text-foreground" />
-          </Button>
-          <Button 
-            variant="ghost" 
-            size="icon" 
-            className="relative bg-background/80 backdrop-blur-md shadow-lg hover:bg-background"
-            onClick={() => setActiveTab('notifications')}
-          >
-            <Bell className="w-5 h-5 text-foreground" />
-          </Button>
-        </div>
+        <Button 
+          variant="ghost" 
+          size="icon" 
+          className="fixed top-4 left-4 z-40 bg-background/80 backdrop-blur-md shadow-lg hover:bg-background"
+          onClick={() => setActiveTab('search')}
+        >
+          <Search className="w-5 h-5 text-foreground" />
+        </Button>
+      )}
+
+      {/* Floating Inbox button for home page - Right */}
+      {isHomePage && (
+        <Button 
+          variant="ghost" 
+          size="icon" 
+          className="fixed top-4 right-4 z-40 relative bg-background/80 backdrop-blur-md shadow-lg hover:bg-background"
+          onClick={() => setActiveTab('notifications')}
+        >
+          <Inbox className="w-5 h-5 text-foreground" />
+        </Button>
       )}
       
       {/* Main Content */}
