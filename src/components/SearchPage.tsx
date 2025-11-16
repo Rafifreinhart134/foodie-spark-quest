@@ -286,7 +286,7 @@ const SearchPage = () => {
             ) : searchResults.length > 0 ? (
               <>
                 <h2 className="text-lg font-semibold mb-4">Videos</h2>
-                <div className="grid grid-cols-3 gap-1">
+                <div className="grid grid-cols-2 gap-1">
                   {searchResults.map((video) => (
                     <div
                       key={video.id}
