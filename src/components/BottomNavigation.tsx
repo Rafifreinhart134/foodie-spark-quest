@@ -17,8 +17,8 @@ const BottomNavigation = ({ activeTab, onTabChange }: BottomNavigationProps) => 
   ];
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-border z-50">
-      <div className="flex items-center justify-around py-2 px-4">
+    <div className="fixed bottom-0 left-0 right-0 bg-card border-t border-border z-50 safe-area-inset-bottom">
+      <div className="flex items-center justify-around h-16 px-2">
         {navigationItems.map((item) => (
           <Button
             key={item.id}
@@ -30,8 +30,8 @@ const BottomNavigation = ({ activeTab, onTabChange }: BottomNavigationProps) => 
             }`}
           >
             {item.isSpecial ? (
-              <div className="w-12 h-12 rounded-full gradient-primary shadow-glow flex items-center justify-center">
-                <item.icon className="w-6 h-6 text-white" />
+              <div className="w-14 h-14 rounded-2xl bg-primary flex items-center justify-center shadow-elevated">
+                <item.icon className="w-7 h-7 text-primary-foreground" />
               </div>
             ) : (
               <>
