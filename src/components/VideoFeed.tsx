@@ -1,9 +1,12 @@
 import { useState, useRef, useEffect } from 'react';
-import { Heart, MessageCircle, Share, Bookmark, Utensils } from 'lucide-react';
+import { Heart, MessageCircle, Share, Bookmark, Utensils, Search, Bell, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
+import { Badge } from '@/components/ui/badge';
 import { useVideos, Video } from '@/hooks/useVideos';
 import { useAuth } from '@/hooks/useAuth';
 import { useNotifications } from '@/hooks/useNotifications';
+import { useFollow } from '@/hooks/useFollow';
 import { CommentsModal } from './CommentsModal';
 import { ShareModal } from './ShareModal';
 import { useNavigate } from 'react-router-dom';
@@ -19,6 +22,8 @@ interface VideoCardProps {
 
 const VideoCard = ({ video, isActive, onLike, onSave, onComment, onShare }: VideoCardProps) => {
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const { isFollowing, toggleFollow } = useFollow(video.user_id);
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [showDetails, setShowDetails] = useState(false);
@@ -119,6 +124,33 @@ const VideoCard = ({ video, isActive, onLike, onSave, onComment, onShare }: Vide
 
   return (
     <div className="video-container relative h-screen w-full">
+      {/* Top Header */}
+      {!hideUI && (
+        <div className="absolute top-0 left-0 right-0 z-30 bg-gradient-to-b from-black/60 to-transparent pt-4 pb-8">
+          <div className="flex items-center justify-between px-4">
+            {/* Search Icon */}
+            <Button variant="ghost" size="icon" className="text-white">
+              <Search className="w-6 h-6" />
+            </Button>
+
+            {/* Center Tabs */}
+            <div className="flex items-center gap-6">
+              <button className="text-white font-semibold text-base font-poppins border-b-2 border-white pb-1">
+                Inspirasi
+              </button>
+              <button className="text-white/70 font-semibold text-base font-poppins pb-1">
+                Mengikuti
+              </button>
+            </div>
+
+            {/* Notification Icon */}
+            <Button variant="ghost" size="icon" className="text-white">
+              <Bell className="w-6 h-6" />
+            </Button>
+          </div>
+        </div>
+      )}
+
       {/* Media Content - Direct click handler without interference */}
       {isVideo ? (
         <div 
@@ -185,134 +217,139 @@ const VideoCard = ({ video, isActive, onLike, onSave, onComment, onShare }: Vide
         )}
       </div>
 
-      {/* Content Overlay */}
-      <div className={`absolute inset-0 flex transition-opacity duration-300 ${hideUI ? 'opacity-0' : 'opacity-100'} z-20`}>
-        {/* Left Side - Content Info */}
-        <div className="flex-1 flex flex-col justify-end p-4 pb-20 pointer-events-auto">
-          {/* User Info - Clickable */}
-          <div 
-            className="flex items-center space-x-3 mb-3 cursor-pointer hover:opacity-80 transition-opacity"
-            onClick={handleUserClick}
-          >
-            <img
-              src={video.profiles?.avatar_url || 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150'}
-              alt={video.profiles?.display_name || 'User'}
-              className="w-12 h-12 rounded-full border-2 border-white object-cover"
-            />
-            <div>
-              <h3 className="text-white font-semibold text-lg">@{video.profiles?.display_name || 'user'}</h3>
+      {/* Bottom Information */}
+      {!hideUI && (
+        <div className="absolute bottom-20 left-0 right-0 px-4 pb-6 bg-gradient-to-t from-black/80 via-black/40 to-transparent">
+          <div className="flex items-end justify-between">
+            {/* Left side - User info and caption */}
+            <div className="flex-1 pr-4 space-y-3">
+              {/* User Profile Section */}
+              <div className="space-y-2">
+                <div 
+                  className="flex items-center space-x-2" 
+                  onClick={handleUserClick}
+                >
+                  <div className="relative cursor-pointer">
+                    <Avatar className="w-12 h-12 border-2 border-white">
+                      <AvatarImage src={video.profiles?.avatar_url || ''} alt={video.profiles?.display_name || 'User'} />
+                      <AvatarFallback className="bg-primary text-white font-bold">
+                        {(video.profiles?.display_name || 'U')[0].toUpperCase()}
+                      </AvatarFallback>
+                    </Avatar>
+                    {user?.id !== video.user_id && !isFollowing && (
+                      <Button
+                        size="icon"
+                        className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-primary hover:bg-primary/90 border-2 border-white"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          toggleFollow();
+                        }}
+                      >
+                        <Plus className="w-4 h-4 text-white" />
+                      </Button>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-white font-semibold font-poppins">
+                      {video.profiles?.display_name || 'Anonymous'}
+                    </span>
+                    <Badge className="bg-warning text-black px-2 py-0.5 text-xs font-semibold">
+                      UMKM
+                    </Badge>
+                  </div>
+                </div>
+
+                {/* Caption */}
+                {video.description && (
+                  <div className="text-white/90 text-sm font-poppins">
+                    {showFullDescription ? (
+                      <p className="whitespace-pre-wrap">{video.description}</p>
+                    ) : (
+                      <p className="line-clamp-2">{video.description}</p>
+                    )}
+                    {video.description.length > 100 && (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setShowFullDescription(!showFullDescription);
+                        }}
+                        className="text-white/70 font-semibold text-sm mt-1"
+                      >
+                        {showFullDescription ? 'Show less' : 'More info'}
+                      </button>
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Right side - Action buttons */}
+            <div className="flex flex-col items-center space-y-3">
+              {/* Like Button */}
+              <div className="flex flex-col items-center">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={handleLike}
+                  className="text-white hover:bg-transparent"
+                >
+                  <Heart className={`w-7 h-7 ${video.user_liked ? 'fill-red-500 text-red-500' : ''}`} />
+                </Button>
+                <span className="text-xs text-white font-medium font-poppins">{video.like_count || 0}</span>
+              </div>
+
+              {/* Comment Button */}
+              <div className="flex flex-col items-center">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={handleComment}
+                  className="text-white hover:bg-transparent"
+                >
+                  <MessageCircle className="w-7 h-7" />
+                </Button>
+                <span className="text-xs text-white font-medium font-poppins">{video.comment_count || 0}</span>
+              </div>
+
+              {/* Recipe Button - Circular with Green Background */}
+              <div className="flex flex-col items-center">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setShowDetails(!showDetails)}
+                  className="w-14 h-14 rounded-full bg-primary text-white hover:scale-110 hover:bg-primary/90 shadow-elevated transition-fast active:scale-95"
+                >
+                  <Utensils className="w-7 h-7" />
+                </Button>
+              </div>
+
+              {/* Save Button */}
+              <div className="flex flex-col items-center">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={handleSave}
+                  className="text-white hover:bg-transparent"
+                >
+                  <Bookmark className={`w-7 h-7 ${video.user_saved ? 'fill-warning text-warning' : ''}`} />
+                </Button>
+              </div>
+
+              {/* Share Button */}
+              <div className="flex flex-col items-center">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={handleShare}
+                  className="text-white hover:bg-transparent"
+                >
+                  <Share className="w-7 h-7" />
+                </Button>
+              </div>
             </div>
           </div>
-
-          {/* Description with More/Less functionality */}
-          <div className="text-white text-sm mb-3 leading-relaxed max-w-xs">
-            <p className={`${!showFullDescription ? 'line-clamp-2' : ''}`}>
-              {video.description || video.title}
-            </p>
-            
-            {/* Show hashtags only when expanded */}
-            {showFullDescription && video.tags && video.tags.length > 0 && (
-              <div className="flex flex-wrap gap-1 mt-2">
-                {video.tags.map((tag, index) => (
-                  <span key={index} className="text-blue-400 text-xs">
-                    #{tag}
-                  </span>
-                ))}
-              </div>
-            )}
-            
-            {/* Show additional info only when expanded */}
-            {showFullDescription && (
-              <div className="flex flex-wrap gap-2 mt-2 text-white/80 text-xs">
-                {video.budget && <span className="bg-white/20 px-2 py-1 rounded-full">💰 {video.budget}</span>}
-                {video.cooking_time && <span className="bg-white/20 px-2 py-1 rounded-full">⏱️ {video.cooking_time}</span>}
-                {video.location && <span className="bg-white/20 px-2 py-1 rounded-full">📍 {video.location}</span>}
-              </div>
-            )}
-            
-            {/* More/Less button */}
-            {((video.description || video.title).length > 100 || 
-              (video.tags && video.tags.length > 0) || 
-              video.budget || video.cooking_time || video.location) && (
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setShowFullDescription(!showFullDescription);
-                }}
-                className="text-white/80 text-xs mt-1 hover:text-white transition-colors"
-              >
-                {showFullDescription ? 'less' : 'more'}
-              </button>
-            )}
-          </div>
-
         </div>
-
-        {/* Right Side - Action Buttons */}
-        <div className="w-20 flex flex-col justify-end pb-20 pr-4 space-y-3 pointer-events-auto">
-          {/* Like Button */}
-          <div className="flex flex-col items-center space-y-1">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={handleLike}
-              className="w-14 h-14 bg-transparent border-0 text-white hover:scale-110 transition-fast active:scale-95 p-0"
-            >
-              <Heart className={`w-7 h-7 ${video.user_liked ? 'fill-red-500 text-red-500' : ''}`} />
-            </Button>
-            <span className="text-xs text-white font-medium font-poppins">{video.like_count || 0}</span>
-          </div>
-
-          {/* Comment Button */}
-          <div className="flex flex-col items-center space-y-1">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={handleComment}
-              className="w-14 h-14 bg-transparent border-0 text-white hover:scale-110 transition-fast active:scale-95 p-0"
-            >
-              <MessageCircle className="w-7 h-7" />
-            </Button>
-            <span className="text-xs text-white font-medium font-poppins">{video.comment_count || 0}</span>
-          </div>
-
-          {/* Recipe Button - Circular with Green Background */}
-          <div className="flex flex-col items-center">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setShowDetails(!showDetails)}
-              className="w-14 h-14 rounded-full bg-primary text-white hover:scale-110 hover:bg-primary/90 shadow-elevated transition-fast active:scale-95 p-0 border-0"
-            >
-              <Utensils className="w-7 h-7" />
-            </Button>
-          </div>
-
-          {/* Save Button */}
-          <div className="flex flex-col items-center">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={handleSave}
-              className="w-14 h-14 bg-transparent border-0 text-white hover:scale-110 transition-fast active:scale-95 p-0"
-            >
-              <Bookmark className={`w-7 h-7 ${video.user_saved ? 'fill-warning text-warning' : ''}`} />
-            </Button>
-          </div>
-
-          {/* Share Button */}
-          <div className="flex flex-col items-center">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={handleShare}
-              className="w-14 h-14 bg-transparent border-0 text-white hover:scale-110 transition-fast active:scale-95 p-0"
-            >
-              <Share className="w-7 h-7" />
-            </Button>
-          </div>
-        </div>
-      </div>
+      )}
     </div>
   );
 };
