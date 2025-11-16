@@ -65,7 +65,7 @@ export const ShareModal = ({ isOpen, onClose, videoId, videoTitle }: ShareModalP
         
         <div className="space-y-4">
           {/* Top Action Buttons */}
-          <div className="flex gap-3 overflow-x-auto pb-2">
+          <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
             <Button variant="ghost" className="flex flex-col items-center h-auto py-3 px-3 flex-shrink-0">
               <Download className="w-6 h-6 mb-1" />
               <span className="text-xs">Download</span>
@@ -93,7 +93,7 @@ export const ShareModal = ({ isOpen, onClose, videoId, videoTitle }: ShareModalP
           {/* Friends Recommendations */}
           <div className="space-y-2">
             <h3 className="text-sm font-semibold text-muted-foreground">Kirim ke teman</h3>
-            <div className="flex gap-4 overflow-x-auto pb-2">
+            <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide">
               {friends.map((friend) => (
                 <button
                   key={friend.id}
@@ -114,7 +114,7 @@ export const ShareModal = ({ isOpen, onClose, videoId, videoTitle }: ShareModalP
           {/* Social Media Apps */}
           <div className="space-y-2">
             <h3 className="text-sm font-semibold text-muted-foreground">Bagikan ke aplikasi</h3>
-            <div className="flex gap-4 overflow-x-auto pb-2">
+            <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide">
               <button
                 className="flex flex-col items-center space-y-1 hover:opacity-80 transition-opacity flex-shrink-0"
                 disabled
