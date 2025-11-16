@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
-import { Search, Filter, MapPin, Clock, DollarSign, Heart, Play } from 'lucide-react';
+import { Search, Filter, MapPin, Clock, DollarSign, Heart, Play, ArrowLeft, UserPlus, User } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import SearchWizard from './SearchWizard';
 import ContentDetailModal from './ContentDetailModal';
 import { CommentsModal } from './CommentsModal';
@@ -12,6 +14,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
+import { useFollow } from '@/hooks/useFollow';
 
 interface SearchFilters {
   serving?: string;
@@ -23,11 +26,14 @@ const SearchPage = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { followUser, unfollowUser, isFollowing } = useFollow();
   const [searchQuery, setSearchQuery] = useState('');
-  const [showWizard, setShowWizard] = useState(false); // Show all content by default
+  const [showWizard, setShowWizard] = useState(false);
   const [searchResults, setSearchResults] = useState<any[]>([]);
+  const [recommendedAccounts, setRecommendedAccounts] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [appliedFilters, setAppliedFilters] = useState<SearchFilters>({});
+  const [activeTab, setActiveTab] = useState('top');
   
   // Modal states
   const [selectedContent, setSelectedContent] = useState<any>(null);
