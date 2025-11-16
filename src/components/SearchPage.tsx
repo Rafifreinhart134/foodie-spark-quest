@@ -48,6 +48,31 @@ const SearchPage = () => {
     fetchAllVideos();
   }, []);
 
+  useEffect(() => {
+    // Check follow status for all users when user changes or accounts change
+    if (user && recommendedAccounts.length > 0) {
+      checkFollowStatusForUsers();
+    }
+  }, [user, recommendedAccounts]);
+
+  const checkFollowStatusForUsers = async () => {
+    if (!user) return;
+
+    try {
+      const userIds = recommendedAccounts.map(acc => acc.user_id);
+      const { data } = await supabase
+        .from('follows')
+        .select('following_id')
+        .eq('follower_id', user.id)
+        .in('following_id', userIds);
+
+      const followingSet = new Set(data?.map(f => f.following_id) || []);
+      setFollowingUsers(followingSet);
+    } catch (error) {
+      console.error('Error checking follow status:', error);
+    }
+  };
+
   const fetchAllVideos = async () => {
     setIsLoading(true);
     try {
