@@ -67,7 +67,7 @@ export const RecipeModal = ({ isOpen, onClose, recipe }: RecipeModalProps) => {
                   <div className="bg-accent/30 px-3 py-2 border-b border-border/50">
                     <h3 className="font-semibold text-sm text-foreground">Alat dan Bahan</h3>
                   </div>
-                  <div className="max-h-40 overflow-y-auto">
+                  <div className="max-h-32 overflow-y-auto overscroll-contain">
                     <div className="p-3 space-y-2">
                       {recipe.ingredients.map((ingredient, index) => (
                         <div key={index} className="flex items-start gap-2">
@@ -84,7 +84,7 @@ export const RecipeModal = ({ isOpen, onClose, recipe }: RecipeModalProps) => {
                   <div className="bg-accent/30 px-3 py-2 border-b border-border/50">
                     <h3 className="font-semibold text-sm text-foreground">Cara Pembuatan</h3>
                   </div>
-                  <div className="max-h-40 overflow-y-auto">
+                  <div className="max-h-32 overflow-y-auto overscroll-contain">
                     <div className="p-3 space-y-3">
                       {recipe.instructions.map((instruction, index) => (
                         <div key={index} className="flex items-start gap-3">
