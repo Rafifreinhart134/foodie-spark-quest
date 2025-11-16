@@ -59,8 +59,8 @@ export const ShareModal = ({ isOpen, onClose, videoId, videoTitle }: ShareModalP
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-md max-h-[80vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle className="text-center">Bagikan ke</DialogTitle>
+        <DialogHeader className="text-center">
+          <DialogTitle className="text-center w-full">Bagikan ke</DialogTitle>
         </DialogHeader>
         
         <div className="space-y-4">
