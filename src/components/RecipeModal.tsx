@@ -22,7 +22,7 @@ export const RecipeModal = ({ isOpen, onClose, recipe }: RecipeModalProps) => {
         <DialogPrimitive.Overlay className="fixed inset-0 z-40 pointer-events-none" />
         <DialogPrimitive.Content className="fixed left-1/2 top-[20vh] z-50 w-full max-w-xs -translate-x-1/2 mx-4 outline-none">
           <div className="bg-background/95 backdrop-blur-md rounded-lg border border-border/50 shadow-lg overflow-hidden">
-            <div className="flex flex-col max-h-[50vh]">
+            <div className="flex flex-col max-h-[40vh]">
               {/* Header */}
               <div className="p-4 border-b border-border/50 flex-shrink-0">
                 <div className="flex items-start justify-between mb-3">
