@@ -25,7 +25,7 @@ export const RecipeModal = ({ isOpen, onClose, recipe }: RecipeModalProps) => {
           style={{ pointerEvents: 'none' }}
         />
         <DialogPrimitive.Content 
-          className="fixed left-1/2 top-[12vh] z-50 w-full max-w-xs -translate-x-1/2 mx-4 outline-none animate-fade-in animate-scale-in data-[state=closed]:animate-fade-out data-[state=closed]:animate-scale-out"
+          className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-full max-w-xs mx-4 outline-none animate-fade-in animate-scale-in data-[state=closed]:animate-fade-out data-[state=closed]:animate-scale-out"
           onClick={(e) => e.stopPropagation()}
         >
           <div className="bg-background/95 backdrop-blur-md rounded-lg border border-border/50 shadow-lg overflow-hidden">
