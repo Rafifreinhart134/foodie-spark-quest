@@ -1,7 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
-import { Heart, MessageCircle, MoreHorizontal, Share, Bookmark } from 'lucide-react';
+import { Heart, MessageCircle, Share, Bookmark, ChefHat } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { useVideos, Video } from '@/hooks/useVideos';
 import { useAuth } from '@/hooks/useAuth';
 import { useNotifications } from '@/hooks/useNotifications';
@@ -250,60 +249,82 @@ const VideoCard = ({ video, isActive, onLike, onSave, onComment, onShare }: Vide
         </div>
 
         {/* Right Side - Action Buttons */}
-        <div className="w-20 flex flex-col justify-end pb-20 pr-4 space-y-6 pointer-events-auto">
+        <div className="w-20 flex flex-col justify-end pb-20 pr-4 space-y-5 pointer-events-auto">
           {/* Like Button */}
-          <div className="tiktok-action">
+          <div className="flex flex-col items-center space-y-1">
             <Button
               variant="ghost"
               size="icon"
               onClick={handleLike}
-              className={`w-12 h-12 rounded-full border transition-all duration-300 active:scale-95 ${
+              className={`w-14 h-14 rounded-2xl border-0 shadow-elevated transition-fast active:scale-95 ${
                 video.user_liked 
-                  ? 'bg-red-500 border-red-500 text-white shadow-lg shadow-red-500/30' 
-                  : 'bg-white/10 backdrop-blur-sm border-white/20 text-white hover:scale-110 hover:bg-white/20'
+                  ? 'bg-red-500 text-white' 
+                  : 'bg-card/90 backdrop-blur-sm text-foreground hover:scale-105 hover:bg-card'
               }`}
             >
-              <Heart className={`w-6 h-6 ${video.user_liked ? 'fill-current' : ''}`} />
+              <Heart className={`w-7 h-7 ${video.user_liked ? 'fill-current' : ''}`} />
             </Button>
-            <span className="text-xs text-white font-medium">{video.like_count}</span>
+            <span className="text-xs text-white font-medium font-poppins">{video.like_count}</span>
           </div>
 
           {/* Comment Button */}
-          <div className="tiktok-action">
+          <div className="flex flex-col items-center space-y-1">
             <Button
               variant="ghost"
               size="icon"
               onClick={handleComment}
-              className="w-12 h-12 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-white hover:scale-110 hover:bg-white/20 transition-all duration-300 active:scale-95"
+              className="w-14 h-14 rounded-2xl bg-card/90 backdrop-blur-sm border-0 text-foreground hover:scale-105 hover:bg-card shadow-elevated transition-fast active:scale-95"
             >
-              <MessageCircle className="w-6 h-6" />
+              <MessageCircle className="w-7 h-7" />
             </Button>
-            <span className="text-xs text-white font-medium">{video.comment_count}</span>
+            <span className="text-xs text-white font-medium font-poppins">{video.comment_count}</span>
           </div>
 
-          {/* More Button with Dropdown */}
-          <div className="tiktok-action">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="w-12 h-12 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-white hover:scale-110 hover:bg-white/20 transition-all duration-300 active:scale-95"
-                >
-                  <MoreHorizontal className="w-6 h-6" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-40">
-                <DropdownMenuItem onClick={handleSave}>
-                  <Bookmark className={`w-4 h-4 mr-2 ${video.user_saved ? 'fill-current text-yellow-500' : ''}`} />
-                  {video.user_saved ? 'Unsave' : 'Save'}
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={handleShare}>
-                  <Share className="w-4 h-4 mr-2" />
-                  Share
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+          {/* Recipe Button */}
+          <div className="flex flex-col items-center space-y-1">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setShowDetails(!showDetails)}
+              className={`w-14 h-14 rounded-2xl border-0 shadow-elevated transition-fast active:scale-95 ${
+                showDetails
+                  ? 'bg-primary text-primary-foreground'
+                  : 'bg-card/90 backdrop-blur-sm text-foreground hover:scale-105 hover:bg-card'
+              }`}
+            >
+              <ChefHat className="w-7 h-7" />
+            </Button>
+            <span className="text-xs text-white font-medium font-poppins">Resep</span>
+          </div>
+
+          {/* Save Button */}
+          <div className="flex flex-col items-center space-y-1">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={handleSave}
+              className={`w-14 h-14 rounded-2xl border-0 shadow-elevated transition-fast active:scale-95 ${
+                video.user_saved 
+                  ? 'bg-warning text-foreground' 
+                  : 'bg-card/90 backdrop-blur-sm text-foreground hover:scale-105 hover:bg-card'
+              }`}
+            >
+              <Bookmark className={`w-7 h-7 ${video.user_saved ? 'fill-current' : ''}`} />
+            </Button>
+            <span className="text-xs text-white font-medium font-poppins">Save</span>
+          </div>
+
+          {/* Share Button */}
+          <div className="flex flex-col items-center space-y-1">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={handleShare}
+              className="w-14 h-14 rounded-2xl bg-card/90 backdrop-blur-sm border-0 text-foreground hover:scale-105 hover:bg-card shadow-elevated transition-fast active:scale-95"
+            >
+              <Share className="w-7 h-7" />
+            </Button>
+            <span className="text-xs text-white font-medium font-poppins">Share</span>
           </div>
         </div>
       </div>
