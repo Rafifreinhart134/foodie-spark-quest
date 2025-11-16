@@ -219,7 +219,7 @@ const VideoCard = ({ video, isActive, onLike, onSave, onComment, onShare }: Vide
 
       {/* Bottom Information */}
       {!hideUI && (
-        <div className="absolute bottom-20 left-0 right-0 px-4 pb-6 bg-gradient-to-t from-black/80 via-black/40 to-transparent">
+        <div className="absolute bottom-20 left-0 right-0 px-4 pb-6 bg-gradient-to-t from-black/80 via-black/40 to-transparent z-30">
           <div className="flex items-end justify-between">
             {/* Left side - User info and caption */}
             <div className="flex-1 pr-4 space-y-3">
