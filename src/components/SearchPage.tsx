@@ -29,6 +29,16 @@ const SearchPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [selectedContent, setSelectedContent] = useState<any>(null);
   const [showContentModal, setShowContentModal] = useState(false);
+  const [showTrending, setShowTrending] = useState(false);
+
+  // Trending searches
+  const trendingSearches = [
+    "Resep Nasi Goreng Sederhana",
+    "Cara Masak Ayam Geprek",
+    "Makanan Khas Bandung",
+    "Tips Memasak Sehat",
+    "Kuliner Hidden Gem Jakarta"
+  ];
 
   useEffect(() => {
     fetchRecommendedUsers();
@@ -160,12 +170,36 @@ const SearchPage = () => {
                 type="text"
                 placeholder="Search videos, users..."
                 value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+                onChange={(e) => {
+                  setSearchQuery(e.target.value);
+                  setShowTrending(e.target.value.length > 0);
+                }}
+                onFocus={() => searchQuery && setShowTrending(true)}
                 className="pl-10 bg-muted border-none"
               />
             </div>
           </form>
         </div>
+        
+        {/* Trending Searches */}
+        {showTrending && searchQuery && !isLoading && searchResults.length === 0 && (
+          <div className="px-4 pb-4 space-y-2">
+            <p className="text-xs text-muted-foreground font-medium mb-2">Trending Searches</p>
+            {trendingSearches.map((trend, index) => (
+              <div
+                key={index}
+                className="py-2 px-3 hover:bg-muted/50 cursor-pointer rounded-md transition-colors"
+                onClick={() => {
+                  setSearchQuery(trend);
+                  searchVideos(trend);
+                  setShowTrending(false);
+                }}
+              >
+                <p className="text-sm text-red-500 font-medium">{trend}</p>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Recommended Accounts Section */}
