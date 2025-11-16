@@ -1,0 +1,140 @@
+import { useEffect, useState } from 'react';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/hooks/useAuth';
+import { Card, CardContent } from '@/components/ui/card';
+import { Video } from '@/hooks/useVideos';
+import { useNavigate } from 'react-router-dom';
+import { Bookmark } from 'lucide-react';
+
+const SavedPage = () => {
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const [savedVideos, setSavedVideos] = useState<Video[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (user) {
+      fetchSavedVideos();
+    }
+  }, [user]);
+
+  const fetchSavedVideos = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('saved_videos')
+        .select(`
+          video_id,
+          videos (
+            id,
+            title,
+            description,
+            thumbnail_url,
+            video_url,
+            like_count,
+            comment_count,
+            category,
+            location,
+            budget,
+            cooking_time,
+            created_at,
+            updated_at,
+            is_public,
+            user_id,
+            profiles (
+              display_name,
+              avatar_url
+            )
+          )
+        `)
+        .eq('user_id', user?.id)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+
+      const videos = data?.map(item => ({
+        ...item.videos,
+        user_saved: true
+      })) as any[];
+
+      setSavedVideos(videos);
+    } catch (error) {
+      console.error('Error fetching saved videos:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen pt-16 pb-20 px-4 flex items-center justify-center">
+        <p className="text-muted-foreground">Loading...</p>
+      </div>
+    );
+  }
+
+  if (savedVideos.length === 0) {
+    return (
+      <div className="min-h-screen pt-16 pb-20 px-4 flex flex-col items-center justify-center">
+        <Bookmark className="w-16 h-16 text-muted-foreground mb-4" />
+        <h3 className="text-xl font-semibold mb-2">Belum Ada Video Tersimpan</h3>
+        <p className="text-muted-foreground text-center">
+          Video yang Anda simpan akan muncul di sini
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen pt-16 pb-20 px-4">
+      <div className="max-w-4xl mx-auto">
+        <h1 className="text-2xl font-bold mb-6">Video Tersimpan</h1>
+        
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          {savedVideos.map((video) => (
+            <Card 
+              key={video.id} 
+              className="cursor-pointer hover:shadow-lg transition-shadow"
+              onClick={() => navigate('/')}
+            >
+              <CardContent className="p-0">
+                <div className="relative aspect-[9/16] overflow-hidden rounded-t-lg">
+                  {video.thumbnail_url ? (
+                    <img 
+                      src={video.thumbnail_url} 
+                      alt={video.title}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-full bg-muted flex items-center justify-center">
+                      <Bookmark className="w-8 h-8 text-muted-foreground" />
+                    </div>
+                  )}
+                  
+                  <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-2">
+                    <h3 className="text-white text-sm font-medium line-clamp-2">
+                      {video.title}
+                    </h3>
+                    {video.profiles && (
+                      <p className="text-white/80 text-xs mt-1">
+                        @{video.profiles.display_name || 'User'}
+                      </p>
+                    )}
+                  </div>
+                </div>
+                
+                <div className="p-2">
+                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                    <span>❤️ {video.like_count || 0}</span>
+                    <span>💬 {video.comment_count || 0}</span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default SavedPage;

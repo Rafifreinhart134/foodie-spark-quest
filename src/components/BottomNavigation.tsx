@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Home, Search, Plus, Bell, User, Settings } from 'lucide-react';
+import { Home, Bookmark, Plus, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 interface BottomNavigationProps {
@@ -10,9 +10,8 @@ interface BottomNavigationProps {
 const BottomNavigation = ({ activeTab, onTabChange }: BottomNavigationProps) => {
   const navigationItems = [
     { id: 'home', icon: Home, label: 'Home' },
-    { id: 'search', icon: Search, label: 'Search' },
     { id: 'upload', icon: Plus, label: 'Upload', isSpecial: true },
-    { id: 'notifications', icon: Bell, label: 'Notif' },
+    { id: 'saved', icon: Bookmark, label: 'Simpan' },
     { id: 'profile', icon: User, label: 'Profile' },
   ];
 
