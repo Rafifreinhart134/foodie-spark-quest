@@ -82,11 +82,45 @@ const SearchPage = () => {
   const searchVideos = async (query: string) => {
     if (!query.trim()) {
       setSearchResults([]);
+      setRecommendedUsers([]);
       return;
     }
 
     setIsLoading(true);
+    setShowTrending(false);
+    
     try {
+      // Search for users based on query
+      const { data: profilesData, error: profilesError } = await supabase
+        .from('profiles')
+        .select('user_id, display_name, avatar_url, follower_count')
+        .ilike('display_name', `%${query}%`)
+        .order('follower_count', { ascending: false })
+        .limit(5);
+
+      if (profilesError) throw profilesError;
+
+      // Fetch videos for each user found
+      const usersWithVideos = await Promise.all(
+        (profilesData || []).map(async (profile) => {
+          const { data: videosData } = await supabase
+            .from('videos')
+            .select('id, thumbnail_url, title, like_count, video_url, description, category')
+            .eq('user_id', profile.user_id)
+            .eq('is_public', true)
+            .order('created_at', { ascending: false })
+            .limit(6);
+
+          return {
+            ...profile,
+            videos: videosData || []
+          };
+        })
+      );
+
+      setRecommendedUsers(usersWithVideos.filter(u => u.videos.length > 0));
+
+      // Search for videos based on query
       const { data: videosData, error: videosError } = await supabase
         .from('videos')
         .select(`
@@ -113,13 +147,13 @@ const SearchPage = () => {
       let videosWithProfiles = videosData || [];
       if (videosData && videosData.length > 0) {
         const userIds = [...new Set(videosData.map(v => v.user_id))];
-        const { data: profilesData } = await supabase
+        const { data: videoProfilesData } = await supabase
           .from('profiles')
           .select('user_id, display_name, avatar_url')
           .in('user_id', userIds);
 
         const profilesMap = new Map(
-          profilesData?.map(p => [p.user_id, p]) || []
+          videoProfilesData?.map(p => [p.user_id, p]) || []
         );
 
         videosWithProfiles = videosData.map(video => ({
@@ -130,10 +164,10 @@ const SearchPage = () => {
 
       setSearchResults(videosWithProfiles);
     } catch (error) {
-      console.error('Error searching videos:', error);
+      console.error('Error searching:', error);
       toast({
         title: "Error",
-        description: "Failed to search videos",
+        description: "Failed to search",
         variant: "destructive"
       });
     } finally {
@@ -202,7 +236,7 @@ const SearchPage = () => {
         )}
       </div>
 
-      {/* Recommended Accounts Section */}
+      {/* Recommended Accounts Section - Show on initial load and search results */}
       {!searchQuery && recommendedUsers.length > 0 && (
         <div className="py-4">
           <h2 className="text-lg font-semibold px-4 mb-4">Recommended Accounts</h2>
@@ -219,40 +253,63 @@ const SearchPage = () => {
         </div>
       )}
 
-      {/* Search Results */}
+      {/* Search Results with Recommended Users */}
       {searchQuery && (
-        <div className="p-4">
-          {isLoading ? (
-            <div className="text-center py-8">
-              <p className="text-muted-foreground">Searching...</p>
-            </div>
-          ) : searchResults.length === 0 ? (
-            <div className="text-center py-8">
-              <p className="text-muted-foreground">No results found</p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-3 gap-1">
-              {searchResults.map((video) => (
-                <div
-                  key={video.id}
-                  className="relative aspect-[9/16] cursor-pointer group"
-                  onClick={() => handleVideoClick(video)}
-                >
-                  <img
-                    src={video.thumbnail_url || '/placeholder.svg'}
-                    alt={video.title}
-                    className="w-full h-full object-cover"
+        <>
+          {/* Recommended Users based on search */}
+          {recommendedUsers.length > 0 && (
+            <div className="py-4 border-b border-border">
+              <h2 className="text-lg font-semibold px-4 mb-4">Accounts</h2>
+              <div className="space-y-6">
+                {recommendedUsers.map((recommendedUser) => (
+                  <UserRecommendationCard
+                    key={recommendedUser.user_id}
+                    user={recommendedUser}
+                    currentUserId={user?.id}
+                    onVideoClick={handleVideoClick}
                   />
-                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                    <p className="text-white text-sm font-medium px-2 text-center line-clamp-2">
-                      {video.title}
-                    </p>
-                  </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
           )}
-        </div>
+
+          {/* Video Results */}
+          <div className="p-4">
+            {isLoading ? (
+              <div className="text-center py-8">
+                <p className="text-muted-foreground">Searching...</p>
+              </div>
+            ) : searchResults.length === 0 && recommendedUsers.length === 0 ? (
+              <div className="text-center py-8">
+                <p className="text-muted-foreground">No results found</p>
+              </div>
+            ) : searchResults.length > 0 ? (
+              <>
+                <h2 className="text-lg font-semibold mb-4">Videos</h2>
+                <div className="grid grid-cols-3 gap-1">
+                  {searchResults.map((video) => (
+                    <div
+                      key={video.id}
+                      className="relative aspect-[9/16] cursor-pointer group"
+                      onClick={() => handleVideoClick(video)}
+                    >
+                      <img
+                        src={video.thumbnail_url || '/placeholder.svg'}
+                        alt={video.title}
+                        className="w-full h-full object-cover"
+                      />
+                      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                        <p className="text-white text-sm font-medium px-2 text-center line-clamp-2">
+                          {video.title}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </>
+            ) : null}
+          </div>
+        </>
       )}
 
       {/* Content Detail Modal */}
