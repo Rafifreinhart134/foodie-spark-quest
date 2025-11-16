@@ -4,6 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import ContentDetailModal from './ContentDetailModal';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -30,6 +31,7 @@ const SearchPage = () => {
   const [selectedContent, setSelectedContent] = useState<any>(null);
   const [showContentModal, setShowContentModal] = useState(false);
   const [showTrending, setShowTrending] = useState(false);
+  const [sortOption, setSortOption] = useState<'newest' | 'most_liked' | 'most_commented'>('newest');
 
   // Trending searches
   const trendingSearches = [
@@ -43,6 +45,12 @@ const SearchPage = () => {
   useEffect(() => {
     fetchRecommendedUsers();
   }, []);
+
+  useEffect(() => {
+    if (searchQuery) {
+      searchVideos(searchQuery);
+    }
+  }, [sortOption]);
 
   const fetchRecommendedUsers = async () => {
     try {
@@ -165,6 +173,21 @@ const SearchPage = () => {
         `title.ilike.%${keyword}%,description.ilike.%${keyword}%,tags.cs.{${keyword}}`
       ).join(',');
       
+      // Determine sort column and order based on sortOption
+      const getSortConfig = () => {
+        switch (sortOption) {
+          case 'most_liked':
+            return { column: 'like_count', ascending: false };
+          case 'most_commented':
+            return { column: 'comment_count', ascending: false };
+          case 'newest':
+          default:
+            return { column: 'created_at', ascending: false };
+        }
+      };
+      
+      const sortConfig = getSortConfig();
+      
       // First try multi-keyword search
       const { data: exactVideos } = await supabase
         .from('videos')
@@ -179,11 +202,12 @@ const SearchPage = () => {
           tags,
           like_count,
           comment_count,
-          is_public
+          is_public,
+          created_at
         `)
         .eq('is_public', true)
         .or(orConditions)
-        .order('like_count', { ascending: false })
+        .order(sortConfig.column, { ascending: sortConfig.ascending })
         .limit(50);
 
       allVideosData = exactVideos || [];
@@ -204,11 +228,12 @@ const SearchPage = () => {
               tags,
               like_count,
               comment_count,
-              is_public
+              is_public,
+              created_at
             `)
             .eq('is_public', true)
             .or(`title.ilike.${pattern},description.ilike.${pattern}`)
-            .order('like_count', { ascending: false })
+            .order(sortConfig.column, { ascending: sortConfig.ascending })
             .limit(50);
           
           if (fuzzyVideos && fuzzyVideos.length > 0) {
@@ -360,7 +385,19 @@ const SearchPage = () => {
               </div>
             ) : searchResults.length > 0 ? (
               <>
-                <h2 className="text-lg font-semibold mb-4">Videos</h2>
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="text-lg font-semibold">Videos</h2>
+                  <Select value={sortOption} onValueChange={(value: any) => setSortOption(value)}>
+                    <SelectTrigger className="w-[180px]">
+                      <SelectValue placeholder="Sort by" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="newest">Newest</SelectItem>
+                      <SelectItem value="most_liked">Most Liked</SelectItem>
+                      <SelectItem value="most_commented">Most Commented</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
                 <div className="grid grid-cols-2 gap-1">
                   {searchResults.map((video) => (
                     <div
