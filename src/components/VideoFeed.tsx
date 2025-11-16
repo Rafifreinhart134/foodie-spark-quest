@@ -260,7 +260,7 @@ const VideoCard = ({ video, isActive, onLike, onSave, onComment, onShare }: Vide
             >
               <Heart className={`w-7 h-7 ${video.user_liked ? 'fill-red-500 text-red-500' : ''}`} />
             </Button>
-            <span className="text-xs text-white font-medium font-poppins">{video.like_count}</span>
+            <span className="text-xs text-white font-medium font-poppins">{video.like_count || 0}</span>
           </div>
 
           {/* Comment Button */}
@@ -273,11 +273,11 @@ const VideoCard = ({ video, isActive, onLike, onSave, onComment, onShare }: Vide
             >
               <MessageCircle className="w-7 h-7" />
             </Button>
-            <span className="text-xs text-white font-medium font-poppins">{video.comment_count}</span>
+            <span className="text-xs text-white font-medium font-poppins">{video.comment_count || 0}</span>
           </div>
 
           {/* Recipe Button - Circular with Green Background */}
-          <div className="flex flex-col items-center space-y-1">
+          <div className="flex flex-col items-center">
             <Button
               variant="ghost"
               size="icon"
@@ -286,11 +286,10 @@ const VideoCard = ({ video, isActive, onLike, onSave, onComment, onShare }: Vide
             >
               <Utensils className="w-7 h-7" />
             </Button>
-            <span className="text-xs text-white font-medium font-poppins">Resep</span>
           </div>
 
           {/* Save Button */}
-          <div className="flex flex-col items-center space-y-1">
+          <div className="flex flex-col items-center">
             <Button
               variant="ghost"
               size="icon"
@@ -299,11 +298,10 @@ const VideoCard = ({ video, isActive, onLike, onSave, onComment, onShare }: Vide
             >
               <Bookmark className={`w-7 h-7 ${video.user_saved ? 'fill-warning text-warning' : ''}`} />
             </Button>
-            <span className="text-xs text-white font-medium font-poppins">Save</span>
           </div>
 
           {/* Share Button */}
-          <div className="flex flex-col items-center space-y-1">
+          <div className="flex flex-col items-center">
             <Button
               variant="ghost"
               size="icon"
@@ -312,7 +310,6 @@ const VideoCard = ({ video, isActive, onLike, onSave, onComment, onShare }: Vide
             >
               <Share className="w-7 h-7" />
             </Button>
-            <span className="text-xs text-white font-medium font-poppins">Share</span>
           </div>
         </div>
       </div>
