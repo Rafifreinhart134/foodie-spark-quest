@@ -249,7 +249,7 @@ const VideoCard = ({ video, isActive, onLike, onSave, onComment, onShare }: Vide
         </div>
 
         {/* Right Side - Action Buttons */}
-        <div className="w-20 flex flex-col justify-end pb-20 pr-4 space-y-5 pointer-events-auto">
+        <div className="w-20 flex flex-col justify-end pb-20 pr-4 space-y-3 pointer-events-auto">
           {/* Like Button */}
           <div className="flex flex-col items-center space-y-1">
             <Button
