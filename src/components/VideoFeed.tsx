@@ -447,6 +447,7 @@ const VideoFeed = () => {
   };
 
   const handleRecipe = (video: Video) => {
+    console.log('handleRecipe called', video);
     setRecipeModal({
       isOpen: true,
       recipe: {

@@ -15,13 +15,19 @@ interface RecipeModalProps {
 }
 
 export const RecipeModal = ({ isOpen, onClose, recipe }: RecipeModalProps) => {
-  if (!isOpen) return null;
+  console.log('RecipeModal render:', { isOpen, recipe });
   
   return (
-    <DialogPrimitive.Root open={isOpen} onOpenChange={onClose} modal={false}>
+    <DialogPrimitive.Root open={isOpen} onOpenChange={onClose}>
       <DialogPrimitive.Portal>
-        <DialogPrimitive.Overlay className="fixed inset-0 z-40 bg-black/20 pointer-events-none animate-fade-in data-[state=closed]:animate-fade-out" />
-        <DialogPrimitive.Content className="fixed left-1/2 top-[12vh] z-50 w-full max-w-xs -translate-x-1/2 mx-4 outline-none pointer-events-auto animate-fade-in animate-scale-in data-[state=closed]:animate-fade-out data-[state=closed]:animate-scale-out">
+        <DialogPrimitive.Overlay 
+          className="fixed inset-0 z-40 bg-black/20 animate-fade-in data-[state=closed]:animate-fade-out" 
+          style={{ pointerEvents: 'none' }}
+        />
+        <DialogPrimitive.Content 
+          className="fixed left-1/2 top-[12vh] z-50 w-full max-w-xs -translate-x-1/2 mx-4 outline-none animate-fade-in animate-scale-in data-[state=closed]:animate-fade-out data-[state=closed]:animate-scale-out"
+          onClick={(e) => e.stopPropagation()}
+        >
           <div className="bg-background/95 backdrop-blur-md rounded-lg border border-border/50 shadow-lg overflow-hidden">
             <div className="flex flex-col max-h-[35vh]">
               {/* Header */}
