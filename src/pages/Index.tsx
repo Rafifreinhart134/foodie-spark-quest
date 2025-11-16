@@ -69,7 +69,7 @@ const Index = () => {
 
       {/* Floating Search and Notification buttons for home page */}
       {isHomePage && (
-        <div className="fixed top-4 right-4 z-40 flex gap-2">
+        <div className="fixed top-4 left-4 z-40 flex gap-2">
           <Button 
             variant="ghost" 
             size="icon" 
