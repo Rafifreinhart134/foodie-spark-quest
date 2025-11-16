@@ -398,22 +398,36 @@ const SearchPage = () => {
                     </SelectContent>
                   </Select>
                 </div>
-                <div className="grid grid-cols-2 gap-1">
+                <div className="grid grid-cols-2 gap-3">
                   {searchResults.map((video) => (
                     <div
                       key={video.id}
-                      className="relative aspect-[9/16] cursor-pointer group"
+                      className="cursor-pointer group"
                       onClick={() => handleVideoClick(video)}
                     >
-                      <img
-                        src={video.thumbnail_url || '/placeholder.svg'}
-                        alt={video.title}
-                        className="w-full h-full object-cover"
-                      />
-                      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                        <p className="text-white text-sm font-medium px-2 text-center line-clamp-2">
-                          {video.title}
-                        </p>
+                      <div className="relative aspect-[9/16] bg-muted rounded-lg overflow-hidden">
+                        <img
+                          src={video.thumbnail_url || '/placeholder.svg'}
+                          alt={video.title}
+                          className="w-full h-full object-cover"
+                        />
+                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                          <p className="text-white text-sm font-medium px-2 text-center line-clamp-2">
+                            {video.title}
+                          </p>
+                        </div>
+                      </div>
+                      
+                      {/* Video info below thumbnail */}
+                      <div className="flex gap-2 mt-2 px-1">
+                        <Avatar className="w-8 h-8 flex-shrink-0">
+                          <AvatarImage src={video.profiles?.avatar_url} alt={video.profiles?.display_name} />
+                          <AvatarFallback>{video.profiles?.display_name?.[0]?.toUpperCase() || 'U'}</AvatarFallback>
+                        </Avatar>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm line-clamp-2 mb-1">{video.title}</p>
+                          <p className="text-xs text-muted-foreground">❤️ {video.like_count || 0}</p>
+                        </div>
                       </div>
                     </div>
                   ))}
