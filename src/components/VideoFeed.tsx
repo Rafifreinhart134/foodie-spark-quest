@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { Heart, MessageCircle, Share, Bookmark, ChefHat } from 'lucide-react';
+import { Heart, MessageCircle, Share, Bookmark, Utensils } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useVideos, Video } from '@/hooks/useVideos';
 import { useAuth } from '@/hooks/useAuth';
@@ -256,13 +256,9 @@ const VideoCard = ({ video, isActive, onLike, onSave, onComment, onShare }: Vide
               variant="ghost"
               size="icon"
               onClick={handleLike}
-              className={`w-14 h-14 rounded-2xl border-0 shadow-elevated transition-fast active:scale-95 ${
-                video.user_liked 
-                  ? 'bg-red-500 text-white' 
-                  : 'bg-card/90 backdrop-blur-sm text-foreground hover:scale-105 hover:bg-card'
-              }`}
+              className="w-14 h-14 bg-transparent border-0 text-white hover:scale-110 transition-fast active:scale-95 p-0"
             >
-              <Heart className={`w-7 h-7 ${video.user_liked ? 'fill-current' : ''}`} />
+              <Heart className={`w-7 h-7 ${video.user_liked ? 'fill-red-500 text-red-500' : ''}`} />
             </Button>
             <span className="text-xs text-white font-medium font-poppins">{video.like_count}</span>
           </div>
@@ -273,26 +269,22 @@ const VideoCard = ({ video, isActive, onLike, onSave, onComment, onShare }: Vide
               variant="ghost"
               size="icon"
               onClick={handleComment}
-              className="w-14 h-14 rounded-2xl bg-card/90 backdrop-blur-sm border-0 text-foreground hover:scale-105 hover:bg-card shadow-elevated transition-fast active:scale-95"
+              className="w-14 h-14 bg-transparent border-0 text-white hover:scale-110 transition-fast active:scale-95 p-0"
             >
               <MessageCircle className="w-7 h-7" />
             </Button>
             <span className="text-xs text-white font-medium font-poppins">{video.comment_count}</span>
           </div>
 
-          {/* Recipe Button */}
+          {/* Recipe Button - Circular with Green Background */}
           <div className="flex flex-col items-center space-y-1">
             <Button
               variant="ghost"
               size="icon"
               onClick={() => setShowDetails(!showDetails)}
-              className={`w-14 h-14 rounded-2xl border-0 shadow-elevated transition-fast active:scale-95 ${
-                showDetails
-                  ? 'bg-primary text-primary-foreground'
-                  : 'bg-card/90 backdrop-blur-sm text-foreground hover:scale-105 hover:bg-card'
-              }`}
+              className="w-14 h-14 rounded-full bg-primary text-white hover:scale-110 hover:bg-primary/90 shadow-elevated transition-fast active:scale-95 p-0 border-0"
             >
-              <ChefHat className="w-7 h-7" />
+              <Utensils className="w-7 h-7" />
             </Button>
             <span className="text-xs text-white font-medium font-poppins">Resep</span>
           </div>
@@ -303,13 +295,9 @@ const VideoCard = ({ video, isActive, onLike, onSave, onComment, onShare }: Vide
               variant="ghost"
               size="icon"
               onClick={handleSave}
-              className={`w-14 h-14 rounded-2xl border-0 shadow-elevated transition-fast active:scale-95 ${
-                video.user_saved 
-                  ? 'bg-warning text-foreground' 
-                  : 'bg-card/90 backdrop-blur-sm text-foreground hover:scale-105 hover:bg-card'
-              }`}
+              className="w-14 h-14 bg-transparent border-0 text-white hover:scale-110 transition-fast active:scale-95 p-0"
             >
-              <Bookmark className={`w-7 h-7 ${video.user_saved ? 'fill-current' : ''}`} />
+              <Bookmark className={`w-7 h-7 ${video.user_saved ? 'fill-warning text-warning' : ''}`} />
             </Button>
             <span className="text-xs text-white font-medium font-poppins">Save</span>
           </div>
@@ -320,7 +308,7 @@ const VideoCard = ({ video, isActive, onLike, onSave, onComment, onShare }: Vide
               variant="ghost"
               size="icon"
               onClick={handleShare}
-              className="w-14 h-14 rounded-2xl bg-card/90 backdrop-blur-sm border-0 text-foreground hover:scale-105 hover:bg-card shadow-elevated transition-fast active:scale-95"
+              className="w-14 h-14 bg-transparent border-0 text-white hover:scale-110 transition-fast active:scale-95 p-0"
             >
               <Share className="w-7 h-7" />
             </Button>
