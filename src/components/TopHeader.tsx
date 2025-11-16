@@ -1,8 +1,7 @@
 import { useState } from 'react';
-import { Bell, Search, LogOut } from 'lucide-react';
+import { LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/useAuth';
-import { Badge } from '@/components/ui/badge';
 
 interface TopHeaderProps {
   onSearchClick?: () => void;
@@ -13,7 +12,6 @@ const TopHeader = ({ onSearchClick, onNotificationClick }: TopHeaderProps) => {
   const {
     signOut
   } = useAuth();
-  const [notificationCount] = useState(3);
   return <div className="fixed top-0 left-0 right-0 bg-white/80 backdrop-blur-md border-b border-border z-40">
       <div className="flex items-center justify-between px-4 py-3">
         {/* Logo */}
