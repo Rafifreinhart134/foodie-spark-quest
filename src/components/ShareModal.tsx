@@ -114,69 +114,76 @@ export const ShareModal = ({ isOpen, onClose, videoId, videoTitle }: ShareModalP
           {/* Social Media Apps */}
           <div className="space-y-2">
             <h3 className="text-sm font-semibold text-muted-foreground">Bagikan ke aplikasi</h3>
-            <div className="grid grid-cols-2 gap-2">
-              <Button
-                variant="outline"
-                className="justify-start"
+            <div className="flex gap-4 overflow-x-auto pb-2">
+              <button
+                className="flex flex-col items-center space-y-1 hover:opacity-80 transition-opacity flex-shrink-0"
                 disabled
               >
-                <Instagram className="w-5 h-5 mr-2 text-pink-600" />
-                Instagram
-              </Button>
+                <div className="w-14 h-14 rounded-full border-2 border-border flex items-center justify-center bg-background">
+                  <Instagram className="w-7 h-7 text-pink-600" />
+                </div>
+                <span className="text-xs text-center">Instagram</span>
+              </button>
               
-              <Button
-                variant="outline"
-                className="justify-start"
+              <button
+                className="flex flex-col items-center space-y-1 hover:opacity-80 transition-opacity flex-shrink-0"
                 onClick={() => toast({ title: "TikTok", description: "Fitur akan segera hadir" })}
               >
-                <div className="w-5 h-5 mr-2 bg-black rounded-full" />
-                TikTok
-              </Button>
+                <div className="w-14 h-14 rounded-full border-2 border-border flex items-center justify-center bg-background">
+                  <div className="w-7 h-7 bg-black rounded-full" />
+                </div>
+                <span className="text-xs text-center">TikTok</span>
+              </button>
 
-              <Button
+              <button
                 onClick={() => shareToSocial('whatsapp')}
-                variant="outline"
-                className="justify-start"
+                className="flex flex-col items-center space-y-1 hover:opacity-80 transition-opacity flex-shrink-0"
               >
-                <MessageCircle className="w-5 h-5 mr-2 text-green-600" />
-                WhatsApp
-              </Button>
+                <div className="w-14 h-14 rounded-full border-2 border-border flex items-center justify-center bg-background">
+                  <MessageCircle className="w-7 h-7 text-green-600" />
+                </div>
+                <span className="text-xs text-center">WhatsApp</span>
+              </button>
               
-              <Button
+              <button
                 onClick={() => shareToSocial('facebook')}
-                variant="outline"
-                className="justify-start"
+                className="flex flex-col items-center space-y-1 hover:opacity-80 transition-opacity flex-shrink-0"
               >
-                <Facebook className="w-5 h-5 mr-2 text-blue-600" />
-                Facebook
-              </Button>
+                <div className="w-14 h-14 rounded-full border-2 border-border flex items-center justify-center bg-background">
+                  <Facebook className="w-7 h-7 text-blue-600" />
+                </div>
+                <span className="text-xs text-center">Facebook</span>
+              </button>
 
-              <Button
-                variant="outline"
-                className="justify-start"
+              <button
+                className="flex flex-col items-center space-y-1 hover:opacity-80 transition-opacity flex-shrink-0"
                 onClick={() => toast({ title: "Telegram", description: "Fitur akan segera hadir" })}
               >
-                <Send className="w-5 h-5 mr-2 text-blue-500" />
-                Telegram
-              </Button>
+                <div className="w-14 h-14 rounded-full border-2 border-border flex items-center justify-center bg-background">
+                  <Send className="w-7 h-7 text-blue-500" />
+                </div>
+                <span className="text-xs text-center">Telegram</span>
+              </button>
 
-              <Button
-                variant="outline"
-                className="justify-start"
+              <button
+                className="flex flex-col items-center space-y-1 hover:opacity-80 transition-opacity flex-shrink-0"
                 onClick={() => toast({ title: "WeChat", description: "Fitur akan segera hadir" })}
               >
-                <MessageCircle className="w-5 h-5 mr-2 text-green-500" />
-                WeChat
-              </Button>
+                <div className="w-14 h-14 rounded-full border-2 border-border flex items-center justify-center bg-background">
+                  <MessageCircle className="w-7 h-7 text-green-500" />
+                </div>
+                <span className="text-xs text-center">WeChat</span>
+              </button>
               
-              <Button
+              <button
                 onClick={() => shareToSocial('twitter')}
-                variant="outline"
-                className="justify-start col-span-2"
+                className="flex flex-col items-center space-y-1 hover:opacity-80 transition-opacity flex-shrink-0"
               >
-                <Twitter className="w-5 h-5 mr-2 text-blue-400" />
-                Twitter
-              </Button>
+                <div className="w-14 h-14 rounded-full border-2 border-border flex items-center justify-center bg-background">
+                  <Twitter className="w-7 h-7 text-blue-400" />
+                </div>
+                <span className="text-xs text-center">Twitter</span>
+              </button>
             </div>
           </div>
         </div>
