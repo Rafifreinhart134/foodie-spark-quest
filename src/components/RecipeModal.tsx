@@ -26,7 +26,9 @@ export const RecipeModal = ({ isOpen, onClose, recipe }: RecipeModalProps) => {
               {/* Header */}
               <div className="p-4 border-b border-border/50 flex-shrink-0">
                 <div className="flex items-start justify-between mb-3">
-                  <h2 className="text-xl font-semibold text-foreground pr-8">{recipe.title}</h2>
+                  <DialogPrimitive.Title asChild>
+                    <h2 className="text-xl font-semibold text-foreground pr-8">{recipe.title}</h2>
+                  </DialogPrimitive.Title>
                   <button
                     onClick={onClose}
                     className="absolute top-4 right-4 p-1 rounded-full hover:bg-accent/50 transition-colors"
@@ -35,16 +37,20 @@ export const RecipeModal = ({ isOpen, onClose, recipe }: RecipeModalProps) => {
                   </button>
                 </div>
                 
-                <div className="flex items-center gap-2 mb-2">
-                  <span className="text-sm text-muted-foreground">@{recipe.username}</span>
-                  <Badge variant="default" className="bg-yellow-500 text-black hover:bg-yellow-600">
-                    UMKM
-                  </Badge>
-                </div>
-                
-                <p className="text-sm font-medium text-foreground">
-                  Kisaran Harga: {recipe.priceRange}
-                </p>
+                <DialogPrimitive.Description asChild>
+                  <div>
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="text-sm text-muted-foreground">@{recipe.username}</span>
+                      <Badge variant="default" className="bg-yellow-500 text-black hover:bg-yellow-600">
+                        UMKM
+                      </Badge>
+                    </div>
+                    
+                    <p className="text-sm font-medium text-foreground">
+                      Kisaran Harga: {recipe.priceRange}
+                    </p>
+                  </div>
+                </DialogPrimitive.Description>
               </div>
 
               {/* Scrollable Content */}
