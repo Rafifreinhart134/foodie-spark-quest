@@ -90,19 +90,56 @@ const SearchPage = () => {
     setShowTrending(false);
     
     try {
-      // Search for users based on query
-      const { data: profilesData, error: profilesError } = await supabase
+      // Split query into keywords for fuzzy search
+      const keywords = query.toLowerCase().trim().split(/\s+/);
+      
+      // Build fuzzy search patterns
+      const fuzzyPatterns = keywords.flatMap(keyword => {
+        // Create patterns for typo tolerance
+        const chars = keyword.split('');
+        return [
+          `%${keyword}%`, // Exact partial match
+          ...chars.map((_, i) => {
+            // Skip one character for typo tolerance
+            const pattern = chars.filter((_, idx) => idx !== i).join('');
+            return `%${pattern}%`;
+          }).slice(0, 2) // Limit fuzzy patterns
+        ];
+      });
+
+      // Search for users with fuzzy matching
+      let allProfilesData: any[] = [];
+      
+      // First try exact match
+      const { data: exactProfiles } = await supabase
         .from('profiles')
         .select('user_id, display_name, avatar_url, follower_count')
         .ilike('display_name', `%${query}%`)
         .order('follower_count', { ascending: false })
         .limit(5);
-
-      if (profilesError) throw profilesError;
+      
+      allProfilesData = exactProfiles || [];
+      
+      // If no exact matches, try fuzzy search
+      if (allProfilesData.length === 0) {
+        for (const pattern of fuzzyPatterns.slice(0, 3)) {
+          const { data: fuzzyProfiles } = await supabase
+            .from('profiles')
+            .select('user_id, display_name, avatar_url, follower_count')
+            .ilike('display_name', pattern)
+            .order('follower_count', { ascending: false })
+            .limit(5);
+          
+          if (fuzzyProfiles && fuzzyProfiles.length > 0) {
+            allProfilesData = fuzzyProfiles;
+            break;
+          }
+        }
+      }
 
       // Fetch videos for each user found
       const usersWithVideos = await Promise.all(
-        (profilesData || []).map(async (profile) => {
+        allProfilesData.map(async (profile) => {
           const { data: videosData } = await supabase
             .from('videos')
             .select('id, thumbnail_url, title, like_count, video_url, description, category')
@@ -120,8 +157,16 @@ const SearchPage = () => {
 
       setRecommendedUsers(usersWithVideos.filter(u => u.videos.length > 0));
 
-      // Search for videos based on query
-      const { data: videosData, error: videosError } = await supabase
+      // Search for videos with fuzzy matching
+      let allVideosData: any[] = [];
+      
+      // Build OR conditions for multiple keywords
+      const orConditions = keywords.map(keyword => 
+        `title.ilike.%${keyword}%,description.ilike.%${keyword}%,tags.cs.{${keyword}}`
+      ).join(',');
+      
+      // First try multi-keyword search
+      const { data: exactVideos } = await supabase
         .from('videos')
         .select(`
           id,
@@ -137,16 +182,46 @@ const SearchPage = () => {
           is_public
         `)
         .eq('is_public', true)
-        .or(`title.ilike.%${query}%,description.ilike.%${query}%`)
-        .order('created_at', { ascending: false })
+        .or(orConditions)
+        .order('like_count', { ascending: false })
         .limit(50);
 
-      if (videosError) throw videosError;
+      allVideosData = exactVideos || [];
+      
+      // If no results, try fuzzy patterns
+      if (allVideosData.length === 0) {
+        for (const pattern of fuzzyPatterns.slice(0, 3)) {
+          const { data: fuzzyVideos } = await supabase
+            .from('videos')
+            .select(`
+              id,
+              user_id,
+              video_url,
+              thumbnail_url,
+              title,
+              description,
+              category,
+              tags,
+              like_count,
+              comment_count,
+              is_public
+            `)
+            .eq('is_public', true)
+            .or(`title.ilike.${pattern},description.ilike.${pattern}`)
+            .order('like_count', { ascending: false })
+            .limit(50);
+          
+          if (fuzzyVideos && fuzzyVideos.length > 0) {
+            allVideosData = fuzzyVideos;
+            break;
+          }
+        }
+      }
 
       // Fetch profiles for the videos
-      let videosWithProfiles = videosData || [];
-      if (videosData && videosData.length > 0) {
-        const userIds = [...new Set(videosData.map(v => v.user_id))];
+      let videosWithProfiles = allVideosData || [];
+      if (allVideosData && allVideosData.length > 0) {
+        const userIds = [...new Set(allVideosData.map((v: any) => v.user_id))];
         const { data: videoProfilesData } = await supabase
           .from('profiles')
           .select('user_id, display_name, avatar_url')
@@ -156,7 +231,7 @@ const SearchPage = () => {
           videoProfilesData?.map(p => [p.user_id, p]) || []
         );
 
-        videosWithProfiles = videosData.map(video => ({
+        videosWithProfiles = allVideosData.map((video: any) => ({
           ...video,
           profiles: profilesMap.get(video.user_id) || null
         }));
