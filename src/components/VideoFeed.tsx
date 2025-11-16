@@ -9,6 +9,7 @@ import { useNotifications } from '@/hooks/useNotifications';
 import { useFollow } from '@/hooks/useFollow';
 import { CommentsModal } from './CommentsModal';
 import { ShareModal } from './ShareModal';
+import { RecipeModal } from './RecipeModal';
 import { useNavigate } from 'react-router-dom';
 
 interface VideoCardProps {
@@ -18,9 +19,10 @@ interface VideoCardProps {
   onSave: (videoId: string) => void;
   onComment: (videoId: string, videoTitle: string) => void;
   onShare: (videoId: string, videoTitle: string) => void;
+  onRecipe: (video: Video) => void;
 }
 
-const VideoCard = ({ video, isActive, onLike, onSave, onComment, onShare }: VideoCardProps) => {
+const VideoCard = ({ video, isActive, onLike, onSave, onComment, onShare, onRecipe }: VideoCardProps) => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { isFollowing, toggleFollow } = useFollow(video.user_id);
@@ -317,7 +319,7 @@ const VideoCard = ({ video, isActive, onLike, onSave, onComment, onShare }: Vide
                 <Button
                   variant="ghost"
                   size="icon"
-                  onClick={() => setShowDetails(!showDetails)}
+                  onClick={() => onRecipe(video)}
                   className="w-14 h-14 rounded-full bg-primary text-white hover:scale-110 hover:bg-primary/90 shadow-elevated transition-fast active:scale-95"
                 >
                   <Utensils className="w-7 h-7" />
@@ -369,6 +371,10 @@ const VideoFeed = () => {
     isOpen: false,
     videoId: '',
     videoTitle: ''
+  });
+  const [recipeModal, setRecipeModal] = useState<{isOpen: boolean, recipe: any}>({
+    isOpen: false,
+    recipe: null
   });
   const [startY, setStartY] = useState<number | null>(null);
 
@@ -440,6 +446,32 @@ const VideoFeed = () => {
     setShareModal({ isOpen: true, videoId, videoTitle });
   };
 
+  const handleRecipe = (video: Video) => {
+    setRecipeModal({
+      isOpen: true,
+      recipe: {
+        title: video.title,
+        username: video.profiles?.display_name || "User",
+        priceRange: video.budget || "0k - 20k",
+        ingredients: [
+          "2 butir telur",
+          "100ml susu cair",
+          "2 sdm gula pasir",
+          "1 sdt vanilla extract",
+          "50g mentega, lelehkan"
+        ],
+        instructions: [
+          "Kocok telur dan gula hingga mengembang",
+          "Tambahkan susu cair dan vanilla extract, aduk rata",
+          "Masukkan mentega leleh, aduk hingga tercampur sempurna",
+          "Panaskan wajan dengan api sedang",
+          "Tuang adonan, masak hingga bagian bawah berwarna kecoklatan",
+          "Balik dan masak sisi lainnya hingga matang"
+        ]
+      }
+    });
+  };
+
   const handleTouchStart = (e: React.TouchEvent) => {
     setStartY(e.touches[0].clientY);
   };
@@ -496,6 +528,7 @@ const VideoFeed = () => {
             onSave={toggleSave}
             onComment={handleComment}
             onShare={handleShare}
+            onRecipe={handleRecipe}
           />
         </div>
       ))}
@@ -513,6 +546,18 @@ const VideoFeed = () => {
         onClose={() => setShareModal({ isOpen: false, videoId: '', videoTitle: '' })}
         videoId={shareModal.videoId}
         videoTitle={shareModal.videoTitle}
+      />
+
+      <RecipeModal
+        isOpen={recipeModal.isOpen}
+        onClose={() => setRecipeModal({ isOpen: false, recipe: null })}
+        recipe={recipeModal.recipe || {
+          title: "",
+          username: "",
+          priceRange: "",
+          ingredients: [],
+          instructions: []
+        }}
       />
     </div>
   );
