@@ -421,6 +421,67 @@ const SearchPage = () => {
     setShowShareModal(true);
   };
 
+  const handleFollowToggle = async (userId: string) => {
+    if (!user) {
+      toast({
+        title: "Login required",
+        description: "Please login to follow users",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    const isCurrentlyFollowing = followingUsers.has(userId);
+
+    try {
+      if (isCurrentlyFollowing) {
+        // Unfollow
+        const { error } = await supabase
+          .from('follows')
+          .delete()
+          .eq('follower_id', user.id)
+          .eq('following_id', userId);
+
+        if (error) throw error;
+
+        setFollowingUsers(prev => {
+          const newSet = new Set(prev);
+          newSet.delete(userId);
+          return newSet;
+        });
+
+        toast({
+          title: "Unfollowed",
+          description: "You are no longer following this user",
+        });
+      } else {
+        // Follow
+        const { error } = await supabase
+          .from('follows')
+          .insert({
+            follower_id: user.id,
+            following_id: userId,
+          });
+
+        if (error) throw error;
+
+        setFollowingUsers(prev => new Set(prev).add(userId));
+
+        toast({
+          title: "Following",
+          description: "You are now following this user",
+        });
+      }
+    } catch (error) {
+      console.error('Error toggling follow:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update follow status",
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background pt-16 pb-20">
       {/* Header */}
