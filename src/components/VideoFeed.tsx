@@ -129,13 +129,8 @@ const VideoCard = ({ video, isActive, onLike, onSave, onComment, onShare, onReci
       {/* Top Header */}
       {!hideUI && (
         <div className="absolute top-0 left-0 right-0 z-30 bg-gradient-to-b from-black/60 to-transparent pt-4 pb-8">
-          <div className="relative flex items-center justify-center px-4">
-            {/* Search Icon - Absolute positioned left */}
-            <Button variant="ghost" size="icon" className="absolute left-4 text-white">
-              <Search className="w-6 h-6" />
-            </Button>
-
-            {/* Center Tabs - Centered */}
+          <div className="flex items-center justify-center px-4">
+            {/* Center Tabs */}
             <div className="flex items-center gap-6">
               <button className="text-white font-semibold text-base font-poppins border-b-2 border-white pb-1">
                 Inspirasi
