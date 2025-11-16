@@ -222,69 +222,70 @@ const VideoCard = ({ video, isActive, onLike, onSave, onComment, onShare }: Vide
         <div className="absolute bottom-20 left-0 right-0 px-4 pb-6 bg-gradient-to-t from-black/80 via-black/40 to-transparent z-30">
           <div className="flex items-end justify-between">
             {/* Left side - User info and caption */}
-            <div className="flex-1 pr-4 space-y-3">
-              {/* User Profile Section */}
-              <div className="space-y-2">
-                <div 
-                  className="flex items-center space-x-2" 
-                  onClick={handleUserClick}
-                >
-                  <div className="relative cursor-pointer">
-                    <Avatar className="w-12 h-12 border-2 border-white">
-                      <AvatarImage src={video.profiles?.avatar_url || ''} alt={video.profiles?.display_name || 'User'} />
-                      <AvatarFallback className="bg-primary text-white font-bold">
-                        {(video.profiles?.display_name || 'U')[0].toUpperCase()}
-                      </AvatarFallback>
-                    </Avatar>
-                    {user?.id !== video.user_id && !isFollowing && (
-                      <Button
-                        size="icon"
-                        className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-primary hover:bg-primary/90 border-2 border-white"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          toggleFollow();
-                        }}
-                      >
-                        <Plus className="w-4 h-4 text-white" />
-                      </Button>
-                    )}
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-white font-semibold font-poppins">
-                      {video.profiles?.display_name || 'Anonymous'}
-                    </span>
-                    <Badge className="bg-warning text-black px-2 py-0.5 text-xs font-semibold">
-                      UMKM
-                    </Badge>
-                  </div>
-                </div>
-
-                {/* Caption */}
-                {video.description && (
-                  <div className="text-white/90 text-sm font-poppins">
-                    {showFullDescription ? (
-                      <p className="whitespace-pre-wrap">{video.description}</p>
-                    ) : (
-                      <p className="line-clamp-2">{video.description}</p>
-                    )}
-                    {video.description.length > 100 && (
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setShowFullDescription(!showFullDescription);
-                        }}
-                        className="text-white/70 font-semibold text-sm mt-1"
-                      >
-                        {showFullDescription ? 'Show less' : 'More info'}
-                      </button>
-                    )}
-                  </div>
-                )}
+            <div className="flex-1 pr-4 space-y-2">
+              {/* Username and Badge */}
+              <div 
+                className="flex items-center gap-2 cursor-pointer"
+                onClick={handleUserClick}
+              >
+                <span className="text-white font-semibold font-poppins">
+                  {video.profiles?.display_name || 'Anonymous'}
+                </span>
+                <Badge className="bg-warning text-black px-2 py-0.5 text-xs font-semibold">
+                  UMKM
+                </Badge>
               </div>
+
+              {/* Caption */}
+              {video.description && (
+                <div className="text-white/90 text-sm font-poppins">
+                  {showFullDescription ? (
+                    <p className="whitespace-pre-wrap">{video.description}</p>
+                  ) : (
+                    <p className="line-clamp-2">{video.description}</p>
+                  )}
+                  {video.description.length > 100 && (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setShowFullDescription(!showFullDescription);
+                      }}
+                      className="text-white/70 font-semibold text-sm mt-1"
+                    >
+                      {showFullDescription ? 'Show less' : 'More info'}
+                    </button>
+                  )}
+                </div>
+              )}
             </div>
 
-            {/* Right side - Action buttons */}
-            <div className="flex flex-col items-center space-y-3">
+            {/* Right side - Profile and Action buttons */}
+            <div className="flex flex-col items-center space-y-4">
+              {/* Profile Avatar */}
+              <div 
+                className="relative cursor-pointer"
+                onClick={handleUserClick}
+              >
+                <Avatar className="w-12 h-12 border-2 border-white">
+                  <AvatarImage src={video.profiles?.avatar_url || ''} alt={video.profiles?.display_name || 'User'} />
+                  <AvatarFallback className="bg-primary text-white font-bold">
+                    {(video.profiles?.display_name || 'U')[0].toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+                {user?.id !== video.user_id && !isFollowing && (
+                  <Button
+                    size="icon"
+                    className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-primary hover:bg-primary/90 border-2 border-white"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      toggleFollow();
+                    }}
+                  >
+                    <Plus className="w-4 h-4 text-white" />
+                  </Button>
+                )}
+              </div>
+
               {/* Like Button */}
               <div className="flex flex-col items-center">
                 <Button
