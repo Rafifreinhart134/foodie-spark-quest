@@ -3,7 +3,7 @@ import { useParams, useLocation } from 'react-router-dom';
 import VideoFeed from '@/components/VideoFeed';
 import SearchPage from '@/components/SearchPage';
 import UploadPage from '@/components/UploadPage';
-import NotificationPage from '@/components/NotificationPage';
+import SavedPage from '@/components/SavedPage';
 import ProfilePage from '@/components/ProfilePage';
 import UserProfilePage from '@/components/UserProfilePage';
 import SettingsPage from '@/components/SettingsPage';
@@ -33,12 +33,10 @@ const Index = () => {
     switch (activeTab) {
       case 'home':
         return <VideoFeed />;
-      case 'search':
-        return <SearchPage />;
       case 'upload':
         return <UploadPage />;
-      case 'notifications':
-        return <NotificationPage />;
+      case 'saved':
+        return <SavedPage />;
       case 'profile':
         return <ProfilePage onNavigateToSettings={() => setActiveTab('settings')} />;
       case 'settings':
