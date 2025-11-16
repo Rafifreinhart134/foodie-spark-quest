@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { Heart, MessageCircle, Share, Bookmark, Utensils, Search, Bell, Plus } from 'lucide-react';
+import { Heart, MessageCircle, Share, Bookmark, Utensils, Search, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
@@ -144,11 +144,6 @@ const VideoCard = ({ video, isActive, onLike, onSave, onComment, onShare, onReci
                 Mengikuti
               </button>
             </div>
-
-            {/* Notification Icon */}
-            <Button variant="ghost" size="icon" className="text-white">
-              <Bell className="w-6 h-6" />
-            </Button>
           </div>
         </div>
       )}
