@@ -1,4 +1,3 @@
-import { Dialog } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { X } from "lucide-react";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
@@ -16,11 +15,13 @@ interface RecipeModalProps {
 }
 
 export const RecipeModal = ({ isOpen, onClose, recipe }: RecipeModalProps) => {
+  if (!isOpen) return null;
+  
   return (
-    <Dialog open={isOpen} onOpenChange={onClose} modal={false}>
+    <DialogPrimitive.Root open={isOpen} onOpenChange={onClose} modal={false}>
       <DialogPrimitive.Portal>
-        <DialogPrimitive.Overlay className="fixed inset-0 z-40 pointer-events-none" />
-        <DialogPrimitive.Content className="fixed left-1/2 top-[12vh] z-50 w-full max-w-xs -translate-x-1/2 mx-4 outline-none">
+        <DialogPrimitive.Overlay className="fixed inset-0 z-40 bg-black/20 pointer-events-none" />
+        <DialogPrimitive.Content className="fixed left-1/2 top-[12vh] z-50 w-full max-w-xs -translate-x-1/2 mx-4 outline-none pointer-events-auto">
           <div className="bg-background/95 backdrop-blur-md rounded-lg border border-border/50 shadow-lg overflow-hidden">
             <div className="flex flex-col max-h-[35vh]">
               {/* Header */}
@@ -95,6 +96,6 @@ export const RecipeModal = ({ isOpen, onClose, recipe }: RecipeModalProps) => {
           </div>
         </DialogPrimitive.Content>
       </DialogPrimitive.Portal>
-    </Dialog>
+    </DialogPrimitive.Root>
   );
 };
