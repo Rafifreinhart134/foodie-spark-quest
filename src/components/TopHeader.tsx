@@ -3,7 +3,13 @@ import { Bell, Search, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/useAuth';
 import { Badge } from '@/components/ui/badge';
-const TopHeader = () => {
+
+interface TopHeaderProps {
+  onSearchClick?: () => void;
+  onNotificationClick?: () => void;
+}
+
+const TopHeader = ({ onSearchClick, onNotificationClick }: TopHeaderProps) => {
   const {
     signOut
   } = useAuth();
@@ -20,11 +26,11 @@ const TopHeader = () => {
 
         {/* Right Actions */}
         <div className="flex items-center space-x-3">
-          <Button variant="ghost" size="icon" className="relative">
+          <Button variant="ghost" size="icon" className="relative" onClick={onSearchClick}>
             <Search className="w-5 h-5 text-muted-foreground" />
           </Button>
           
-          <Button variant="ghost" size="icon" className="relative">
+          <Button variant="ghost" size="icon" className="relative" onClick={onNotificationClick}>
             <Bell className="w-5 h-5 text-muted-foreground" />
             {notificationCount > 0 && <Badge variant="destructive" className="absolute -top-1 -right-1 w-5 h-5 rounded-full flex items-center justify-center text-xs p-0">
                 {notificationCount}
