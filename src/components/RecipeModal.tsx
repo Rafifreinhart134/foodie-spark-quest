@@ -18,8 +18,8 @@ interface RecipeModalProps {
 export const RecipeModal = ({ isOpen, onClose, recipe }: RecipeModalProps) => {
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-md h-[70vh] bg-background/95 backdrop-blur-md p-0 gap-0 border-border/50">
-        <div className="flex flex-col h-full">
+      <DialogContent className="max-w-md h-[70vh] bg-background/95 backdrop-blur-md p-0 gap-0 border-border/50 mx-6">
+        <div className="flex flex-col h-full max-h-[70vh] overflow-hidden">
           {/* Header */}
           <div className="p-4 border-b border-border/50">
             <div className="flex items-start justify-between mb-3">
@@ -45,13 +45,13 @@ export const RecipeModal = ({ isOpen, onClose, recipe }: RecipeModalProps) => {
           </div>
 
           {/* Scrollable Content */}
-          <div className="flex-1 overflow-hidden p-4 space-y-4">
+          <div className="flex-1 overflow-y-auto p-4 space-y-4">
             {/* Alat dan Bahan */}
-            <div className="border border-border/50 rounded-lg overflow-hidden">
+            <div className="border border-border/50 rounded-lg overflow-hidden flex-shrink-0">
               <div className="bg-accent/30 px-3 py-2 border-b border-border/50">
                 <h3 className="font-semibold text-sm text-foreground">Alat dan Bahan</h3>
               </div>
-              <ScrollArea className="h-32">
+              <div className="max-h-40 overflow-y-auto">
                 <div className="p-3 space-y-2">
                   {recipe.ingredients.map((ingredient, index) => (
                     <div key={index} className="flex items-start gap-2">
@@ -60,15 +60,15 @@ export const RecipeModal = ({ isOpen, onClose, recipe }: RecipeModalProps) => {
                     </div>
                   ))}
                 </div>
-              </ScrollArea>
+              </div>
             </div>
 
             {/* Cara Pembuatan */}
-            <div className="border border-border/50 rounded-lg overflow-hidden">
+            <div className="border border-border/50 rounded-lg overflow-hidden flex-shrink-0">
               <div className="bg-accent/30 px-3 py-2 border-b border-border/50">
                 <h3 className="font-semibold text-sm text-foreground">Cara Pembuatan</h3>
               </div>
-              <ScrollArea className="h-32">
+              <div className="max-h-40 overflow-y-auto">
                 <div className="p-3 space-y-3">
                   {recipe.instructions.map((instruction, index) => (
                     <div key={index} className="flex items-start gap-3">
@@ -79,7 +79,7 @@ export const RecipeModal = ({ isOpen, onClose, recipe }: RecipeModalProps) => {
                     </div>
                   ))}
                 </div>
-              </ScrollArea>
+              </div>
             </div>
           </div>
         </div>
