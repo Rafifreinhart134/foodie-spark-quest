@@ -72,10 +72,10 @@ const Index = () => {
         <Button 
           variant="ghost" 
           size="icon" 
-          className="fixed top-4 left-4 z-40 bg-background/80 backdrop-blur-md shadow-lg hover:bg-background"
+          className="fixed top-4 left-4 z-40 hover:bg-white/10"
           onClick={() => setActiveTab('search')}
         >
-          <Search className="w-5 h-5 text-foreground" />
+          <Search className="w-6 h-6 text-white" />
         </Button>
       )}
 
@@ -84,10 +84,10 @@ const Index = () => {
         <Button 
           variant="ghost" 
           size="icon" 
-          className="fixed top-4 right-4 z-40 relative bg-background/80 backdrop-blur-md shadow-lg hover:bg-background"
+          className="fixed top-4 right-4 z-40 hover:bg-white/10"
           onClick={() => setActiveTab('notifications')}
         >
-          <Inbox className="w-5 h-5 text-foreground" />
+          <Inbox className="w-6 h-6 text-white" />
         </Button>
       )}
       
