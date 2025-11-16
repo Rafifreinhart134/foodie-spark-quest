@@ -26,7 +26,6 @@ const SearchPage = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { followUser, unfollowUser, isFollowing } = useFollow();
   const [searchQuery, setSearchQuery] = useState('');
   const [showWizard, setShowWizard] = useState(false);
   const [searchResults, setSearchResults] = useState<any[]>([]);
@@ -34,6 +33,7 @@ const SearchPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [appliedFilters, setAppliedFilters] = useState<SearchFilters>({});
   const [activeTab, setActiveTab] = useState('top');
+  const [followingUsers, setFollowingUsers] = useState<Set<string>>(new Set());
   
   // Modal states
   const [selectedContent, setSelectedContent] = useState<any>(null);
