@@ -20,7 +20,7 @@ export const RecipeModal = ({ isOpen, onClose, recipe }: RecipeModalProps) => {
     <Dialog open={isOpen} onOpenChange={onClose} modal={false}>
       <DialogPrimitive.Portal>
         <DialogPrimitive.Overlay className="fixed inset-0 z-40 pointer-events-none" />
-        <DialogPrimitive.Content className="fixed left-1/2 top-[20vh] z-50 w-full max-w-sm -translate-x-1/2 mx-8 outline-none">
+        <DialogPrimitive.Content className="fixed left-1/2 top-[20vh] z-50 w-full max-w-sm -translate-x-1/2 mx-4 outline-none">
           <div className="bg-background/95 backdrop-blur-md rounded-lg border border-border/50 shadow-lg overflow-hidden">
             <div className="flex flex-col max-h-[55vh]">
               {/* Header */}
