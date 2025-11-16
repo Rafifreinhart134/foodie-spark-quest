@@ -65,24 +65,24 @@ export const ShareModal = ({ isOpen, onClose, videoId, videoTitle }: ShareModalP
         
         <div className="space-y-4">
           {/* Top Action Buttons */}
-          <div className="grid grid-cols-5 gap-2">
-            <Button variant="ghost" className="flex flex-col items-center h-auto py-3 px-2">
+          <div className="flex gap-3 overflow-x-auto pb-2">
+            <Button variant="ghost" className="flex flex-col items-center h-auto py-3 px-3 flex-shrink-0">
               <Download className="w-6 h-6 mb-1" />
               <span className="text-xs">Download</span>
             </Button>
-            <Button variant="ghost" className="flex flex-col items-center h-auto py-3 px-2">
+            <Button variant="ghost" className="flex flex-col items-center h-auto py-3 px-3 flex-shrink-0">
               <Repeat2 className="w-6 h-6 mb-1" />
               <span className="text-xs">Posting ulang</span>
             </Button>
-            <Button variant="ghost" className="flex flex-col items-center h-auto py-3 px-2">
+            <Button variant="ghost" className="flex flex-col items-center h-auto py-3 px-3 flex-shrink-0">
               <EyeOff className="w-6 h-6 mb-1" />
               <span className="text-xs">Tidak tertarik</span>
             </Button>
-            <Button variant="ghost" className="flex flex-col items-center h-auto py-3 px-2">
+            <Button variant="ghost" className="flex flex-col items-center h-auto py-3 px-3 flex-shrink-0">
               <Flag className="w-6 h-6 mb-1" />
               <span className="text-xs">Laporkan</span>
             </Button>
-            <Button variant="ghost" className="flex flex-col items-center h-auto py-3 px-2">
+            <Button variant="ghost" className="flex flex-col items-center h-auto py-3 px-3 flex-shrink-0">
               <Languages className="w-6 h-6 mb-1" />
               <span className="text-xs">Terjemahan</span>
             </Button>
@@ -93,11 +93,11 @@ export const ShareModal = ({ isOpen, onClose, videoId, videoTitle }: ShareModalP
           {/* Friends Recommendations */}
           <div className="space-y-2">
             <h3 className="text-sm font-semibold text-muted-foreground">Kirim ke teman</h3>
-            <div className="grid grid-cols-4 gap-3">
+            <div className="flex gap-4 overflow-x-auto pb-2">
               {friends.map((friend) => (
                 <button
                   key={friend.id}
-                  className="flex flex-col items-center space-y-1 hover:opacity-80 transition-opacity"
+                  className="flex flex-col items-center space-y-1 hover:opacity-80 transition-opacity flex-shrink-0"
                 >
                   <Avatar className="w-14 h-14">
                     <AvatarImage src={friend.avatar} alt={friend.name} />
