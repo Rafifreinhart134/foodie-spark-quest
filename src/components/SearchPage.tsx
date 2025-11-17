@@ -407,11 +407,22 @@ const SearchPage = () => {
                         onClick={() => handleVideoClick(video)}
                       >
                         <div className="relative aspect-[9/16] bg-muted rounded-lg overflow-hidden">
-                          <img
-                            src={video.thumbnail_url || '/placeholder.svg'}
-                            alt={video.title}
-                            className="w-full h-full object-cover"
-                          />
+                          {video.video_url ? (
+                            <video
+                              src={video.video_url}
+                              className="w-full h-full object-cover"
+                              loop
+                              muted
+                              playsInline
+                              autoPlay
+                            />
+                          ) : (
+                            <img
+                              src={video.thumbnail_url || '/placeholder.svg'}
+                              alt={video.title}
+                              className="w-full h-full object-cover"
+                            />
+                          )}
                           <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                             <p className="text-white text-sm font-medium px-2 text-center line-clamp-2">
                               {video.title}
