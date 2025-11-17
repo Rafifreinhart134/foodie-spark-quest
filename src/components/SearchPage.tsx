@@ -353,89 +353,91 @@ const SearchPage = () => {
         </div>
       )}
 
-      {/* Search Results with Recommended Users */}
+      {/* Search Results */}
       {searchQuery && (
-        <>
-          {/* Recommended Users based on search */}
-          {recommendedUsers.length > 0 && (
-            <div className="py-4 border-b border-border">
-              <h2 className="text-lg font-semibold px-4 mb-4">Accounts</h2>
-              <div className="space-y-6">
-                {recommendedUsers.map((recommendedUser) => (
-                  <UserRecommendationCard
-                    key={recommendedUser.user_id}
-                    user={recommendedUser}
-                    currentUserId={user?.id}
-                    onVideoClick={handleVideoClick}
-                  />
-                ))}
-              </div>
+        <div>
+          {isLoading ? (
+            <div className="text-center py-8">
+              <p className="text-muted-foreground">Searching...</p>
             </div>
-          )}
+          ) : searchResults.length === 0 && recommendedUsers.length === 0 ? (
+            <div className="text-center py-8">
+              <p className="text-muted-foreground">No results found</p>
+            </div>
+          ) : (
+            <>
+              {/* Recommended Users Section - TikTok Style */}
+              {recommendedUsers.length > 0 && (
+                <div className="py-4">
+                  <h2 className="text-lg font-semibold px-4 mb-4">Accounts</h2>
+                  <div className="space-y-6">
+                    {recommendedUsers.map((recommendedUser) => (
+                      <UserRecommendationCard
+                        key={recommendedUser.user_id}
+                        user={recommendedUser}
+                        currentUserId={user?.id}
+                        onVideoClick={handleVideoClick}
+                      />
+                    ))}
+                  </div>
+                </div>
+              )}
 
-          {/* Video Results */}
-          <div className="p-4">
-            {isLoading ? (
-              <div className="text-center py-8">
-                <p className="text-muted-foreground">Searching...</p>
-              </div>
-            ) : searchResults.length === 0 && recommendedUsers.length === 0 ? (
-              <div className="text-center py-8">
-                <p className="text-muted-foreground">No results found</p>
-              </div>
-            ) : searchResults.length > 0 ? (
-              <>
-                <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-lg font-semibold">Videos</h2>
-                  <Select value={sortOption} onValueChange={(value: any) => setSortOption(value)}>
-                    <SelectTrigger className="w-[180px]">
-                      <SelectValue placeholder="Sort by" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="newest">Newest</SelectItem>
-                      <SelectItem value="most_liked">Most Liked</SelectItem>
-                      <SelectItem value="most_commented">Most Commented</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="grid grid-cols-2 gap-3">
-                  {searchResults.map((video) => (
-                    <div
-                      key={video.id}
-                      className="cursor-pointer group"
-                      onClick={() => handleVideoClick(video)}
-                    >
-                      <div className="relative aspect-[9/16] bg-muted rounded-lg overflow-hidden">
-                        <img
-                          src={video.thumbnail_url || '/placeholder.svg'}
-                          alt={video.title}
-                          className="w-full h-full object-cover"
-                        />
-                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                          <p className="text-white text-sm font-medium px-2 text-center line-clamp-2">
-                            {video.title}
-                          </p>
+              {/* Video Results Grid */}
+              {searchResults.length > 0 && (
+                <div className="p-4">
+                  <div className="flex items-center justify-between mb-4">
+                    <h2 className="text-lg font-semibold">Videos</h2>
+                    <Select value={sortOption} onValueChange={(value: any) => setSortOption(value)}>
+                      <SelectTrigger className="w-[180px]">
+                        <SelectValue placeholder="Sort by" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="newest">Newest</SelectItem>
+                        <SelectItem value="most_liked">Most Liked</SelectItem>
+                        <SelectItem value="most_commented">Most Commented</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    {searchResults.map((video) => (
+                      <div
+                        key={video.id}
+                        className="cursor-pointer group"
+                        onClick={() => handleVideoClick(video)}
+                      >
+                        <div className="relative aspect-[9/16] bg-muted rounded-lg overflow-hidden">
+                          <img
+                            src={video.thumbnail_url || '/placeholder.svg'}
+                            alt={video.title}
+                            className="w-full h-full object-cover"
+                          />
+                          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                            <p className="text-white text-sm font-medium px-2 text-center line-clamp-2">
+                              {video.title}
+                            </p>
+                          </div>
+                        </div>
+                        
+                        {/* Video info below thumbnail */}
+                        <div className="flex gap-2 mt-2 px-1">
+                          <Avatar className="w-8 h-8 flex-shrink-0">
+                            <AvatarImage src={video.profiles?.avatar_url} alt={video.profiles?.display_name} />
+                            <AvatarFallback>{video.profiles?.display_name?.[0]?.toUpperCase() || 'U'}</AvatarFallback>
+                          </Avatar>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm line-clamp-2 mb-1">{video.title}</p>
+                            <p className="text-xs text-muted-foreground">❤️ {video.like_count || 0}</p>
+                          </div>
                         </div>
                       </div>
-                      
-                      {/* Video info below thumbnail */}
-                      <div className="flex gap-2 mt-2 px-1">
-                        <Avatar className="w-8 h-8 flex-shrink-0">
-                          <AvatarImage src={video.profiles?.avatar_url} alt={video.profiles?.display_name} />
-                          <AvatarFallback>{video.profiles?.display_name?.[0]?.toUpperCase() || 'U'}</AvatarFallback>
-                        </Avatar>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm line-clamp-2 mb-1">{video.title}</p>
-                          <p className="text-xs text-muted-foreground">❤️ {video.like_count || 0}</p>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
-              </>
-            ) : null}
-          </div>
-        </>
+              )}
+            </>
+          )}
+        </div>
       )}
 
       {/* Content Detail Modal */}
@@ -453,7 +455,7 @@ const SearchPage = () => {
   );
 };
 
-// User Recommendation Card Component
+// User Recommendation Card Component - TikTok Style
 const UserRecommendationCard = ({ 
   user, 
   currentUserId,
@@ -508,9 +510,9 @@ const UserRecommendationCard = ({
         )}
       </div>
 
-      {/* Horizontal Video Scroll */}
+      {/* Horizontal Video Scroll - No Scrollbar */}
       <ScrollArea className="w-full whitespace-nowrap">
-        <div className="flex gap-2 px-4">
+        <div className="flex gap-2 px-4 pb-2">
           {user.videos.map((video) => (
             <div
               key={video.id}
@@ -533,7 +535,7 @@ const UserRecommendationCard = ({
             </div>
           ))}
         </div>
-        <ScrollBar orientation="horizontal" />
+        <ScrollBar orientation="horizontal" className="invisible" />
       </ScrollArea>
     </div>
   );
