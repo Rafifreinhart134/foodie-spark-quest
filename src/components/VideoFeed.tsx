@@ -375,6 +375,17 @@ const VideoFeed = () => {
   const { user } = useAuth();
   const { createNotification } = useNotifications();
   const [currentIndex, setCurrentIndex] = useState(0);
+
+  // Reset current index when feed type changes
+  useEffect(() => {
+    console.log('Feed type changed to:', feedType);
+    setCurrentIndex(0);
+  }, [feedType]);
+
+  const handleFeedTypeChange = (newType: 'inspirasi' | 'mengikuti') => {
+    console.log('Changing feed type from', feedType, 'to', newType);
+    setFeedType(newType);
+  };
   const [commentsModal, setCommentsModal] = useState<{isOpen: boolean, videoId: string, videoTitle: string}>({
     isOpen: false,
     videoId: '',
@@ -548,7 +559,7 @@ const VideoFeed = () => {
             onShare={handleShare}
             onRecipe={handleRecipe}
             feedType={feedType}
-            onFeedTypeChange={setFeedType}
+            onFeedTypeChange={handleFeedTypeChange}
           />
         </div>
       ))}
