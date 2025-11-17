@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Heart, MessageCircle, Share, MoreHorizontal, Play, Grid3X3, Award, UserPlus, UserMinus } from 'lucide-react';
+import { ArrowLeft, Heart, MessageCircle, Share, MoreHorizontal, Play, Grid3X3, Award, UserPlus, UserMinus, Repeat2, Tag } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
@@ -26,7 +26,7 @@ const UserProfilePage = () => {
   const [selectedContent, setSelectedContent] = useState<any>(null);
   const [isContentModalOpen, setIsContentModalOpen] = useState(false);
   const [currentContentIndex, setCurrentContentIndex] = useState(0);
-  const [activeTab, setActiveTab] = useState<'content' | 'badges'>('content');
+  const [activeTab, setActiveTab] = useState<'content' | 'badges' | 'repost' | 'tag'>('content');
   
   // Modal states for comments and share
   const [showCommentsModal, setShowCommentsModal] = useState(false);
@@ -355,20 +355,44 @@ const UserProfilePage = () => {
             }`}
             onClick={() => setActiveTab('content')}
           >
-            <Grid3X3 className="w-4 h-4 mx-auto mb-1" />
-            Content
+            <Grid3X3 className="w-5 h-5 mx-auto" />
           </button>
-          <button 
-            className={`flex-1 py-3 text-center font-medium border-b-2 transition-colors ${
-              activeTab === 'badges' 
-                ? 'border-primary text-primary' 
-                : 'border-transparent text-muted-foreground hover:text-foreground'
-            }`}
-            onClick={() => setActiveTab('badges')}
-          >
-            <Award className="w-4 h-4 mx-auto mb-1" />
-            Badges
-          </button>
+          
+          {isFollowing ? (
+            <button 
+              className={`flex-1 py-3 text-center font-medium border-b-2 transition-colors ${
+                activeTab === 'badges' 
+                  ? 'border-primary text-primary' 
+                  : 'border-transparent text-muted-foreground hover:text-foreground'
+              }`}
+              onClick={() => setActiveTab('badges')}
+            >
+              <Award className="w-5 h-5 mx-auto" />
+            </button>
+          ) : (
+            <>
+              <button 
+                className={`flex-1 py-3 text-center font-medium border-b-2 transition-colors ${
+                  activeTab === 'repost' 
+                    ? 'border-primary text-primary' 
+                    : 'border-transparent text-muted-foreground hover:text-foreground'
+                }`}
+                onClick={() => setActiveTab('repost')}
+              >
+                <Repeat2 className="w-5 h-5 mx-auto" />
+              </button>
+              <button 
+                className={`flex-1 py-3 text-center font-medium border-b-2 transition-colors ${
+                  activeTab === 'tag' 
+                    ? 'border-primary text-primary' 
+                    : 'border-transparent text-muted-foreground hover:text-foreground'
+                }`}
+                onClick={() => setActiveTab('tag')}
+              >
+                <Tag className="w-5 h-5 mx-auto" />
+              </button>
+            </>
+          )}
         </div>
       </div>
 
@@ -431,9 +455,19 @@ const UserProfilePage = () => {
           )}
         </div>
         </div>
-      ) : (
+      ) : activeTab === 'badges' && isFollowing ? (
         <UserBadges userId={userId || ''} />
-      )}
+      ) : activeTab === 'repost' ? (
+        <div className="p-4 text-center py-12 text-muted-foreground">
+          <Repeat2 className="w-12 h-12 mx-auto mb-2 opacity-50" />
+          <p>No reposts yet</p>
+        </div>
+      ) : activeTab === 'tag' ? (
+        <div className="p-4 text-center py-12 text-muted-foreground">
+          <Tag className="w-12 h-12 mx-auto mb-2 opacity-50" />
+          <p>No tagged content yet</p>
+        </div>
+      ) : null}
 
       {/* Enhanced Content Detail Modal with Navigation */}
       {selectedContent && (
