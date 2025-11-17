@@ -328,13 +328,13 @@ const UserProfilePage = () => {
       {/* Profile Header */}
       <div className="bg-white">
         <div className="relative">
-          {/* Cover gradient */}
-          <div className="h-24 gradient-primary"></div>
+          {/* Cover gradient - reduced height */}
+          <div className="h-20 gradient-primary"></div>
           
           {/* Profile info */}
-          <div className="px-4 pb-6">
-            {/* Profile picture and info row */}
-            <div className="flex items-start gap-3 -mt-12 mb-4">
+          <div className="px-4 pb-4">
+            {/* Profile picture and info row - tighter spacing */}
+            <div className="flex items-start gap-3 -mt-10 mb-3">
               {/* Left side: Profile picture only */}
               <div className="w-20 h-20 rounded-lg border-4 border-white shadow-lg overflow-hidden flex-shrink-0">
                 <img
@@ -345,8 +345,8 @@ const UserProfilePage = () => {
               </div>
 
               {/* Right side: Name and stats */}
-              <div className="flex-1 flex flex-col gap-2 mt-2">
-                {/* Name only - username removed */}
+              <div className="flex-1 flex flex-col gap-1.5 mt-2">
+                {/* Name only */}
                 <div>
                   <h1 className="text-base font-bold leading-tight">{profile.display_name || 'Anonymous User'}</h1>
                 </div>
@@ -354,29 +354,29 @@ const UserProfilePage = () => {
                 {/* Stats in a row */}
                 <div className="flex justify-around items-center gap-1">
                   <div className="text-center">
-                    <p className="font-bold text-sm">{formatNumber(profile.follower_count || 0)}</p>
-                    <p className="text-muted-foreground text-[10px]">Followers</p>
+                    <p className="font-bold text-sm leading-tight">{formatNumber(profile.follower_count || 0)}</p>
+                    <p className="text-muted-foreground text-[10px] leading-tight">Followers</p>
                   </div>
                   <div className="text-center">
-                    <p className="font-bold text-sm">{profile.following_count || 0}</p>
-                    <p className="text-muted-foreground text-[10px]">Following</p>
+                    <p className="font-bold text-sm leading-tight">{profile.following_count || 0}</p>
+                    <p className="text-muted-foreground text-[10px] leading-tight">Following</p>
                   </div>
                   <div className="text-center">
-                    <p className="font-bold text-sm">{userVideos.length}</p>
-                    <p className="text-muted-foreground text-[10px]">Videos</p>
+                    <p className="font-bold text-sm leading-tight">{userVideos.length}</p>
+                    <p className="text-muted-foreground text-[10px] leading-tight">Videos</p>
                   </div>
                   <div className="text-center">
-                    <p className="font-bold text-sm">{formatNumber(userVideos.reduce((acc, video) => acc + (video.like_count || 0), 0))}</p>
-                    <p className="text-muted-foreground text-[10px]">Likes</p>
+                    <p className="font-bold text-sm leading-tight">{formatNumber(userVideos.reduce((acc, video) => acc + (video.like_count || 0), 0))}</p>
+                    <p className="text-muted-foreground text-[10px] leading-tight">Likes</p>
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* Bio */}
-            <p className="text-sm mb-4">{profile.bio || 'No bio available'}</p>
+            {/* Bio - tighter spacing */}
+            <p className="text-sm mb-3">{profile.bio || 'No bio available'}</p>
 
-            {/* Follow Button or Edit Profile - moved below bio, full width */}
+            {/* Follow Button or Edit Profile - tighter spacing */}
             {user?.id === userId ? (
               <Button
                 variant="outline"
