@@ -1,13 +1,10 @@
 import { useState, useEffect } from 'react';
-import { Settings, LogOut, Award, Gift, Heart, Play, Users, Grid3X3, Edit } from 'lucide-react';
+import { Settings, LogOut, Heart, Play, Grid3X3, Edit, Repeat2, Tag } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Card } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
-import { useSavedVideos } from '@/hooks/useSavedVideos';
 import ProfileEditModal from './ProfileEditModal';
 import ContentDetailModal from './ContentDetailModal';
 import { CommentsModal } from './CommentsModal';
@@ -22,11 +19,12 @@ const ProfilePage = ({ onNavigateToSettings }: ProfilePageProps) => {
   const { user, signOut } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
-  const { savedVideos: savedVideosData, loading: savedLoading } = useSavedVideos();
   
-  const [activeTab, setActiveTab] = useState('videos');
+  const [activeTab, setActiveTab] = useState<'content' | 'repost' | 'tag'>('content');
   const [profile, setProfile] = useState<any>(null);
   const [userVideos, setUserVideos] = useState<any[]>([]);
+  const [userReposts, setUserReposts] = useState<any[]>([]);
+  const [userTags, setUserTags] = useState<any[]>([]);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedContent, setSelectedContent] = useState<any>(null);
@@ -41,8 +39,10 @@ const ProfilePage = ({ onNavigateToSettings }: ProfilePageProps) => {
 
   // Get current content array based on active tab
   const getCurrentContentArray = () => {
-    if (activeTab === 'saved') {
-      return savedVideosData;
+    if (activeTab === 'repost') {
+      return userReposts.map((r: any) => r.videos).filter(Boolean);
+    } else if (activeTab === 'tag') {
+      return userTags.map((t: any) => t.videos).filter(Boolean);
     }
     return userVideos;
   };
@@ -51,6 +51,8 @@ const ProfilePage = ({ onNavigateToSettings }: ProfilePageProps) => {
     if (user) {
       fetchUserProfile();
       fetchUserVideos();
+      fetchUserReposts();
+      fetchUserTags();
     }
   }, [user]);
 
@@ -87,6 +89,50 @@ const ProfilePage = ({ onNavigateToSettings }: ProfilePageProps) => {
       setUserVideos(data || []);
     } catch (error) {
       console.error('Error fetching user videos:', error);
+    }
+  };
+
+  const fetchUserReposts = async () => {
+    if (!user) return;
+
+    try {
+      const { data, error } = await supabase
+        .from('reposts')
+        .select(`
+          id,
+          created_at,
+          original_video_id,
+          videos:original_video_id (*)
+        `)
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setUserReposts(data || []);
+    } catch (error) {
+      console.error('Error fetching user reposts:', error);
+    }
+  };
+
+  const fetchUserTags = async () => {
+    if (!user) return;
+
+    try {
+      const { data, error } = await supabase
+        .from('video_tags')
+        .select(`
+          id,
+          created_at,
+          video_id,
+          videos:video_id (*)
+        `)
+        .eq('tagged_user_id', user.id)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setUserTags(data || []);
+    } catch (error) {
+      console.error('Error fetching user tags:', error);
     }
   };
 
@@ -348,32 +394,52 @@ const ProfilePage = ({ onNavigateToSettings }: ProfilePageProps) => {
         </div>
       </div>
 
-      {/* Content Tabs */}
-      <div className="p-4">
-        <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="videos" className="text-xs">
-              <Grid3X3 className="w-4 h-4 mr-1" />
-              Content
-            </TabsTrigger>
-            <TabsTrigger value="saved" className="text-xs">
-              <Heart className="w-4 h-4 mr-1" />
-              Saved
-            </TabsTrigger>
-            <TabsTrigger value="badges" className="text-xs">
-              <Award className="w-4 h-4 mr-1" />
-              Badges
-            </TabsTrigger>
-            <TabsTrigger value="vouchers" className="text-xs">
-              <Gift className="w-4 h-4 mr-1" />
-              Vouchers
-            </TabsTrigger>
-          </TabsList>
+      {/* Tabs - Klasifikasi dengan ikon jelas */}
+      <div className="border-b border-border/50">
+        <div className="flex">
+          <button 
+            className={`flex-1 py-3 text-center font-medium border-b-2 transition-all ${
+              activeTab === 'content' 
+                ? 'border-primary text-primary' 
+                : 'border-transparent text-muted-foreground hover:text-foreground'
+            }`}
+            onClick={() => setActiveTab('content')}
+          >
+            <Grid3X3 className="w-5 h-5 mx-auto mb-0.5" />
+            <span className="text-[10px]">Post</span>
+          </button>
 
-          {/* My Content */}
-          <TabsContent value="videos" className="mt-4">
-            <div className="grid grid-cols-3 gap-0.5">
-              {userVideos.map((video) => {
+          <button 
+            className={`flex-1 py-3 text-center font-medium border-b-2 transition-all ${
+              activeTab === 'repost' 
+                ? 'border-primary text-primary' 
+                : 'border-transparent text-muted-foreground hover:text-foreground'
+            }`}
+            onClick={() => setActiveTab('repost')}
+          >
+            <Repeat2 className="w-5 h-5 mx-auto mb-0.5" />
+            <span className="text-[10px]">Repost</span>
+          </button>
+          
+          <button 
+            className={`flex-1 py-3 text-center font-medium border-b-2 transition-all ${
+              activeTab === 'tag' 
+                ? 'border-primary text-primary' 
+                : 'border-transparent text-muted-foreground hover:text-foreground'
+            }`}
+            onClick={() => setActiveTab('tag')}
+          >
+            <Tag className="w-5 h-5 mx-auto mb-0.5" />
+            <span className="text-[10px]">Tag</span>
+          </button>
+        </div>
+      </div>
+
+      {/* Tab Content */}
+      {activeTab === 'content' ? (
+        <div className="p-1">
+          <div className="grid grid-cols-3 gap-0.5">
+            {userVideos.map((video) => {
                 const isVideoContent = video.video_url && (
                   video.video_url.includes('.mp4') || 
                   video.video_url.includes('.mov') || 
@@ -429,112 +495,125 @@ const ProfilePage = ({ onNavigateToSettings }: ProfilePageProps) => {
                       </div>
                     </div>
                   </div>
-                );
-              })}
-            </div>
-          </TabsContent>
-
-          {/* Saved Videos */}
-          <TabsContent value="saved" className="mt-4">
-            {savedLoading ? (
-              <div className="text-center py-12">
-                <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto"></div>
-                <p className="text-muted-foreground mt-2">Loading saved content...</p>
+              );
+            })}
+            {userVideos.length === 0 && (
+              <div className="text-center py-12 text-muted-foreground col-span-3">
+                <Grid3X3 className="w-12 h-12 mx-auto mb-2 opacity-50" />
+                <p>No content yet</p>
               </div>
-            ) : (
-              <div className="grid grid-cols-3 gap-0.5">
-                {savedVideosData.map((video) => {
-                  const isVideoContent = video.video_url && (
-                    video.video_url.includes('.mp4') || 
-                    video.video_url.includes('.mov') || 
-                    video.video_url.includes('.avi') ||
-                    video.video_url.includes('.webm') ||
-                    video.video_url.includes('video')
-                  );
-                  
-                  return (
-                    <div 
-                      key={video.id} 
-                       className="cursor-pointer group"
-                       onClick={() => {
-                         const contentArray = getCurrentContentArray();
-                         const contentIndex = contentArray.findIndex(item => item.id === video.id);
-                         setCurrentContentIndex(contentIndex);
-                         setSelectedContent(video);
-                         setIsContentModalOpen(true);
-                       }}
-                    >
-                      <div className="relative aspect-[3/5] bg-muted overflow-hidden">
-                        {isVideoContent ? (
-                          <video 
-                            className="w-full h-full object-cover"
-                            src={video.video_url}
-                            poster={video.thumbnail_url}
-                            preload="metadata"
-                            muted
-                          />
-                        ) : (
-                          <img
-                            src={video.video_url || video.thumbnail_url || '/placeholder.svg'}
-                            alt={video.title}
-                            className="w-full h-full object-cover"
-                          />
-                        )}
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-100" />
-                        
-                        {/* Video info overlay - always visible at bottom */}
-                        <div className="absolute bottom-0 left-0 right-0 p-1.5">
-                          <div className="flex items-center gap-1.5 text-white text-[10px] font-medium">
-                            <span className="flex items-center gap-0.5">
-                              <Play className="w-3 h-3" fill="white" />
-                              {formatNumber((video as any).view_count || 0)}
-                            </span>
-                            <span className="flex items-center gap-0.5">
-                              <Heart className="w-3 h-3" fill="white" />
-                              {formatNumber(video.like_count || 0)}
-                            </span>
-                          </div>
-                        </div>
+            )}
+          </div>
+        </div>
+      ) : activeTab === 'repost' ? (
+        <div className="p-1">
+          <div className="grid grid-cols-3 gap-0.5">
+            {userReposts.map((repost: any, index: number) => {
+              const video = repost.videos;
+              if (!video) return null;
+              
+              return (
+                <div
+                  key={repost.id}
+                  className="cursor-pointer group"
+                  onClick={() => {
+                    setCurrentContentIndex(index);
+                    setSelectedContent(video);
+                    setIsContentModalOpen(true);
+                  }}
+                >
+                  <div className="relative aspect-[3/5] bg-muted overflow-hidden">
+                    <img
+                      src={video.thumbnail_url || video.video_url || '/placeholder.svg'}
+                      alt={video.title}
+                      className="w-full h-full object-cover"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-100" />
+                    <div className="absolute top-1.5 right-1.5 bg-primary text-primary-foreground text-[9px] px-1.5 py-0.5 rounded-full flex items-center gap-0.5">
+                      <Repeat2 className="w-2.5 h-2.5" />
+                      Repost
+                    </div>
+                    
+                    {/* Video info overlay - always visible at bottom */}
+                    <div className="absolute bottom-0 left-0 right-0 p-1.5">
+                      <div className="flex items-center gap-1.5 text-white text-[10px] font-medium">
+                        <span className="flex items-center gap-0.5">
+                          <Play className="w-3 h-3" fill="white" />
+                          {formatNumber((video as any).view_count || 0)}
+                        </span>
+                        <span className="flex items-center gap-0.5">
+                          <Heart className="w-3 h-3" fill="white" />
+                          {formatNumber(video.like_count || 0)}
+                        </span>
                       </div>
                     </div>
-                  );
-                })}
-              </div>
-            )}
-            {!savedLoading && savedVideosData.length === 0 && (
-              <div className="text-center py-12 text-muted-foreground">
-                <Heart className="w-12 h-12 mx-auto mb-2 opacity-50" />
-                <p>No saved content yet</p>
-                <p className="text-sm">Save videos to view them here</p>
-              </div>
-            )}
-          </TabsContent>
-
-          {/* Badges */}
-          <TabsContent value="badges" className="mt-4">
-            <div className="grid grid-cols-2 gap-4">
-              <Card className="p-4 text-center">
-                <div className="text-4xl mb-2">👨‍🍳</div>
-                <h4 className="font-semibold mb-1">New Chef</h4>
-                <p className="text-xs text-muted-foreground">Welcome to FoodTok!</p>
-              </Card>
-            </div>
-          </TabsContent>
-
-          {/* Vouchers */}
-          <TabsContent value="vouchers" className="mt-4">
-            <div className="space-y-4">
-              <Card className="p-4">
-                <div className="text-center text-muted-foreground">
-                  <Gift className="w-12 h-12 mx-auto mb-2" />
-                  <p>No vouchers available yet</p>
-                  <p className="text-sm">Upload more content to earn coins and unlock vouchers!</p>
+                  </div>
                 </div>
-              </Card>
-            </div>
-          </TabsContent>
-        </Tabs>
-      </div>
+              );
+            })}
+            {userReposts.length === 0 && (
+              <div className="text-center py-12 text-muted-foreground col-span-3">
+                <Repeat2 className="w-12 h-12 mx-auto mb-2 opacity-50" />
+                <p>No reposts yet</p>
+              </div>
+            )}
+          </div>
+        </div>
+      ) : activeTab === 'tag' ? (
+        <div className="p-1">
+          <div className="grid grid-cols-3 gap-0.5">
+            {userTags.map((tag: any, index: number) => {
+              const video = tag.videos;
+              if (!video) return null;
+              
+              return (
+                <div
+                  key={tag.id}
+                  className="cursor-pointer group"
+                  onClick={() => {
+                    setCurrentContentIndex(index);
+                    setSelectedContent(video);
+                    setIsContentModalOpen(true);
+                  }}
+                >
+                  <div className="relative aspect-[3/5] bg-muted overflow-hidden">
+                    <img
+                      src={video.thumbnail_url || video.video_url || '/placeholder.svg'}
+                      alt={video.title}
+                      className="w-full h-full object-cover"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-100" />
+                    <div className="absolute top-1.5 right-1.5 bg-accent text-accent-foreground text-[9px] px-1.5 py-0.5 rounded-full flex items-center gap-0.5">
+                      <Tag className="w-2.5 h-2.5" />
+                      Tag
+                    </div>
+                    
+                    {/* Video info overlay - always visible at bottom */}
+                    <div className="absolute bottom-0 left-0 right-0 p-1.5">
+                      <div className="flex items-center gap-1.5 text-white text-[10px] font-medium">
+                        <span className="flex items-center gap-0.5">
+                          <Play className="w-3 h-3" fill="white" />
+                          {formatNumber((video as any).view_count || 0)}
+                        </span>
+                        <span className="flex items-center gap-0.5">
+                          <Heart className="w-3 h-3" fill="white" />
+                          {formatNumber(video.like_count || 0)}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+            {userTags.length === 0 && (
+              <div className="text-center py-12 text-muted-foreground col-span-3">
+                <Tag className="w-12 h-12 mx-auto mb-2 opacity-50" />
+                <p>No tagged content yet</p>
+              </div>
+            )}
+          </div>
+        </div>
+      ) : null}
 
       {/* Profile Edit Modal */}
       <ProfileEditModal
