@@ -376,8 +376,16 @@ const UserProfilePage = () => {
             {/* Bio */}
             <p className="text-sm mb-4">{profile.bio || 'No bio available'}</p>
 
-            {/* Follow Button - moved below bio, full width */}
-            {canFollow && (
+            {/* Follow Button or Edit Profile - moved below bio, full width */}
+            {user?.id === userId ? (
+              <Button
+                variant="outline"
+                className="w-full"
+                onClick={() => navigate('/profile')}
+              >
+                Edit Profile
+              </Button>
+            ) : canFollow ? (
               <Button
                 onClick={toggleFollow}
                 disabled={followLoading}
@@ -393,7 +401,7 @@ const UserProfilePage = () => {
                 )}
                 {isFollowing ? 'Unfollow' : 'Follow'}
               </Button>
-            )}
+            ) : null}
           </div>
         </div>
       </div>
