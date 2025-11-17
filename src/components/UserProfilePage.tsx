@@ -284,17 +284,42 @@ const UserProfilePage = () => {
           
           {/* Profile info */}
           <div className="px-4 pb-6">
-            <div className="flex items-end -mt-16 mb-4">
-              <div className="w-24 h-24 rounded-full border-4 border-white shadow-lg overflow-hidden">
-                <img
-                  src={profile.avatar_url || '/placeholder.svg'}
-                  alt={profile.display_name || 'User'}
-                  className="w-full h-full object-cover"
-                />
+            {/* Profile picture and stats row */}
+            <div className="flex items-start gap-4 -mt-16 mb-4">
+              {/* Left side: Profile picture */}
+              <div className="flex flex-col items-start gap-2">
+                <div className="w-24 h-24 rounded-lg border-4 border-white shadow-lg overflow-hidden">
+                  <img
+                    src={profile.avatar_url || '/placeholder.svg'}
+                    alt={profile.display_name || 'User'}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                {/* Name and username below profile picture */}
+                <div>
+                  <h1 className="text-lg font-bold leading-tight">{profile.display_name || 'Anonymous User'}</h1>
+                  <p className="text-muted-foreground text-sm">@{profile.display_name?.toLowerCase().replace(/\s+/g, '_') || 'user'}</p>
+                </div>
               </div>
-              <div className="ml-4 flex-1">
-                <h1 className="text-xl font-bold">{profile.display_name || 'Anonymous User'}</h1>
-                <p className="text-muted-foreground">@{profile.display_name?.toLowerCase().replace(/\s+/g, '_') || 'user'}</p>
+
+              {/* Right side: Stats grid */}
+              <div className="flex-1 grid grid-cols-2 gap-3 mt-4">
+                <div className="text-center">
+                  <p className="font-bold text-base">{formatNumber(profile.follower_count || 0)}</p>
+                  <p className="text-muted-foreground text-xs">Followers</p>
+                </div>
+                <div className="text-center">
+                  <p className="font-bold text-base">{profile.following_count || 0}</p>
+                  <p className="text-muted-foreground text-xs">Following</p>
+                </div>
+                <div className="text-center">
+                  <p className="font-bold text-base">{userVideos.length}</p>
+                  <p className="text-muted-foreground text-xs">Videos</p>
+                </div>
+                <div className="text-center">
+                  <p className="font-bold text-base">{formatNumber(userVideos.reduce((acc, video) => acc + (video.like_count || 0), 0))}</p>
+                  <p className="text-muted-foreground text-xs">Likes</p>
+                </div>
               </div>
             </div>
 
@@ -320,26 +345,6 @@ const UserProfilePage = () => {
                 </Button>
               </div>
             )}
-
-            {/* Stats */}
-            <div className="flex justify-around py-4 border-t border-b">
-              <div className="text-center">
-                <p className="font-bold text-lg">{formatNumber(profile.follower_count || 0)}</p>
-                <p className="text-muted-foreground text-sm">Followers</p>
-              </div>
-              <div className="text-center">
-                <p className="font-bold text-lg">{profile.following_count || 0}</p>
-                <p className="text-muted-foreground text-sm">Following</p>
-              </div>
-              <div className="text-center">
-                <p className="font-bold text-lg">{userVideos.length}</p>
-                <p className="text-muted-foreground text-sm">Videos</p>
-              </div>
-              <div className="text-center">
-                <p className="font-bold text-lg">{formatNumber(userVideos.reduce((acc, video) => acc + (video.like_count || 0), 0))}</p>
-                <p className="text-muted-foreground text-sm">Likes</p>
-              </div>
-            </div>
           </div>
         </div>
       </div>
