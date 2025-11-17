@@ -344,12 +344,11 @@ const UserProfilePage = () => {
                 />
               </div>
 
-              {/* Right side: Name, username, and stats */}
+              {/* Right side: Name and stats */}
               <div className="flex-1 flex flex-col gap-2 mt-2">
-                {/* Name and username */}
+                {/* Name only - username removed */}
                 <div>
                   <h1 className="text-base font-bold leading-tight">{profile.display_name || 'Anonymous User'}</h1>
-                  <p className="text-muted-foreground text-xs">@{profile.display_name?.toLowerCase().replace(/\s+/g, '_') || 'user'}</p>
                 </div>
                 
                 {/* Stats in a row */}
@@ -374,27 +373,26 @@ const UserProfilePage = () => {
               </div>
             </div>
 
+            {/* Bio */}
             <p className="text-sm mb-4">{profile.bio || 'No bio available'}</p>
 
-            {/* Follow Button */}
+            {/* Follow Button - moved below bio, full width */}
             {canFollow && (
-              <div className="mb-4">
-                <Button
-                  onClick={toggleFollow}
-                  disabled={followLoading}
-                  variant={isFollowing ? "outline" : "default"}
-                  className="w-full"
-                >
-                  {followLoading ? (
-                    <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin mr-2" />
-                  ) : isFollowing ? (
-                    <UserMinus className="w-4 h-4 mr-2" />
-                  ) : (
-                    <UserPlus className="w-4 h-4 mr-2" />
-                  )}
-                  {isFollowing ? 'Unfollow' : 'Follow'}
-                </Button>
-              </div>
+              <Button
+                onClick={toggleFollow}
+                disabled={followLoading}
+                variant={isFollowing ? "outline" : "default"}
+                className="w-full"
+              >
+                {followLoading ? (
+                  <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin mr-2" />
+                ) : isFollowing ? (
+                  <UserMinus className="w-4 h-4 mr-2" />
+                ) : (
+                  <UserPlus className="w-4 h-4 mr-2" />
+                )}
+                {isFollowing ? 'Unfollow' : 'Follow'}
+              </Button>
             )}
           </div>
         </div>
@@ -457,121 +455,80 @@ const UserProfilePage = () => {
       {/* Tab Content */}
       {activeTab === 'content' ? (
         <div className="p-4">
-          <div className="grid grid-cols-3 gap-2">
-            {userVideos.map((video, index) => {
-            const isVideoContent = video.video_url && (
-              video.video_url.includes('.mp4') || 
-              video.video_url.includes('.mov') || 
-              video.video_url.includes('.avi') ||
-              video.video_url.includes('.webm') ||
-              video.video_url.includes('video')
-            );
-            
-            return (
-              <div 
-                key={video.id} 
-                className="aspect-video relative group cursor-pointer"
+          <div className="grid grid-cols-2 gap-3">
+            {userVideos.map((video, index) => (
+              <div
+                key={video.id}
+                className="cursor-pointer group"
                 onClick={() => handleContentClick(video, index)}
               >
-                {isVideoContent ? (
-                  <>
-                    <video 
-                      className="w-full h-full object-cover rounded-lg"
-                      src={video.video_url}
-                      poster={video.thumbnail_url}
-                      preload="metadata"
-                      muted
-                    />
-                    <div className="absolute top-2 left-2 bg-black/50 rounded-full p-1">
-                      <Play className="w-3 h-3 text-white" />
-                    </div>
-                  </>
-                ) : (
+                <div className="relative aspect-[9/16] bg-muted rounded-lg overflow-hidden">
                   <img
                     src={video.thumbnail_url || video.video_url || '/placeholder.svg'}
                     alt={video.title}
-                    className="w-full h-full object-cover rounded-lg"
+                    className="w-full h-full object-cover"
                   />
-                )}
-                <div className="absolute inset-0 bg-black/20 rounded-lg group-hover:bg-black/40 transition-all">
-                  <div className="absolute bottom-2 left-2 text-white text-xs">
-                    <div className="flex items-center space-x-1">
-                      <Heart className="w-3 h-3" />
-                      <span>{formatNumber(video.like_count || 0)}</span>
-                    </div>
+                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity" />
+                </div>
+                
+                {/* Video info below thumbnail */}
+                <div className="mt-2 px-1">
+                  <p className="text-sm line-clamp-2 mb-1">{video.description || video.title}</p>
+                  <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                    <span>👁️ {formatNumber(video.view_count || 0)}</span>
+                    <span>❤️ {formatNumber(video.like_count || 0)}</span>
                   </div>
                 </div>
               </div>
-            );
-          })}
-          {userVideos.length === 0 && (
-            <div className="text-center py-12 text-muted-foreground col-span-3">
-              <Grid3X3 className="w-12 h-12 mx-auto mb-2 opacity-50" />
-              <p>No content yet</p>
-              <p className="text-sm">This user hasn't uploaded any content</p>
-            </div>
-          )}
-        </div>
+            ))}
+            {userVideos.length === 0 && (
+              <div className="text-center py-12 text-muted-foreground col-span-2">
+                <Grid3X3 className="w-12 h-12 mx-auto mb-2 opacity-50" />
+                <p>No content yet</p>
+              </div>
+            )}
+          </div>
         </div>
       ) : activeTab === 'badges' && user?.id === userId ? (
         <UserBadges userId={userId || ''} />
       ) : activeTab === 'repost' ? (
         <div className="p-4">
-          <div className="grid grid-cols-3 gap-2">
+          <div className="grid grid-cols-2 gap-3">
             {userReposts.map((repost: any, index: number) => {
               const video = repost.videos;
               if (!video) return null;
               
-              const isVideoContent = video.video_url && (
-                video.video_url.includes('.mp4') || 
-                video.video_url.includes('.mov') || 
-                video.video_url.includes('.avi') ||
-                video.video_url.includes('.webm') ||
-                video.video_url.includes('video')
-              );
-              
               return (
-                <div 
-                  key={repost.id} 
-                  className="aspect-video relative group cursor-pointer"
+                <div
+                  key={repost.id}
+                  className="cursor-pointer group"
                   onClick={() => handleContentClick(video, index)}
                 >
-                  {isVideoContent ? (
-                    <>
-                      <video 
-                        className="w-full h-full object-cover rounded-lg"
-                        src={video.video_url}
-                        poster={video.thumbnail_url}
-                        preload="metadata"
-                        muted
-                      />
-                      <div className="absolute top-2 left-2 bg-black/50 rounded-full p-1">
-                        <Play className="w-3 h-3 text-white" />
-                      </div>
-                    </>
-                  ) : (
+                  <div className="relative aspect-[9/16] bg-muted rounded-lg overflow-hidden">
                     <img
                       src={video.thumbnail_url || video.video_url || '/placeholder.svg'}
                       alt={video.title}
-                      className="w-full h-full object-cover rounded-lg"
+                      className="w-full h-full object-cover"
                     />
-                  )}
-                  <div className="absolute top-2 right-2 bg-black/70 rounded-full p-1">
-                    <Repeat2 className="w-3 h-3 text-white" />
+                    <div className="absolute top-2 right-2 bg-black/70 rounded-full p-1.5">
+                      <Repeat2 className="w-3 h-3 text-white" />
+                    </div>
+                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity" />
                   </div>
-                  <div className="absolute inset-0 bg-black/20 rounded-lg group-hover:bg-black/40 transition-all">
-                    <div className="absolute bottom-2 left-2 text-white text-xs">
-                      <div className="flex items-center space-x-1">
-                        <Heart className="w-3 h-3" />
-                        <span>{formatNumber(video.like_count || 0)}</span>
-                      </div>
+                  
+                  {/* Video info below thumbnail */}
+                  <div className="mt-2 px-1">
+                    <p className="text-sm line-clamp-2 mb-1">{video.description || video.title}</p>
+                    <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                      <span>👁️ {formatNumber(video.view_count || 0)}</span>
+                      <span>❤️ {formatNumber(video.like_count || 0)}</span>
                     </div>
                   </div>
                 </div>
               );
             })}
             {userReposts.length === 0 && (
-              <div className="text-center py-12 text-muted-foreground col-span-3">
+              <div className="text-center py-12 text-muted-foreground col-span-2">
                 <Repeat2 className="w-12 h-12 mx-auto mb-2 opacity-50" />
                 <p>No reposts yet</p>
               </div>
@@ -580,61 +537,42 @@ const UserProfilePage = () => {
         </div>
       ) : activeTab === 'tag' ? (
         <div className="p-4">
-          <div className="grid grid-cols-3 gap-2">
+          <div className="grid grid-cols-2 gap-3">
             {userTags.map((tag: any, index: number) => {
               const video = tag.videos;
               if (!video) return null;
               
-              const isVideoContent = video.video_url && (
-                video.video_url.includes('.mp4') || 
-                video.video_url.includes('.mov') || 
-                video.video_url.includes('.avi') ||
-                video.video_url.includes('.webm') ||
-                video.video_url.includes('video')
-              );
-              
               return (
-                <div 
-                  key={tag.id} 
-                  className="aspect-video relative group cursor-pointer"
+                <div
+                  key={tag.id}
+                  className="cursor-pointer group"
                   onClick={() => handleContentClick(video, index)}
                 >
-                  {isVideoContent ? (
-                    <>
-                      <video 
-                        className="w-full h-full object-cover rounded-lg"
-                        src={video.video_url}
-                        poster={video.thumbnail_url}
-                        preload="metadata"
-                        muted
-                      />
-                      <div className="absolute top-2 left-2 bg-black/50 rounded-full p-1">
-                        <Play className="w-3 h-3 text-white" />
-                      </div>
-                    </>
-                  ) : (
+                  <div className="relative aspect-[9/16] bg-muted rounded-lg overflow-hidden">
                     <img
                       src={video.thumbnail_url || video.video_url || '/placeholder.svg'}
                       alt={video.title}
-                      className="w-full h-full object-cover rounded-lg"
+                      className="w-full h-full object-cover"
                     />
-                  )}
-                  <div className="absolute top-2 right-2 bg-black/70 rounded-full p-1">
-                    <Tag className="w-3 h-3 text-white" />
+                    <div className="absolute top-2 right-2 bg-black/70 rounded-full p-1.5">
+                      <Tag className="w-3 h-3 text-white" />
+                    </div>
+                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity" />
                   </div>
-                  <div className="absolute inset-0 bg-black/20 rounded-lg group-hover:bg-black/40 transition-all">
-                    <div className="absolute bottom-2 left-2 text-white text-xs">
-                      <div className="flex items-center space-x-1">
-                        <Heart className="w-3 h-3" />
-                        <span>{formatNumber(video.like_count || 0)}</span>
-                      </div>
+                  
+                  {/* Video info below thumbnail */}
+                  <div className="mt-2 px-1">
+                    <p className="text-sm line-clamp-2 mb-1">{video.description || video.title}</p>
+                    <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                      <span>👁️ {formatNumber(video.view_count || 0)}</span>
+                      <span>❤️ {formatNumber(video.like_count || 0)}</span>
                     </div>
                   </div>
                 </div>
               );
             })}
             {userTags.length === 0 && (
-              <div className="text-center py-12 text-muted-foreground col-span-3">
+              <div className="text-center py-12 text-muted-foreground col-span-2">
                 <Tag className="w-12 h-12 mx-auto mb-2 opacity-50" />
                 <p>No tagged content yet</p>
               </div>
