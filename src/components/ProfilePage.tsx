@@ -328,51 +328,51 @@ const ProfilePage = ({ onNavigateToSettings }: ProfilePageProps) => {
           
           {/* Profile info */}
           <div className="px-4 pb-6">
-            <div className="flex items-end -mt-16 mb-4">
+            <div className="flex items-start gap-4 -mt-16 mb-4">
               <img
                 src={profile?.avatar_url || '/placeholder.svg'}
                 alt={profile?.display_name || 'User'}
-                className="w-24 h-24 rounded-full border-4 border-white shadow-lg"
+                className="w-24 h-24 rounded-full border-4 border-white shadow-lg flex-shrink-0"
               />
-              <div className="ml-4 flex-1">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h1 className="text-xl font-bold">{profile?.display_name || 'Anonymous User'}</h1>
-                    <p className="text-muted-foreground">@{profile?.display_name?.toLowerCase().replace(/\s+/g, '_') || 'user'}</p>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <Button variant="outline" size="icon" onClick={() => setIsEditModalOpen(true)}>
-                      <Edit className="w-5 h-5" />
-                    </Button>
-                    <Button variant="outline" size="icon" onClick={onNavigateToSettings}>
-                      <Settings className="w-5 h-5" />
-                    </Button>
-                  </div>
+              
+              {/* Stats - disebelah kanan foto */}
+              <div className="flex-1 grid grid-cols-2 gap-x-6 gap-y-2 pt-4">
+                <div className="text-center">
+                  <p className="font-bold text-lg">{formatNumber(profile?.follower_count || 0)}</p>
+                  <p className="text-muted-foreground text-xs">Followers</p>
+                </div>
+                <div className="text-center">
+                  <p className="font-bold text-lg">{profile?.following_count || 0}</p>
+                  <p className="text-muted-foreground text-xs">Following</p>
+                </div>
+                <div className="text-center">
+                  <p className="font-bold text-lg">{userVideos.length}</p>
+                  <p className="text-muted-foreground text-xs">Videos</p>
+                </div>
+                <div className="text-center">
+                  <p className="font-bold text-lg">{formatNumber(userVideos.reduce((acc, video) => acc + (video.like_count || 0), 0))}</p>
+                  <p className="text-muted-foreground text-xs">Likes</p>
                 </div>
               </div>
             </div>
 
-            <p className="text-sm mb-4">{profile?.bio || 'No bio available'}</p>
-
-            {/* Stats */}
-            <div className="flex justify-around py-4 border-t border-b">
-              <div className="text-center">
-                <p className="font-bold text-lg">{formatNumber(profile?.follower_count || 0)}</p>
-                <p className="text-muted-foreground text-sm">Followers</p>
+            {/* Username dan Edit/Settings buttons */}
+            <div className="flex items-center justify-between mb-3">
+              <div>
+                <h1 className="text-xl font-bold">{profile?.display_name || 'Anonymous User'}</h1>
+                <p className="text-muted-foreground text-sm">@{profile?.display_name?.toLowerCase().replace(/\s+/g, '_') || 'user'}</p>
               </div>
-              <div className="text-center">
-                <p className="font-bold text-lg">{profile?.following_count || 0}</p>
-                <p className="text-muted-foreground text-sm">Following</p>
-              </div>
-              <div className="text-center">
-                <p className="font-bold text-lg">{userVideos.length}</p>
-                <p className="text-muted-foreground text-sm">Videos</p>
-              </div>
-              <div className="text-center">
-                <p className="font-bold text-lg">{formatNumber(userVideos.reduce((acc, video) => acc + (video.like_count || 0), 0))}</p>
-                <p className="text-muted-foreground text-sm">Likes</p>
+              <div className="flex items-center space-x-2">
+                <Button variant="outline" size="icon" onClick={() => setIsEditModalOpen(true)}>
+                  <Edit className="w-5 h-5" />
+                </Button>
+                <Button variant="outline" size="icon" onClick={onNavigateToSettings}>
+                  <Settings className="w-5 h-5" />
+                </Button>
               </div>
             </div>
+
+            <p className="text-sm mb-4">{profile?.bio || 'No bio available'}</p>
 
             {/* Coins & Level */}
             <div className="flex items-center justify-between mt-4">
