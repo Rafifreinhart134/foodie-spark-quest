@@ -8,6 +8,8 @@ import { Card } from '@/components/ui/card';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
+import { videoUploadSchema } from '@/lib/validations';
+import { z } from 'zod';
 
 const UploadPage = () => {
   const { user } = useAuth();
@@ -85,6 +87,17 @@ const UploadPage = () => {
     setIsUploading(true);
 
     try {
+      // Validate input data
+      const validated = videoUploadSchema.parse({
+        title,
+        description: description || undefined,
+        category: selectedCategory,
+        tags,
+        location: location || undefined,
+        budget: budget || undefined,
+        cooking_time: cookingTime || undefined
+      });
+
       // Upload file to storage with user-specific folder
       const fileExt = selectedFile.name.split('.').pop();
       const fileName = `${user.id}/${Date.now()}.${fileExt}`;
@@ -106,13 +119,13 @@ const UploadPage = () => {
       // Create video record
       const videoData = {
         user_id: user.id,
-        title,
-        description,
-        category: selectedCategory as 'resep' | 'hidden_gem' | 'tips',
-        tags,
-        budget: budget || null,
-        cooking_time: cookingTime || null,
-        location: location || null,
+        title: validated.title,
+        description: validated.description || null,
+        category: validated.category,
+        tags: validated.tags,
+        budget: validated.budget || null,
+        cooking_time: validated.cooking_time || null,
+        location: validated.location || null,
         is_public: true,
         ...(uploadType === 'video' 
           ? { video_url: publicUrl }
@@ -145,12 +158,20 @@ const UploadPage = () => {
       setSelectedFile(null);
 
     } catch (error: any) {
-      console.error('Upload error:', error);
-      toast({
-        title: "Upload failed",
-        description: error.message || "Failed to upload content",
-        variant: "destructive"
-      });
+      if (error instanceof z.ZodError) {
+        toast({
+          title: "Invalid input",
+          description: error.errors[0].message,
+          variant: "destructive"
+        });
+      } else {
+        console.error('Upload error:', error);
+        toast({
+          title: "Upload failed",
+          description: error.message || "Failed to upload content",
+          variant: "destructive"
+        });
+      }
     } finally {
       setIsUploading(false);
     }

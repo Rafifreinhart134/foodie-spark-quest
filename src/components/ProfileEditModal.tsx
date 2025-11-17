@@ -7,6 +7,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
+import { profileUpdateSchema } from '@/lib/validations';
+import { z } from 'zod';
 
 interface ProfileEditModalProps {
   isOpen: boolean;
@@ -141,12 +143,20 @@ const ProfileEditModal = ({ isOpen, onClose, profile, onProfileUpdate }: Profile
       });
 
     } catch (error: any) {
-      console.error('Error updating profile:', error);
-      toast({
-        title: "Update failed",
-        description: error.message || "Failed to update profile",
-        variant: "destructive"
-      });
+      if (error instanceof z.ZodError) {
+        toast({
+          title: "Invalid input",
+          description: error.errors[0].message,
+          variant: "destructive"
+        });
+      } else {
+        console.error('Error updating profile:', error);
+        toast({
+          title: "Update failed",
+          description: error.message || "Failed to update profile",
+          variant: "destructive"
+        });
+      }
     } finally {
       setIsLoading(false);
     }

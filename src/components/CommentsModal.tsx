@@ -8,6 +8,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { commentSchema } from '@/lib/validations';
+import { z } from 'zod';
 
 interface Comment {
   id: string;
@@ -90,12 +92,15 @@ export const CommentsModal = ({ isOpen, onClose, videoId, videoTitle }: Comments
 
     setSubmitting(true);
     try {
+      // Validate comment input
+      const validated = commentSchema.parse({ comment: newComment });
+
       const { error } = await supabase
         .from('comments')
         .insert({
           video_id: videoId,
           user_id: user.id,
-          comment: newComment.trim()
+          comment: validated.comment
         });
 
       if (error) throw error;
@@ -128,12 +133,20 @@ export const CommentsModal = ({ isOpen, onClose, videoId, videoTitle }: Comments
         description: "Your comment has been added successfully"
       });
     } catch (error) {
-      console.error('Error posting comment:', error);
-      toast({
-        title: "Error",
-        description: "Failed to post comment",
-        variant: "destructive"
-      });
+      if (error instanceof z.ZodError) {
+        toast({
+          title: "Invalid input",
+          description: error.errors[0].message,
+          variant: "destructive"
+        });
+      } else {
+        console.error('Error posting comment:', error);
+        toast({
+          title: "Error",
+          description: "Failed to post comment",
+          variant: "destructive"
+        });
+      }
     } finally {
       setSubmitting(false);
     }
