@@ -1,68 +1,11 @@
-import { useEffect, useState } from 'react';
-import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/hooks/useAuth';
 import { Card, CardContent } from '@/components/ui/card';
-import { Video } from '@/hooks/useVideos';
 import { useNavigate } from 'react-router-dom';
 import { Bookmark } from 'lucide-react';
+import { useSavedVideos } from '@/hooks/useSavedVideos';
 
 const SavedPage = () => {
-  const { user } = useAuth();
   const navigate = useNavigate();
-  const [savedVideos, setSavedVideos] = useState<Video[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    if (user) {
-      fetchSavedVideos();
-    }
-  }, [user]);
-
-  const fetchSavedVideos = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('saved_videos')
-        .select(`
-          video_id,
-          videos (
-            id,
-            title,
-            description,
-            thumbnail_url,
-            video_url,
-            like_count,
-            comment_count,
-            category,
-            location,
-            budget,
-            cooking_time,
-            created_at,
-            updated_at,
-            is_public,
-            user_id,
-            profiles (
-              display_name,
-              avatar_url
-            )
-          )
-        `)
-        .eq('user_id', user?.id)
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-
-      const videos = data?.map(item => ({
-        ...item.videos,
-        user_saved: true
-      })) as any[];
-
-      setSavedVideos(videos);
-    } catch (error) {
-      console.error('Error fetching saved videos:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const { savedVideos, loading } = useSavedVideos();
 
   if (loading) {
     return (
