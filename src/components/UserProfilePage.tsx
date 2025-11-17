@@ -358,7 +358,7 @@ const UserProfilePage = () => {
             <Grid3X3 className="w-5 h-5 mx-auto" />
           </button>
           
-          {isFollowing ? (
+          {user?.id === userId || isFollowing ? (
             <button 
               className={`flex-1 py-3 text-center font-medium border-b-2 transition-colors ${
                 activeTab === 'badges' 
@@ -455,7 +455,7 @@ const UserProfilePage = () => {
           )}
         </div>
         </div>
-      ) : activeTab === 'badges' && isFollowing ? (
+      ) : activeTab === 'badges' && (user?.id === userId || isFollowing) ? (
         <UserBadges userId={userId || ''} />
       ) : activeTab === 'repost' ? (
         <div className="p-4 text-center py-12 text-muted-foreground">
