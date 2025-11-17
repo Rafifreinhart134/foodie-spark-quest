@@ -415,17 +415,7 @@ const UserProfilePage = () => {
           </button>
           
           {user?.id === userId ? (
-            <button 
-              className={`flex-1 py-3 text-center font-medium border-b-2 transition-colors ${
-                activeTab === 'badges' 
-                  ? 'border-primary text-primary' 
-                  : 'border-transparent text-muted-foreground hover:text-foreground'
-              }`}
-              onClick={() => setActiveTab('badges')}
-            >
-              <Award className="w-5 h-5 mx-auto" />
-            </button>
-          ) : isFollowing ? (
+            // Tampilkan badges untuk profil sendiri
             <button 
               className={`flex-1 py-3 text-center font-medium border-b-2 transition-colors ${
                 activeTab === 'badges' 
@@ -437,6 +427,7 @@ const UserProfilePage = () => {
               <Award className="w-5 h-5 mx-auto" />
             </button>
           ) : (
+            // Tampilkan repost dan tag untuk profil orang lain
             <>
               <button 
                 className={`flex-1 py-3 text-center font-medium border-b-2 transition-colors ${
@@ -522,7 +513,7 @@ const UserProfilePage = () => {
           )}
         </div>
         </div>
-      ) : activeTab === 'badges' && (user?.id === userId || isFollowing) ? (
+      ) : activeTab === 'badges' && user?.id === userId ? (
         <UserBadges userId={userId || ''} />
       ) : activeTab === 'repost' ? (
         <div className="p-4">
