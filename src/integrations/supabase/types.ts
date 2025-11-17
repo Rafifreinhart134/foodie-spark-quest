@@ -266,6 +266,35 @@ export type Database = {
         }
         Relationships: []
       }
+      reposts: {
+        Row: {
+          created_at: string
+          id: string
+          original_video_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          original_video_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          original_video_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reposts_original_video_id_fkey"
+            columns: ["original_video_id"]
+            isOneToOne: false
+            referencedRelation: "videos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       saved_videos: {
         Row: {
           created_at: string
@@ -288,6 +317,38 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "saved_videos_video_id_fkey"
+            columns: ["video_id"]
+            isOneToOne: false
+            referencedRelation: "videos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      video_tags: {
+        Row: {
+          created_at: string
+          created_by: string
+          id: string
+          tagged_user_id: string
+          video_id: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          id?: string
+          tagged_user_id: string
+          video_id: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          id?: string
+          tagged_user_id?: string
+          video_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "video_tags_video_id_fkey"
             columns: ["video_id"]
             isOneToOne: false
             referencedRelation: "videos"
