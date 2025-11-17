@@ -315,28 +315,28 @@ const UserProfilePage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background pt-16 pb-20">
-      {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b">
+    <div className="min-h-screen bg-background pb-20">
+      {/* Header - no top padding */}
+      <div className="flex items-center justify-between px-4 py-2 border-b">
         <Button variant="ghost" size="icon" onClick={() => navigate('/')}>
           <ArrowLeft className="w-5 h-5" />
         </Button>
-        <h1 className="font-semibold">@{profile.display_name?.toLowerCase().replace(/\s+/g, '_') || 'user'}</h1>
+        <h1 className="font-semibold text-sm">@{profile.display_name?.toLowerCase().replace(/\s+/g, '_') || 'user'}</h1>
         <div className="w-10" /> {/* Spacer */}
       </div>
 
-      {/* Profile Header */}
+      {/* Profile Header - minimal spacing */}
       <div className="bg-white">
         <div className="relative">
-          {/* Cover gradient - reduced height */}
-          <div className="h-20 gradient-primary"></div>
+          {/* Cover gradient - minimal height */}
+          <div className="h-16 gradient-primary"></div>
           
-          {/* Profile info */}
-          <div className="px-4 pb-4">
-            {/* Profile picture and info row - tighter spacing */}
-            <div className="flex items-start gap-3 -mt-10 mb-3">
+          {/* Profile info - minimal padding */}
+          <div className="px-4 pb-2">
+            {/* Profile picture and info row - tight spacing */}
+            <div className="flex items-start gap-2.5 -mt-8 mb-2">
               {/* Left side: Profile picture only */}
-              <div className="w-20 h-20 rounded-lg border-4 border-white shadow-lg overflow-hidden flex-shrink-0">
+              <div className="w-16 h-16 rounded-lg border-3 border-white shadow-lg overflow-hidden flex-shrink-0">
                 <img
                   src={profile.avatar_url || '/placeholder.svg'}
                   alt={profile.display_name || 'User'}
@@ -345,42 +345,40 @@ const UserProfilePage = () => {
               </div>
 
               {/* Right side: Name and stats */}
-              <div className="flex-1 flex flex-col gap-1.5 mt-2">
+              <div className="flex-1 flex flex-col gap-1 mt-1">
                 {/* Name only */}
-                <div>
-                  <h1 className="text-base font-bold leading-tight">{profile.display_name || 'Anonymous User'}</h1>
-                </div>
+                <h1 className="text-sm font-bold leading-none">{profile.display_name || 'Anonymous User'}</h1>
                 
                 {/* Stats in a row */}
-                <div className="flex justify-around items-center gap-1">
+                <div className="flex justify-around items-center gap-0.5 mt-0.5">
                   <div className="text-center">
-                    <p className="font-bold text-sm leading-tight">{formatNumber(profile.follower_count || 0)}</p>
-                    <p className="text-muted-foreground text-[10px] leading-tight">Followers</p>
+                    <p className="font-bold text-xs leading-none">{formatNumber(profile.follower_count || 0)}</p>
+                    <p className="text-muted-foreground text-[9px] leading-none mt-0.5">Followers</p>
                   </div>
                   <div className="text-center">
-                    <p className="font-bold text-sm leading-tight">{profile.following_count || 0}</p>
-                    <p className="text-muted-foreground text-[10px] leading-tight">Following</p>
+                    <p className="font-bold text-xs leading-none">{profile.following_count || 0}</p>
+                    <p className="text-muted-foreground text-[9px] leading-none mt-0.5">Following</p>
                   </div>
                   <div className="text-center">
-                    <p className="font-bold text-sm leading-tight">{userVideos.length}</p>
-                    <p className="text-muted-foreground text-[10px] leading-tight">Videos</p>
+                    <p className="font-bold text-xs leading-none">{userVideos.length}</p>
+                    <p className="text-muted-foreground text-[9px] leading-none mt-0.5">Videos</p>
                   </div>
                   <div className="text-center">
-                    <p className="font-bold text-sm leading-tight">{formatNumber(userVideos.reduce((acc, video) => acc + (video.like_count || 0), 0))}</p>
-                    <p className="text-muted-foreground text-[10px] leading-tight">Likes</p>
+                    <p className="font-bold text-xs leading-none">{formatNumber(userVideos.reduce((acc, video) => acc + (video.like_count || 0), 0))}</p>
+                    <p className="text-muted-foreground text-[9px] leading-none mt-0.5">Likes</p>
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* Bio - tighter spacing */}
-            <p className="text-sm mb-3">{profile.bio || 'No bio available'}</p>
+            {/* Bio - minimal spacing */}
+            <p className="text-xs mb-2 leading-tight">{profile.bio || 'No bio available'}</p>
 
-            {/* Follow Button or Edit Profile - tighter spacing */}
+            {/* Follow Button or Edit Profile - minimal spacing */}
             {user?.id === userId ? (
               <Button
                 variant="outline"
-                className="w-full"
+                className="w-full h-8 text-xs"
                 onClick={() => navigate('/profile')}
               >
                 Edit Profile
@@ -390,14 +388,14 @@ const UserProfilePage = () => {
                 onClick={toggleFollow}
                 disabled={followLoading}
                 variant={isFollowing ? "outline" : "default"}
-                className="w-full"
+                className="w-full h-8 text-xs"
               >
                 {followLoading ? (
-                  <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin mr-2" />
+                  <div className="w-3 h-3 border-2 border-current border-t-transparent rounded-full animate-spin mr-1" />
                 ) : isFollowing ? (
-                  <UserMinus className="w-4 h-4 mr-2" />
+                  <UserMinus className="w-3 h-3 mr-1" />
                 ) : (
-                  <UserPlus className="w-4 h-4 mr-2" />
+                  <UserPlus className="w-3 h-3 mr-1" />
                 )}
                 {isFollowing ? 'Unfollow' : 'Follow'}
               </Button>
@@ -410,60 +408,60 @@ const UserProfilePage = () => {
       <div className="border-b">
         <div className="flex">
           <button 
-            className={`flex-1 py-3 text-center font-medium border-b-2 transition-colors ${
+            className={`flex-1 py-2 text-center font-medium border-b-2 transition-colors ${
               activeTab === 'content' 
                 ? 'border-primary text-primary' 
                 : 'border-transparent text-muted-foreground hover:text-foreground'
             }`}
             onClick={() => setActiveTab('content')}
           >
-            <Grid3X3 className="w-5 h-5 mx-auto" />
+            <Grid3X3 className="w-4 h-4 mx-auto" />
           </button>
-          
+
           {user?.id === userId ? (
             // Tampilkan badges untuk profil sendiri
             <button 
-              className={`flex-1 py-3 text-center font-medium border-b-2 transition-colors ${
+              className={`flex-1 py-2 text-center font-medium border-b-2 transition-colors ${
                 activeTab === 'badges' 
                   ? 'border-primary text-primary' 
                   : 'border-transparent text-muted-foreground hover:text-foreground'
               }`}
               onClick={() => setActiveTab('badges')}
             >
-              <Award className="w-5 h-5 mx-auto" />
+              <Award className="w-4 h-4 mx-auto" />
             </button>
           ) : (
             // Tampilkan repost dan tag untuk profil orang lain
             <>
               <button 
-                className={`flex-1 py-3 text-center font-medium border-b-2 transition-colors ${
+                className={`flex-1 py-2 text-center font-medium border-b-2 transition-colors ${
                   activeTab === 'repost' 
                     ? 'border-primary text-primary' 
                     : 'border-transparent text-muted-foreground hover:text-foreground'
                 }`}
                 onClick={() => setActiveTab('repost')}
               >
-                <Repeat2 className="w-5 h-5 mx-auto" />
+                <Repeat2 className="w-4 h-4 mx-auto" />
               </button>
               <button 
-                className={`flex-1 py-3 text-center font-medium border-b-2 transition-colors ${
+                className={`flex-1 py-2 text-center font-medium border-b-2 transition-colors ${
                   activeTab === 'tag' 
                     ? 'border-primary text-primary' 
                     : 'border-transparent text-muted-foreground hover:text-foreground'
                 }`}
                 onClick={() => setActiveTab('tag')}
               >
-                <Tag className="w-5 h-5 mx-auto" />
+                <Tag className="w-4 h-4 mx-auto" />
               </button>
             </>
           )}
         </div>
       </div>
 
-      {/* Tab Content */}
+      {/* Tab Content - minimal padding */}
       {activeTab === 'content' ? (
-        <div className="p-4">
-          <div className="grid grid-cols-2 gap-3">
+        <div className="p-2">
+          <div className="grid grid-cols-2 gap-2">
             {userVideos.map((video, index) => (
               <div
                 key={video.id}
@@ -479,10 +477,10 @@ const UserProfilePage = () => {
                   <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity" />
                 </div>
                 
-                {/* Video info below thumbnail */}
-                <div className="mt-2 px-1">
-                  <p className="text-sm line-clamp-2 mb-1">{video.description || video.title}</p>
-                  <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                {/* Video info below thumbnail - minimal spacing */}
+                <div className="mt-1 px-0.5">
+                  <p className="text-xs line-clamp-2 mb-0.5 leading-tight">{video.description || video.title}</p>
+                  <div className="flex items-center gap-2 text-[10px] text-muted-foreground">
                     <span>👁️ {formatNumber(video.view_count || 0)}</span>
                     <span>❤️ {formatNumber(video.like_count || 0)}</span>
                   </div>
@@ -498,7 +496,9 @@ const UserProfilePage = () => {
           </div>
         </div>
       ) : activeTab === 'badges' && user?.id === userId ? (
-        <UserBadges userId={userId || ''} />
+        <div className="p-2">
+          <UserBadges userId={userId || ''} />
+        </div>
       ) : activeTab === 'repost' ? (
         <div className="p-4">
           <div className="grid grid-cols-2 gap-3">
@@ -544,8 +544,8 @@ const UserProfilePage = () => {
           </div>
         </div>
       ) : activeTab === 'tag' ? (
-        <div className="p-4">
-          <div className="grid grid-cols-2 gap-3">
+        <div className="p-2">
+          <div className="grid grid-cols-2 gap-2">
             {userTags.map((tag: any, index: number) => {
               const video = tag.videos;
               if (!video) return null;
@@ -568,10 +568,10 @@ const UserProfilePage = () => {
                     <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity" />
                   </div>
                   
-                  {/* Video info below thumbnail */}
-                  <div className="mt-2 px-1">
-                    <p className="text-sm line-clamp-2 mb-1">{video.description || video.title}</p>
-                    <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                  {/* Video info below thumbnail - minimal spacing */}
+                  <div className="mt-1 px-0.5">
+                    <p className="text-xs line-clamp-2 mb-0.5 leading-tight">{video.description || video.title}</p>
+                    <div className="flex items-center gap-2 text-[10px] text-muted-foreground">
                       <span>👁️ {formatNumber(video.view_count || 0)}</span>
                       <span>❤️ {formatNumber(video.like_count || 0)}</span>
                     </div>
