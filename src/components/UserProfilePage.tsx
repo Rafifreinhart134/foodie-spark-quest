@@ -285,7 +285,7 @@ const UserProfilePage = () => {
           {/* Profile info */}
           <div className="px-4 pb-6">
             {/* Profile picture and stats row */}
-            <div className="flex items-start gap-4 -mt-16 mb-4">
+            <div className="flex items-center gap-4 -mt-16 mb-4">
               {/* Left side: Profile picture */}
               <div className="flex flex-col items-start gap-2">
                 <div className="w-24 h-24 rounded-lg border-4 border-white shadow-lg overflow-hidden">
@@ -302,8 +302,8 @@ const UserProfilePage = () => {
                 </div>
               </div>
 
-              {/* Right side: Stats grid */}
-              <div className="flex-1 grid grid-cols-2 gap-3 mt-4">
+              {/* Right side: Stats in a row */}
+              <div className="flex-1 flex justify-around items-center gap-2 mt-4">
                 <div className="text-center">
                   <p className="font-bold text-base">{formatNumber(profile.follower_count || 0)}</p>
                   <p className="text-muted-foreground text-xs">Followers</p>
