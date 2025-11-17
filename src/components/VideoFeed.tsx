@@ -130,16 +130,18 @@ const VideoCard = ({ video, isActive, onLike, onSave, onComment, onShare, onReci
     <div className="video-container relative h-screen w-full">
       {/* Top Header */}
       {!hideUI && (
-        <div className="absolute top-0 left-0 right-0 z-30 bg-gradient-to-b from-black/60 to-transparent pt-4 pb-8">
+        <div className="absolute top-0 left-0 right-0 z-40 bg-gradient-to-b from-black/60 to-transparent pt-4 pb-8 pointer-events-none">
           <div className="flex items-center justify-center px-4">
             {/* Center Tabs */}
-            <div className="flex items-center gap-6">
+            <div className="flex items-center gap-6 pointer-events-auto">
               <button 
                 onClick={(e) => {
+                  e.preventDefault();
                   e.stopPropagation();
+                  console.log('Inspirasi button clicked');
                   onFeedTypeChange('inspirasi');
                 }}
-                className={`font-semibold text-base font-poppins pb-1 ${
+                className={`font-semibold text-base font-poppins pb-1 cursor-pointer ${
                   feedType === 'inspirasi' 
                     ? 'text-white border-b-2 border-white' 
                     : 'text-white/70'
@@ -149,10 +151,12 @@ const VideoCard = ({ video, isActive, onLike, onSave, onComment, onShare, onReci
               </button>
               <button 
                 onClick={(e) => {
+                  e.preventDefault();
                   e.stopPropagation();
+                  console.log('Mengikuti button clicked');
                   onFeedTypeChange('mengikuti');
                 }}
-                className={`font-semibold text-base font-poppins pb-1 ${
+                className={`font-semibold text-base font-poppins pb-1 cursor-pointer ${
                   feedType === 'mengikuti' 
                     ? 'text-white border-b-2 border-white' 
                     : 'text-white/70'
