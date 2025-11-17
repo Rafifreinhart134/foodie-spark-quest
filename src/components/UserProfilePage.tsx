@@ -404,54 +404,58 @@ const UserProfilePage = () => {
         </div>
       </div>
 
-      {/* Tabs */}
-      <div className="border-b">
+      {/* Tabs - Klasifikasi dengan ikon jelas */}
+      <div className="border-b border-border/50">
         <div className="flex">
           <button 
-            className={`flex-1 py-2 text-center font-medium border-b-2 transition-colors ${
+            className={`flex-1 py-3 text-center font-medium border-b-2 transition-all ${
               activeTab === 'content' 
                 ? 'border-primary text-primary' 
                 : 'border-transparent text-muted-foreground hover:text-foreground'
             }`}
             onClick={() => setActiveTab('content')}
           >
-            <Grid3X3 className="w-4 h-4 mx-auto" />
+            <Grid3X3 className="w-5 h-5 mx-auto mb-0.5" />
+            <span className="text-[10px]">Post</span>
           </button>
 
           {user?.id === userId ? (
             // Tampilkan badges untuk profil sendiri
             <button 
-              className={`flex-1 py-2 text-center font-medium border-b-2 transition-colors ${
+              className={`flex-1 py-3 text-center font-medium border-b-2 transition-all ${
                 activeTab === 'badges' 
                   ? 'border-primary text-primary' 
                   : 'border-transparent text-muted-foreground hover:text-foreground'
               }`}
               onClick={() => setActiveTab('badges')}
             >
-              <Award className="w-4 h-4 mx-auto" />
+              <Award className="w-5 h-5 mx-auto mb-0.5" />
+              <span className="text-[10px]">Badges</span>
             </button>
           ) : (
             // Tampilkan repost dan tag untuk profil orang lain
             <>
               <button 
-                className={`flex-1 py-2 text-center font-medium border-b-2 transition-colors ${
+                className={`flex-1 py-3 text-center font-medium border-b-2 transition-all ${
                   activeTab === 'repost' 
                     ? 'border-primary text-primary' 
                     : 'border-transparent text-muted-foreground hover:text-foreground'
                 }`}
                 onClick={() => setActiveTab('repost')}
               >
-                <Repeat2 className="w-4 h-4 mx-auto" />
+                <Repeat2 className="w-5 h-5 mx-auto mb-0.5" />
+                <span className="text-[10px]">Repost</span>
               </button>
               <button 
-                className={`flex-1 py-2 text-center font-medium border-b-2 transition-colors ${
+                className={`flex-1 py-3 text-center font-medium border-b-2 transition-all ${
                   activeTab === 'tag' 
                     ? 'border-primary text-primary' 
                     : 'border-transparent text-muted-foreground hover:text-foreground'
                 }`}
                 onClick={() => setActiveTab('tag')}
               >
-                <Tag className="w-4 h-4 mx-auto" />
+                <Tag className="w-5 h-5 mx-auto mb-0.5" />
+                <span className="text-[10px]">Tag</span>
               </button>
             </>
           )}

@@ -372,7 +372,7 @@ const ProfilePage = ({ onNavigateToSettings }: ProfilePageProps) => {
 
           {/* My Content */}
           <TabsContent value="videos" className="mt-4">
-            <div className="grid grid-cols-3 gap-2">
+            <div className="grid grid-cols-3 gap-0.5">
               {userVideos.map((video) => {
                 const isVideoContent = video.video_url && (
                   video.video_url.includes('.mp4') || 
@@ -385,7 +385,7 @@ const ProfilePage = ({ onNavigateToSettings }: ProfilePageProps) => {
                 return (
                   <div 
                     key={video.id} 
-                     className="aspect-video relative group cursor-pointer"
+                     className="cursor-pointer group"
                      onClick={() => {
                        const contentArray = getCurrentContentArray();
                        const contentIndex = contentArray.findIndex(item => item.id === video.id);
@@ -394,31 +394,37 @@ const ProfilePage = ({ onNavigateToSettings }: ProfilePageProps) => {
                        setIsContentModalOpen(true);
                      }}
                   >
-                    {isVideoContent ? (
-                      <>
-                        <video 
-                          className="w-full h-full object-cover rounded-lg"
-                          src={video.video_url}
-                          poster={video.thumbnail_url}
-                          preload="metadata"
-                          muted
+                    <div className="relative aspect-[3/5] bg-muted overflow-hidden">
+                      {isVideoContent ? (
+                        <>
+                          <video 
+                            className="w-full h-full object-cover"
+                            src={video.video_url}
+                            poster={video.thumbnail_url}
+                            preload="metadata"
+                            muted
+                          />
+                        </>
+                      ) : (
+                        <img
+                          src={video.thumbnail_url || video.video_url || '/placeholder.svg'}
+                          alt={video.title}
+                          className="w-full h-full object-cover"
                         />
-                        <div className="absolute top-2 left-2 bg-black/50 rounded-full p-1">
-                          <Play className="w-3 h-3 text-white" />
-                        </div>
-                      </>
-                    ) : (
-                      <img
-                        src={video.thumbnail_url || video.video_url || '/placeholder.svg'}
-                        alt={video.title}
-                        className="w-full h-full object-cover rounded-lg"
-                      />
-                    )}
-                    <div className="absolute inset-0 bg-black/20 rounded-lg group-hover:bg-black/40 transition-all">
-                      <div className="absolute bottom-2 left-2 text-white text-xs">
-                        <div className="flex items-center space-x-1">
-                          <Heart className="w-3 h-3" />
-                          <span>{formatNumber(video.like_count || 0)}</span>
+                      )}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-100" />
+                      
+                      {/* Video info overlay - always visible at bottom */}
+                      <div className="absolute bottom-0 left-0 right-0 p-1.5">
+                        <div className="flex items-center gap-1.5 text-white text-[10px] font-medium">
+                          <span className="flex items-center gap-0.5">
+                            <Play className="w-3 h-3" fill="white" />
+                            {formatNumber((video as any).view_count || 0)}
+                          </span>
+                          <span className="flex items-center gap-0.5">
+                            <Heart className="w-3 h-3" fill="white" />
+                            {formatNumber(video.like_count || 0)}
+                          </span>
                         </div>
                       </div>
                     </div>
@@ -436,7 +442,7 @@ const ProfilePage = ({ onNavigateToSettings }: ProfilePageProps) => {
                 <p className="text-muted-foreground mt-2">Loading saved content...</p>
               </div>
             ) : (
-              <div className="grid grid-cols-3 gap-2">
+              <div className="grid grid-cols-3 gap-0.5">
                 {savedVideosData.map((video) => {
                   const isVideoContent = video.video_url && (
                     video.video_url.includes('.mp4') || 
@@ -449,7 +455,7 @@ const ProfilePage = ({ onNavigateToSettings }: ProfilePageProps) => {
                   return (
                     <div 
                       key={video.id} 
-                       className="aspect-video relative group cursor-pointer"
+                       className="cursor-pointer group"
                        onClick={() => {
                          const contentArray = getCurrentContentArray();
                          const contentIndex = contentArray.findIndex(item => item.id === video.id);
@@ -458,35 +464,36 @@ const ProfilePage = ({ onNavigateToSettings }: ProfilePageProps) => {
                          setIsContentModalOpen(true);
                        }}
                     >
-                      {isVideoContent ? (
-                        <video 
-                          className="w-full h-full object-cover rounded-lg"
-                          src={video.video_url}
-                          poster={video.thumbnail_url}
-                          preload="metadata"
-                          muted
-                        />
-                      ) : (
-                        <img
-                          src={video.video_url || video.thumbnail_url || '/placeholder.svg'}
-                          alt={video.title}
-                          className="w-full h-full object-cover rounded-lg"
-                        />
-                      )}
-                      <div className="absolute inset-0 bg-black/20 rounded-lg group-hover:bg-black/40 transition-all">
-                        {isVideoContent && (
-                          <div className="absolute top-2 left-2">
-                            <Play className="w-4 h-4 text-white" />
-                          </div>
+                      <div className="relative aspect-[3/5] bg-muted overflow-hidden">
+                        {isVideoContent ? (
+                          <video 
+                            className="w-full h-full object-cover"
+                            src={video.video_url}
+                            poster={video.thumbnail_url}
+                            preload="metadata"
+                            muted
+                          />
+                        ) : (
+                          <img
+                            src={video.video_url || video.thumbnail_url || '/placeholder.svg'}
+                            alt={video.title}
+                            className="w-full h-full object-cover"
+                          />
                         )}
-                        <div className="absolute bottom-2 left-2 text-white text-xs">
-                          <div className="flex items-center space-x-1">
-                            <Heart className="w-3 h-3" />
-                            <span>{formatNumber(video.like_count || 0)}</span>
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-100" />
+                        
+                        {/* Video info overlay - always visible at bottom */}
+                        <div className="absolute bottom-0 left-0 right-0 p-1.5">
+                          <div className="flex items-center gap-1.5 text-white text-[10px] font-medium">
+                            <span className="flex items-center gap-0.5">
+                              <Play className="w-3 h-3" fill="white" />
+                              {formatNumber((video as any).view_count || 0)}
+                            </span>
+                            <span className="flex items-center gap-0.5">
+                              <Heart className="w-3 h-3" fill="white" />
+                              {formatNumber(video.like_count || 0)}
+                            </span>
                           </div>
-                        </div>
-                        <div className="absolute bottom-2 right-2 bg-black/70 text-white text-xs px-1 rounded">
-                          {video.cooking_time || '2:30'}
                         </div>
                       </div>
                     </div>
