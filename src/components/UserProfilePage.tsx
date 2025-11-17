@@ -460,35 +460,40 @@ const UserProfilePage = () => {
 
       {/* Tab Content - minimal padding */}
       {activeTab === 'content' ? (
-        <div className="p-2">
-          <div className="grid grid-cols-2 gap-2">
+        <div className="p-1">
+          <div className="grid grid-cols-3 gap-0.5">
             {userVideos.map((video, index) => (
               <div
                 key={video.id}
                 className="cursor-pointer group"
                 onClick={() => handleContentClick(video, index)}
               >
-                <div className="relative aspect-[9/16] bg-muted rounded-lg overflow-hidden">
+                <div className="relative aspect-[3/5] bg-muted overflow-hidden">
                   <img
                     src={video.thumbnail_url || video.video_url || '/placeholder.svg'}
                     alt={video.title}
                     className="w-full h-full object-cover"
                   />
-                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity" />
-                </div>
-                
-                {/* Video info below thumbnail - minimal spacing */}
-                <div className="mt-1 px-0.5">
-                  <p className="text-xs line-clamp-2 mb-0.5 leading-tight">{video.description || video.title}</p>
-                  <div className="flex items-center gap-2 text-[10px] text-muted-foreground">
-                    <span>👁️ {formatNumber(video.view_count || 0)}</span>
-                    <span>❤️ {formatNumber(video.like_count || 0)}</span>
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-100" />
+                  
+                  {/* Video info overlay - always visible at bottom */}
+                  <div className="absolute bottom-0 left-0 right-0 p-1.5">
+                    <div className="flex items-center gap-1.5 text-white text-[10px] font-medium">
+                      <span className="flex items-center gap-0.5">
+                        <Play className="w-3 h-3" fill="white" />
+                        {formatNumber(video.view_count || 0)}
+                      </span>
+                      <span className="flex items-center gap-0.5">
+                        <Heart className="w-3 h-3" fill="white" />
+                        {formatNumber(video.like_count || 0)}
+                      </span>
+                    </div>
                   </div>
                 </div>
               </div>
             ))}
             {userVideos.length === 0 && (
-              <div className="text-center py-12 text-muted-foreground col-span-2">
+              <div className="text-center py-12 text-muted-foreground col-span-3">
                 <Grid3X3 className="w-12 h-12 mx-auto mb-2 opacity-50" />
                 <p>No content yet</p>
               </div>
@@ -500,8 +505,8 @@ const UserProfilePage = () => {
           <UserBadges userId={userId || ''} />
         </div>
       ) : activeTab === 'repost' ? (
-        <div className="p-4">
-          <div className="grid grid-cols-2 gap-3">
+        <div className="p-1">
+          <div className="grid grid-cols-3 gap-0.5">
             {userReposts.map((repost: any, index: number) => {
               const video = repost.videos;
               if (!video) return null;
@@ -512,31 +517,37 @@ const UserProfilePage = () => {
                   className="cursor-pointer group"
                   onClick={() => handleContentClick(video, index)}
                 >
-                  <div className="relative aspect-[9/16] bg-muted rounded-lg overflow-hidden">
+                  <div className="relative aspect-[3/5] bg-muted overflow-hidden">
                     <img
                       src={video.thumbnail_url || video.video_url || '/placeholder.svg'}
                       alt={video.title}
                       className="w-full h-full object-cover"
                     />
-                    <div className="absolute top-2 right-2 bg-black/70 rounded-full p-1.5">
-                      <Repeat2 className="w-3 h-3 text-white" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-100" />
+                    <div className="absolute top-1.5 right-1.5 bg-primary text-primary-foreground text-[9px] px-1.5 py-0.5 rounded-full flex items-center gap-0.5">
+                      <Repeat2 className="w-2.5 h-2.5" />
+                      Repost
                     </div>
-                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity" />
-                  </div>
-                  
-                  {/* Video info below thumbnail */}
-                  <div className="mt-2 px-1">
-                    <p className="text-sm line-clamp-2 mb-1">{video.description || video.title}</p>
-                    <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                      <span>👁️ {formatNumber(video.view_count || 0)}</span>
-                      <span>❤️ {formatNumber(video.like_count || 0)}</span>
+                    
+                    {/* Video info overlay - always visible at bottom */}
+                    <div className="absolute bottom-0 left-0 right-0 p-1.5">
+                      <div className="flex items-center gap-1.5 text-white text-[10px] font-medium">
+                        <span className="flex items-center gap-0.5">
+                          <Play className="w-3 h-3" fill="white" />
+                          {formatNumber(video.view_count || 0)}
+                        </span>
+                        <span className="flex items-center gap-0.5">
+                          <Heart className="w-3 h-3" fill="white" />
+                          {formatNumber(video.like_count || 0)}
+                        </span>
+                      </div>
                     </div>
                   </div>
                 </div>
               );
             })}
             {userReposts.length === 0 && (
-              <div className="text-center py-12 text-muted-foreground col-span-2">
+              <div className="text-center py-12 text-muted-foreground col-span-3">
                 <Repeat2 className="w-12 h-12 mx-auto mb-2 opacity-50" />
                 <p>No reposts yet</p>
               </div>
@@ -544,8 +555,8 @@ const UserProfilePage = () => {
           </div>
         </div>
       ) : activeTab === 'tag' ? (
-        <div className="p-2">
-          <div className="grid grid-cols-2 gap-2">
+        <div className="p-1">
+          <div className="grid grid-cols-3 gap-0.5">
             {userTags.map((tag: any, index: number) => {
               const video = tag.videos;
               if (!video) return null;
@@ -556,31 +567,37 @@ const UserProfilePage = () => {
                   className="cursor-pointer group"
                   onClick={() => handleContentClick(video, index)}
                 >
-                  <div className="relative aspect-[9/16] bg-muted rounded-lg overflow-hidden">
+                  <div className="relative aspect-[3/5] bg-muted overflow-hidden">
                     <img
                       src={video.thumbnail_url || video.video_url || '/placeholder.svg'}
                       alt={video.title}
                       className="w-full h-full object-cover"
                     />
-                    <div className="absolute top-2 right-2 bg-black/70 rounded-full p-1.5">
-                      <Tag className="w-3 h-3 text-white" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-100" />
+                    <div className="absolute top-1.5 right-1.5 bg-accent text-accent-foreground text-[9px] px-1.5 py-0.5 rounded-full flex items-center gap-0.5">
+                      <Tag className="w-2.5 h-2.5" />
+                      Tag
                     </div>
-                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity" />
-                  </div>
-                  
-                  {/* Video info below thumbnail - minimal spacing */}
-                  <div className="mt-1 px-0.5">
-                    <p className="text-xs line-clamp-2 mb-0.5 leading-tight">{video.description || video.title}</p>
-                    <div className="flex items-center gap-2 text-[10px] text-muted-foreground">
-                      <span>👁️ {formatNumber(video.view_count || 0)}</span>
-                      <span>❤️ {formatNumber(video.like_count || 0)}</span>
+                    
+                    {/* Video info overlay - always visible at bottom */}
+                    <div className="absolute bottom-0 left-0 right-0 p-1.5">
+                      <div className="flex items-center gap-1.5 text-white text-[10px] font-medium">
+                        <span className="flex items-center gap-0.5">
+                          <Play className="w-3 h-3" fill="white" />
+                          {formatNumber(video.view_count || 0)}
+                        </span>
+                        <span className="flex items-center gap-0.5">
+                          <Heart className="w-3 h-3" fill="white" />
+                          {formatNumber(video.like_count || 0)}
+                        </span>
+                      </div>
                     </div>
                   </div>
                 </div>
               );
             })}
             {userTags.length === 0 && (
-              <div className="text-center py-12 text-muted-foreground col-span-2">
+              <div className="text-center py-12 text-muted-foreground col-span-3">
                 <Tag className="w-12 h-12 mx-auto mb-2 opacity-50" />
                 <p>No tagged content yet</p>
               </div>
