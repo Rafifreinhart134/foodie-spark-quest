@@ -3,6 +3,7 @@ import { Heart, MessageCircle, Share, Bookmark, Utensils, Search, Plus } from 'l
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useVideos, Video } from '@/hooks/useVideos';
 import { useAuth } from '@/hooks/useAuth';
 import { useNotifications } from '@/hooks/useNotifications';
@@ -348,7 +349,8 @@ const VideoCard = ({ video, isActive, onLike, onSave, onComment, onShare, onReci
 };
 
 const VideoFeed = () => {
-  const { videos, loading, toggleLike, toggleSave } = useVideos();
+  const [feedType, setFeedType] = useState<'inspirasi' | 'mengikuti'>('inspirasi');
+  const { videos, loading, toggleLike, toggleSave } = useVideos(feedType);
   const { user } = useAuth();
   const { createNotification } = useNotifications();
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -489,10 +491,27 @@ const VideoFeed = () => {
 
   if (!videos.length) {
     return (
-      <div className="relative h-screen flex items-center justify-center bg-black text-white">
+      <div className="relative h-screen flex flex-col items-center justify-center bg-background text-foreground">
+        {/* Feed Type Tabs */}
+        <div className="fixed top-16 left-0 right-0 z-40 flex justify-center">
+          <Tabs value={feedType} onValueChange={(value) => setFeedType(value as 'inspirasi' | 'mengikuti')} className="w-auto">
+            <TabsList className="bg-background/80 backdrop-blur-sm border border-border">
+              <TabsTrigger value="inspirasi" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+                Inspirasi
+              </TabsTrigger>
+              <TabsTrigger value="mengikuti" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+                Mengikuti
+              </TabsTrigger>
+            </TabsList>
+          </Tabs>
+        </div>
         <div className="text-center">
-          <h3 className="text-xl font-semibold mb-2">No videos available</h3>
-          <p className="text-gray-300">Be the first to upload a video!</p>
+          <h3 className="text-xl font-semibold mb-2">
+            {feedType === 'mengikuti' ? 'Belum ada video dari teman yang kamu ikuti' : 'Tidak ada video tersedia'}
+          </h3>
+          <p className="text-muted-foreground">
+            {feedType === 'mengikuti' ? 'Follow teman untuk melihat video mereka' : 'Be the first to upload a video!'}
+          </p>
         </div>
       </div>
     );
@@ -504,6 +523,19 @@ const VideoFeed = () => {
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
     >
+      {/* Feed Type Tabs */}
+      <div className="fixed top-16 left-0 right-0 z-40 flex justify-center">
+        <Tabs value={feedType} onValueChange={(value) => setFeedType(value as 'inspirasi' | 'mengikuti')} className="w-auto">
+          <TabsList className="bg-background/80 backdrop-blur-sm border border-border">
+            <TabsTrigger value="inspirasi" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+              Inspirasi
+            </TabsTrigger>
+            <TabsTrigger value="mengikuti" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+              Mengikuti
+            </TabsTrigger>
+          </TabsList>
+        </Tabs>
+      </div>
       {videos.map((video, index) => (
         <div
           key={video.id}
