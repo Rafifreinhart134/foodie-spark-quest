@@ -28,7 +28,7 @@ export interface Video {
   user_saved?: boolean;
 }
 
-export const useVideos = () => {
+export const useVideos = (feedType: 'inspirasi' | 'mengikuti' = 'inspirasi') => {
   const [videos, setVideos] = useState<Video[]>([]);
   const [loading, setLoading] = useState(true);
   const { user } = useAuth();
@@ -62,10 +62,28 @@ export const useVideos = () => {
       supabase.removeChannel(videosSubscription);
       supabase.removeChannel(likesSubscription);
     };
-  }, [user]);
+  }, [user, feedType]);
 
   const fetchVideos = async () => {
     try {
+      // If feedType is 'mengikuti', first get the list of users current user follows
+      let followingUserIds: string[] = [];
+      if (feedType === 'mengikuti' && user) {
+        const { data: followsData } = await supabase
+          .from('follows')
+          .select('following_id')
+          .eq('follower_id', user.id);
+        
+        followingUserIds = followsData?.map(f => f.following_id) || [];
+        
+        // If user doesn't follow anyone, return empty array
+        if (followingUserIds.length === 0) {
+          setVideos([]);
+          setLoading(false);
+          return;
+        }
+      }
+
       let query = supabase
         .from('videos')
         .select(`
@@ -86,8 +104,21 @@ export const useVideos = () => {
           created_at,
           updated_at
         `)
-        .eq('is_public', true)
-        .order('created_at', { ascending: false });
+        .eq('is_public', true);
+
+      // Apply filtering based on feed type
+      if (feedType === 'mengikuti' && followingUserIds.length > 0) {
+        query = query.in('user_id', followingUserIds);
+      }
+
+      // Apply sorting based on feed type
+      if (feedType === 'inspirasi') {
+        // For inspiration feed, show viral videos (sorted by like count)
+        query = query.order('like_count', { ascending: false }).order('created_at', { ascending: false });
+      } else {
+        // For following feed, show latest videos first
+        query = query.order('created_at', { ascending: false });
+      }
 
       const { data: videosData, error } = await query;
 
