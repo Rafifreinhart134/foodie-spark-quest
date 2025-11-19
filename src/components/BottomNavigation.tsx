@@ -29,7 +29,12 @@ const BottomNavigation = ({ activeTab, onTabChange }: BottomNavigationProps) => 
             }`}
           >
             {item.isSpecial ? (
-              <item.icon className="nav-icon text-muted-foreground" strokeWidth={2.5} />
+              <>
+                <item.icon className="nav-icon text-muted-foreground" strokeWidth={2.5} />
+                <span className="nav-label text-muted-foreground">
+                  Unggah
+                </span>
+              </>
             ) : (
               <>
                 <item.icon className={`nav-icon ${activeTab === item.id ? 'text-primary' : 'text-muted-foreground'}`} />
