@@ -332,7 +332,7 @@ const ProfilePage = ({ onNavigateToSettings }: ProfilePageProps) => {
               <img
                 src={profile?.avatar_url || '/placeholder.svg'}
                 alt={profile?.display_name || 'User'}
-                className="w-24 h-24 rounded-full border-4 border-white shadow-lg flex-shrink-0"
+                className="w-24 h-24 rounded-lg border-4 border-white shadow-lg flex-shrink-0"
               />
               
               {/* Stats - disebelah kanan foto */}
