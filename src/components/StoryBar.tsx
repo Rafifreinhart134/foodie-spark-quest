@@ -65,7 +65,7 @@ const StoryBar = ({ onStoryClick, onAddStory }: StoryBarProps) => {
   ];
 
   return (
-    <div className="w-full bg-gradient-to-b from-black/60 to-transparent py-3 px-4">
+    <div className="w-full bg-background py-3 px-4 border-b border-border">
       <ScrollArea className="w-full">
         <div className="flex gap-3 pb-1">
           {stories.map((story) => (
@@ -82,7 +82,7 @@ const StoryBar = ({ onStoryClick, onAddStory }: StoryBarProps) => {
                 <div className={`${story.hasNewStory && !story.isOwn ? 'p-[2px] bg-background rounded-full' : ''}`}>
                   <Avatar className="w-14 h-14 border-2 border-background">
                     <AvatarImage src={story.avatarUrl} alt={story.username} />
-                    <AvatarFallback className="bg-muted text-muted-foreground font-semibold">
+                    <AvatarFallback className="bg-muted text-foreground font-semibold">
                       {story.username[0].toUpperCase()}
                     </AvatarFallback>
                   </Avatar>
@@ -93,7 +93,7 @@ const StoryBar = ({ onStoryClick, onAddStory }: StoryBarProps) => {
                   </div>
                 )}
               </div>
-              <span className="text-[10px] text-white font-medium max-w-[60px] truncate">
+              <span className="text-[10px] text-foreground font-medium max-w-[60px] truncate">
                 {story.username}
               </span>
             </div>
