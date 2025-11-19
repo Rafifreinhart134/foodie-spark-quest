@@ -1,6 +1,6 @@
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Heart, MessageCircle, Share, X, ChevronLeft, ChevronRight, Bookmark } from 'lucide-react';
+import { Heart, MessageCircle, Share, X, ChevronLeft, ChevronRight, Bookmark, Play, Pause } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
 import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
 
@@ -200,13 +200,16 @@ const ContentDetailModal = ({
                   <source src={content.video_url} type="video/mp4" />
                   Your browser does not support the video tag.
                 </video>
-                {!isPlaying && (
-                  <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                    <div className="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center">
-                      <div className="w-0 h-0 border-l-[12px] border-l-white border-y-[8px] border-y-transparent ml-1"></div>
-                    </div>
+                {/* Pause/Play Button - Always visible but fades when playing */}
+                <div className={`absolute inset-0 flex items-center justify-center pointer-events-none transition-opacity duration-300 ${isPlaying ? 'opacity-0 hover:opacity-100' : 'opacity-100'}`}>
+                  <div className="w-20 h-20 bg-black/60 backdrop-blur-sm rounded-full flex items-center justify-center">
+                    {isPlaying ? (
+                      <Pause className="w-10 h-10 text-white" />
+                    ) : (
+                      <Play className="w-10 h-10 text-white ml-1" />
+                    )}
                   </div>
-                )}
+                </div>
               </div>
             ) : (
               <div className="w-4/5 h-4/5 flex items-center justify-center bg-black rounded-lg">
