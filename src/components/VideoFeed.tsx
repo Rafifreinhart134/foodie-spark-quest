@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { Heart, MessageCircle, Share, Bookmark, Utensils, Search, Plus } from 'lucide-react';
+import { Heart, MessageCircle, Share, Bookmark, Utensils, Search, Plus, Play, Pause } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
@@ -195,13 +195,16 @@ const VideoCard = ({ video, isActive, onLike, onSave, onComment, onShare, onReci
             <source src={video.video_url} type="video/mp4" />
             Your browser does not support the video tag.
           </video>
-          {!isPlaying && (
-            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-              <div className="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center">
-                <div className="w-0 h-0 border-l-[12px] border-l-white border-y-[8px] border-y-transparent ml-1"></div>
-              </div>
+          {/* Pause/Play Button - Always visible but fades when playing */}
+          <div className={`absolute inset-0 flex items-center justify-center pointer-events-none transition-opacity duration-300 ${isPlaying ? 'opacity-0 hover:opacity-100' : 'opacity-100'}`}>
+            <div className="w-20 h-20 bg-black/60 backdrop-blur-sm rounded-full flex items-center justify-center">
+              {isPlaying ? (
+                <Pause className="w-10 h-10 text-white" />
+              ) : (
+                <Play className="w-10 h-10 text-white ml-1" />
+              )}
             </div>
-          )}
+          </div>
         </div>
       ) : (
         <div 
@@ -221,22 +224,7 @@ const VideoCard = ({ video, isActive, onLike, onSave, onComment, onShare, onReci
         </div>
       )}
 
-      {/* Middle Area - Video Play/Pause Control */}
-      <div 
-        className="absolute inset-0 z-30 flex items-center justify-center"
-        onClick={handleVideoClick}
-        style={{ 
-          left: '25%', 
-          right: '25%', 
-          pointerEvents: isVideo ? 'auto' : 'none'
-        }}
-      >
-        {isVideo && !isPlaying && (
-          <div className="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center pointer-events-none">
-            <div className="w-0 h-0 border-l-[12px] border-l-white border-y-[8px] border-y-transparent ml-1"></div>
-          </div>
-        )}
-      </div>
+      {/* Middle Area - Removed duplicate play button, now handled in video overlay */}
 
       {/* Bottom Information */}
       {!hideUI && (
