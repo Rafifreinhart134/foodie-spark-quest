@@ -2,6 +2,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { useNavigate } from 'react-router-dom';
 import { Bookmark } from 'lucide-react';
 import { useSavedVideos } from '@/hooks/useSavedVideos';
+import StoryBar from './StoryBar';
 
 const SavedPage = () => {
   const navigate = useNavigate();
@@ -28,9 +29,15 @@ const SavedPage = () => {
   }
 
   return (
-    <div className="min-h-screen pt-16 pb-20 px-4">
-      <div className="max-w-4xl mx-auto">
-        <h1 className="text-2xl font-bold mb-6">Video Tersimpan</h1>
+    <div className="min-h-screen pt-16 pb-20">
+      {/* Story Bar */}
+      <StoryBar 
+        onAddStory={() => console.log('Add story clicked')}
+        onStoryClick={(story) => console.log('Story clicked:', story)}
+      />
+      
+      <div className="max-w-4xl mx-auto px-4">
+        <h1 className="text-2xl font-bold mb-6 mt-4">Video Tersimpan</h1>
         
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
           {savedVideos.map((video) => (
