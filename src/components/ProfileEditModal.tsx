@@ -113,6 +113,12 @@ const ProfileEditModal = ({ isOpen, onClose, profile, onProfileUpdate }: Profile
     setIsLoading(true);
 
     try {
+      // Validate input before database update
+      const validated = profileUpdateSchema.parse({
+        display_name: displayName,
+        bio: bio || undefined
+      });
+      
       let avatarUrl = profile?.avatar_url;
 
       // Upload new avatar if selected
@@ -124,8 +130,8 @@ const ProfileEditModal = ({ isOpen, onClose, profile, onProfileUpdate }: Profile
       const { data, error } = await supabase
         .from('profiles')
         .update({
-          display_name: displayName,
-          bio: bio,
+          display_name: validated.display_name,
+          bio: validated.bio,
           ...(avatarUrl && { avatar_url: avatarUrl })
         })
         .eq('user_id', user.id)
