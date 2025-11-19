@@ -10,6 +10,7 @@ import { useFollow } from '@/hooks/useFollow';
 import { CommentsModal } from './CommentsModal';
 import { ShareModal } from './ShareModal';
 import { RecipeModal } from './RecipeModal';
+import StoryBar from './StoryBar';
 import { useNavigate } from 'react-router-dom';
 
 interface VideoCardProps {
@@ -128,42 +129,52 @@ const VideoCard = ({ video, isActive, onLike, onSave, onComment, onShare, onReci
 
   return (
     <div className="video-container relative h-screen w-full">
-      {/* Top Header */}
+      {/* Top overlay with Story Bar and Tabs */}
       {!hideUI && (
-        <div className="absolute top-0 left-0 right-0 z-40 bg-gradient-to-b from-black/60 to-transparent pt-4 pb-8 pointer-events-none">
-          <div className="flex items-center justify-center px-4">
-            {/* Center Tabs */}
-            <div className="flex items-center gap-6 pointer-events-auto">
-              <button 
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  console.log('Inspirasi button clicked');
-                  onFeedTypeChange('inspirasi');
-                }}
-                className={`font-semibold text-base font-poppins pb-1 cursor-pointer ${
-                  feedType === 'inspirasi' 
-                    ? 'text-white border-b-2 border-white' 
-                    : 'text-white/70'
-                }`}
-              >
-                Inspirasi
-              </button>
-              <button 
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  console.log('Mengikuti button clicked');
-                  onFeedTypeChange('mengikuti');
-                }}
-                className={`font-semibold text-base font-poppins pb-1 cursor-pointer ${
-                  feedType === 'mengikuti' 
-                    ? 'text-white border-b-2 border-white' 
-                    : 'text-white/70'
-                }`}
-              >
-                Mengikuti
-              </button>
+        <div className="absolute top-0 left-0 right-0 z-40">
+          {/* Story Bar */}
+          <div className="pointer-events-auto">
+            <StoryBar 
+              onAddStory={() => console.log('Add story clicked')}
+              onStoryClick={(story) => console.log('Story clicked:', story)}
+            />
+          </div>
+          
+          {/* Feed Type Tabs */}
+          <div className="bg-gradient-to-b from-black/40 to-transparent pb-6 pointer-events-none">
+            <div className="flex items-center justify-center px-4">
+              <div className="flex items-center gap-6 pointer-events-auto">
+                <button 
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    console.log('Inspirasi button clicked');
+                    onFeedTypeChange('inspirasi');
+                  }}
+                  className={`font-semibold text-base font-poppins pb-1 cursor-pointer ${
+                    feedType === 'inspirasi' 
+                      ? 'text-white border-b-2 border-white' 
+                      : 'text-white/70'
+                  }`}
+                >
+                  Inspirasi
+                </button>
+                <button 
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    console.log('Mengikuti button clicked');
+                    onFeedTypeChange('mengikuti');
+                  }}
+                  className={`font-semibold text-base font-poppins pb-1 cursor-pointer ${
+                    feedType === 'mengikuti' 
+                      ? 'text-white border-b-2 border-white' 
+                      : 'text-white/70'
+                  }`}
+                >
+                  Mengikuti
+                </button>
+              </div>
             </div>
           </div>
         </div>
