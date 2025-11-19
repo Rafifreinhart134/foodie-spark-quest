@@ -29,8 +29,8 @@ const BottomNavigation = ({ activeTab, onTabChange }: BottomNavigationProps) => 
             }`}
           >
             {item.isSpecial ? (
-              <div className="w-14 h-14 rounded-2xl bg-primary flex items-center justify-center shadow-elevated">
-                <item.icon className="w-7 h-7 text-primary-foreground" />
+              <div className="w-12 h-12 rounded-full border-2 border-muted-foreground/30 flex items-center justify-center">
+                <item.icon className="w-6 h-6 text-muted-foreground" />
               </div>
             ) : (
               <>
