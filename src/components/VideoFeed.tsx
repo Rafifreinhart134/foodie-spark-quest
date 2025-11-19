@@ -10,7 +10,7 @@ import { useFollow } from '@/hooks/useFollow';
 import { CommentsModal } from './CommentsModal';
 import { ShareModal } from './ShareModal';
 import { RecipeModal } from './RecipeModal';
-import StoryBar from './StoryBar';
+
 import { useNavigate } from 'react-router-dom';
 
 interface VideoCardProps {
@@ -129,21 +129,13 @@ const VideoCard = ({ video, isActive, onLike, onSave, onComment, onShare, onReci
 
   return (
     <div className="video-container relative h-screen w-full">
-      {/* Top overlay with Story Bar and Tabs */}
+      {/* Top overlay with Tabs */}
       {!hideUI && (
         <div className="absolute top-0 left-0 right-0 z-40">
-          {/* Story Bar */}
-          <div className="pointer-events-auto">
-            <StoryBar 
-              onAddStory={() => console.log('Add story clicked')}
-              onStoryClick={(story) => console.log('Story clicked:', story)}
-            />
-          </div>
-          
           {/* Feed Type Tabs */}
-          <div className="bg-gradient-to-b from-black/40 to-transparent pb-6 pointer-events-none">
+          <div className="bg-gradient-to-b from-black/60 to-transparent pt-3 pb-6">
             <div className="flex items-center justify-center px-4">
-              <div className="flex items-center gap-6 pointer-events-auto">
+              <div className="flex items-center gap-6">
                 <button 
                   onClick={(e) => {
                     e.preventDefault();
