@@ -1,7 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Heart, MessageCircle, Share, MoreHorizontal, Play, Grid3X3, Award, UserPlus, UserMinus, Repeat2, Tag } from 'lucide-react';
+import { ArrowLeft, Heart, MessageCircle, Share, MoreHorizontal, Play, Grid3X3, Award, UserPlus, UserMinus, Repeat2, Tag, Bell } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
@@ -19,6 +22,10 @@ const UserProfilePage = () => {
   const { toast } = useToast();
   const { toggleLike, toggleSave } = useVideos();
   const { isFollowing, isLoading: followLoading, toggleFollow, canFollow } = useFollow(userId);
+  
+  // Notification preferences state
+  const [notifPosts, setNotifPosts] = useState(false);
+  const [notifStories, setNotifStories] = useState(false);
   
   const [profile, setProfile] = useState<any>(null);
   const [userVideos, setUserVideos] = useState<any[]>([]);
@@ -322,7 +329,56 @@ const UserProfilePage = () => {
           <ArrowLeft className="w-5 h-5" />
         </Button>
         <h1 className="font-semibold text-sm">@{profile.display_name?.toLowerCase().replace(/\s+/g, '_') || 'user'}</h1>
-        <div className="w-10" /> {/* Spacer */}
+        
+        {/* Notification Bell Button */}
+        {user?.id !== userId && canFollow && (
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button variant="ghost" size="icon" className="relative">
+                <Bell className="w-5 h-5" />
+                {(notifPosts || notifStories) && (
+                  <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-primary rounded-full" />
+                )}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-64 bg-background border-border z-50" align="end">
+              <div className="space-y-4">
+                <div>
+                  <h3 className="font-semibold text-sm mb-3">Notifikasi</h3>
+                  <p className="text-xs text-muted-foreground mb-4">
+                    Aktifkan notifikasi untuk mendapat update dari kreator ini
+                  </p>
+                </div>
+                
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="notif-posts" className="text-sm font-normal cursor-pointer">
+                      Postingan Baru
+                    </Label>
+                    <Switch 
+                      id="notif-posts"
+                      checked={notifPosts} 
+                      onCheckedChange={setNotifPosts}
+                    />
+                  </div>
+                  
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="notif-stories" className="text-sm font-normal cursor-pointer">
+                      Cerita Baru
+                    </Label>
+                    <Switch 
+                      id="notif-stories"
+                      checked={notifStories} 
+                      onCheckedChange={setNotifStories}
+                    />
+                  </div>
+                </div>
+              </div>
+            </PopoverContent>
+          </Popover>
+        )}
+        
+        {user?.id === userId && <div className="w-10" />}
       </div>
 
       {/* Profile Header - minimal spacing */}
