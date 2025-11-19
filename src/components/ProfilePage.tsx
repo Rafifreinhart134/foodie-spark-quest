@@ -478,10 +478,24 @@ const ProfilePage = ({ onNavigateToSettings }: ProfilePageProps) => {
                           className="w-full h-full object-cover"
                         />
                       )}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-100" />
                       
-                      {/* Video info overlay - always visible at bottom */}
-                      <div className="absolute bottom-0 left-0 right-0 p-1.5">
+                      {/* Glitch wave divider */}
+                      <div className="absolute bottom-0 left-0 right-0 h-20 pointer-events-none">
+                        <svg className="absolute bottom-0 w-full h-8" preserveAspectRatio="none" viewBox="0 0 1200 120" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M0 0L50 10L100 5L150 15L200 8L250 12L300 6L350 14L400 9L450 11L500 7L550 13L600 10L650 8L700 12L750 9L800 11L850 7L900 13L950 10L1000 8L1050 12L1100 9L1150 11L1200 8V120H0V0Z" 
+                                fill="url(#glitchGradient)" 
+                                className="opacity-90"/>
+                          <defs>
+                            <linearGradient id="glitchGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                              <stop offset="0%" style={{ stopColor: 'rgba(0,0,0,0.3)', stopOpacity: 1 }} />
+                              <stop offset="100%" style={{ stopColor: 'rgba(0,0,0,0.85)', stopOpacity: 1 }} />
+                            </linearGradient>
+                          </defs>
+                        </svg>
+                      </div>
+                      
+                      {/* Video info overlay */}
+                      <div className="absolute bottom-0 left-0 right-0 p-1.5 z-10">
                         <div className="flex items-center gap-1.5 text-white text-[10px] font-medium">
                           <span className="flex items-center gap-0.5">
                             <Play className="w-3 h-3" fill="white" />
@@ -528,14 +542,29 @@ const ProfilePage = ({ onNavigateToSettings }: ProfilePageProps) => {
                       alt={video.title}
                       className="w-full h-full object-cover"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-100" />
-                    <div className="absolute top-1.5 right-1.5 bg-primary text-primary-foreground text-[9px] px-1.5 py-0.5 rounded-full flex items-center gap-0.5">
+                    
+                    {/* Glitch wave divider */}
+                    <div className="absolute bottom-0 left-0 right-0 h-20 pointer-events-none">
+                      <svg className="absolute bottom-0 w-full h-8" preserveAspectRatio="none" viewBox="0 0 1200 120" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M0 0L50 10L100 5L150 15L200 8L250 12L300 6L350 14L400 9L450 11L500 7L550 13L600 10L650 8L700 12L750 9L800 11L850 7L900 13L950 10L1000 8L1050 12L1100 9L1150 11L1200 8V120H0V0Z" 
+                              fill="url(#glitchGradient)" 
+                              className="opacity-90"/>
+                        <defs>
+                          <linearGradient id="glitchGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                            <stop offset="0%" style={{ stopColor: 'rgba(0,0,0,0.3)', stopOpacity: 1 }} />
+                            <stop offset="100%" style={{ stopColor: 'rgba(0,0,0,0.85)', stopOpacity: 1 }} />
+                          </linearGradient>
+                        </defs>
+                      </svg>
+                    </div>
+                    
+                    <div className="absolute top-1.5 right-1.5 bg-primary text-primary-foreground text-[9px] px-1.5 py-0.5 rounded-full flex items-center gap-0.5 z-10">
                       <Repeat2 className="w-2.5 h-2.5" />
                       Repost
                     </div>
                     
-                    {/* Video info overlay - always visible at bottom */}
-                    <div className="absolute bottom-0 left-0 right-0 p-1.5">
+                    {/* Video info overlay */}
+                    <div className="absolute bottom-0 left-0 right-0 p-1.5 z-10">
                       <div className="flex items-center gap-1.5 text-white text-[10px] font-medium">
                         <span className="flex items-center gap-0.5">
                           <Play className="w-3 h-3" fill="white" />
@@ -582,14 +611,29 @@ const ProfilePage = ({ onNavigateToSettings }: ProfilePageProps) => {
                       alt={video.title}
                       className="w-full h-full object-cover"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-100" />
-                    <div className="absolute top-1.5 right-1.5 bg-accent text-accent-foreground text-[9px] px-1.5 py-0.5 rounded-full flex items-center gap-0.5">
+                    
+                    {/* Glitch wave divider */}
+                    <div className="absolute bottom-0 left-0 right-0 h-20 pointer-events-none">
+                      <svg className="absolute bottom-0 w-full h-8" preserveAspectRatio="none" viewBox="0 0 1200 120" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M0 0L50 10L100 5L150 15L200 8L250 12L300 6L350 14L400 9L450 11L500 7L550 13L600 10L650 8L700 12L750 9L800 11L850 7L900 13L950 10L1000 8L1050 12L1100 9L1150 11L1200 8V120H0V0Z" 
+                              fill="url(#glitchGradient)" 
+                              className="opacity-90"/>
+                        <defs>
+                          <linearGradient id="glitchGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                            <stop offset="0%" style={{ stopColor: 'rgba(0,0,0,0.3)', stopOpacity: 1 }} />
+                            <stop offset="100%" style={{ stopColor: 'rgba(0,0,0,0.85)', stopOpacity: 1 }} />
+                          </linearGradient>
+                        </defs>
+                      </svg>
+                    </div>
+                    
+                    <div className="absolute top-1.5 right-1.5 bg-accent text-accent-foreground text-[9px] px-1.5 py-0.5 rounded-full flex items-center gap-0.5 z-10">
                       <Tag className="w-2.5 h-2.5" />
                       Tag
                     </div>
                     
-                    {/* Video info overlay - always visible at bottom */}
-                    <div className="absolute bottom-0 left-0 right-0 p-1.5">
+                    {/* Video info overlay */}
+                    <div className="absolute bottom-0 left-0 right-0 p-1.5 z-10">
                       <div className="flex items-center gap-1.5 text-white text-[10px] font-medium">
                         <span className="flex items-center gap-0.5">
                           <Play className="w-3 h-3" fill="white" />
