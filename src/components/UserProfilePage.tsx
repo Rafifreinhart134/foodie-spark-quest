@@ -415,8 +415,7 @@ const UserProfilePage = () => {
             }`}
             onClick={() => setActiveTab('content')}
           >
-            <Grid3X3 className="w-5 h-5 mx-auto mb-0.5" />
-            <span className="text-[10px]">Post</span>
+            <Grid3X3 className="w-5 h-5 mx-auto" />
           </button>
 
           {user?.id === userId ? (
@@ -433,7 +432,7 @@ const UserProfilePage = () => {
               <span className="text-[10px]">Badges</span>
             </button>
           ) : (
-            // Tampilkan repost dan tag untuk profil orang lain
+            // Tampilkan repost dan tag untuk profil orang lain (hanya ikon)
             <>
               <button 
                 className={`flex-1 py-3 text-center font-medium border-b-2 transition-all ${
@@ -443,8 +442,7 @@ const UserProfilePage = () => {
                 }`}
                 onClick={() => setActiveTab('repost')}
               >
-                <Repeat2 className="w-5 h-5 mx-auto mb-0.5" />
-                <span className="text-[10px]">Repost</span>
+                <Repeat2 className="w-5 h-5 mx-auto" />
               </button>
               <button 
                 className={`flex-1 py-3 text-center font-medium border-b-2 transition-all ${
@@ -454,8 +452,7 @@ const UserProfilePage = () => {
                 }`}
                 onClick={() => setActiveTab('tag')}
               >
-                <Tag className="w-5 h-5 mx-auto mb-0.5" />
-                <span className="text-[10px]">Tag</span>
+                <Tag className="w-5 h-5 mx-auto" />
               </button>
             </>
           )}
