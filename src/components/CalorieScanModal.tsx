@@ -28,6 +28,7 @@ export const CalorieScanModal = ({ isOpen, onClose }: CalorieScanModalProps) => 
   const [isScanning, setIsScanning] = useState(false);
   const [scanResult, setScanResult] = useState<ScanResult | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [showLabels, setShowLabels] = useState(true);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
 
@@ -75,6 +76,7 @@ export const CalorieScanModal = ({ isOpen, onClose }: CalorieScanModalProps) => 
   const handleReset = () => {
     setScanResult(null);
     setImagePreview(null);
+    setShowLabels(true);
     if (fileInputRef.current) fileInputRef.current.value = '';
     if (cameraInputRef.current) cameraInputRef.current.value = '';
   };
@@ -155,24 +157,26 @@ export const CalorieScanModal = ({ isOpen, onClose }: CalorieScanModalProps) => 
               </Button>
             </div>
 
-            {/* Total Calories */}
-            <div className="px-4 pt-4 pb-2">
-              <div className="bg-primary/10 rounded-lg p-3 mb-4">
-                <p className="text-sm text-muted-foreground">Total Kalori</p>
-                <p className="text-3xl font-bold text-primary">{scanResult.totalCalories} kal</p>
-              </div>
-            </div>
-
             {/* Food Image with Labels */}
-            <div className="px-4 pb-4">
-              <div className="relative rounded-lg overflow-hidden">
+            <div className="px-4 pt-4 pb-4">
+              <div 
+                className="relative rounded-lg overflow-hidden cursor-pointer"
+                onClick={() => setShowLabels(!showLabels)}
+              >
                 <img 
                   src={imagePreview || scanResult.imageUrl} 
                   alt="Food" 
                   className="w-full object-cover"
                 />
+                
+                {/* Total Calories Badge */}
+                <div className="absolute top-4 left-4 bg-primary text-primary-foreground px-4 py-2 rounded-lg shadow-lg">
+                  <p className="text-xs font-medium">Total Kalori</p>
+                  <p className="text-2xl font-bold">{scanResult.totalCalories} kal</p>
+                </div>
+
                 {/* Calorie labels overlaid on image */}
-                {scanResult.items.map((item, index) => (
+                {showLabels && scanResult.items.map((item, index) => (
                   <div
                     key={index}
                     className="absolute bg-black/70 text-white px-2 py-1 rounded text-xs font-semibold"
@@ -187,11 +191,14 @@ export const CalorieScanModal = ({ isOpen, onClose }: CalorieScanModalProps) => 
               </div>
             </div>
 
-            {/* Save Photo Button */}
-            <div className="px-4 pb-4">
+            {/* Action Buttons */}
+            <div className="px-4 pb-4 grid grid-cols-2 gap-2">
               <Button variant="outline" className="w-full">
                 <ImageIcon className="w-4 h-4 mr-2" />
                 Save Photo
+              </Button>
+              <Button variant="default" className="w-full">
+                Post
               </Button>
             </div>
 
