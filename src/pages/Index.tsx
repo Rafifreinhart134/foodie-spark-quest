@@ -12,6 +12,7 @@ import UserProfilePage from '@/components/UserProfilePage';
 import SettingsPage from '@/components/SettingsPage';
 import BottomNavigation from '@/components/BottomNavigation';
 import TopHeader from '@/components/TopHeader';
+import { AIFloatingButton } from '@/components/AIFloatingButton';
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState('home');
@@ -100,6 +101,9 @@ const Index = () => {
       {shouldShowBottomNav && (
         <BottomNavigation activeTab={activeTab} onTabChange={setActiveTab} />
       )}
+
+      {/* AI Floating Button - Always visible */}
+      <AIFloatingButton />
     </div>
   );
 };
