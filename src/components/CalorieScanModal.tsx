@@ -96,15 +96,22 @@ export const CalorieScanModal = ({ isOpen, onClose }: CalorieScanModalProps) => 
     try {
       setIsSaving(true);
 
-      // Upload image to storage
-      const fileName = `calorie-scan-${Date.now()}.jpg`;
+      // Upload image to storage with user folder
+      const fileName = `${user.id}/calorie-scan-${Date.now()}.jpg`;
       const blob = await fetch(imagePreview).then(r => r.blob());
       
       const { data: uploadData, error: uploadError } = await supabase.storage
         .from('thumbnails')
-        .upload(fileName, blob);
+        .upload(fileName, blob, {
+          contentType: 'image/jpeg',
+          upsert: false
+        });
 
-      if (uploadError) throw uploadError;
+      if (uploadError) {
+        console.error('Upload error:', uploadError);
+        toast.error(`Gagal upload: ${uploadError.message}`);
+        throw uploadError;
+      }
 
       const { data: { publicUrl } } = supabase.storage
         .from('thumbnails')
@@ -124,9 +131,9 @@ export const CalorieScanModal = ({ isOpen, onClose }: CalorieScanModalProps) => 
       if (insertError) throw insertError;
 
       toast.success('Foto berhasil disimpan!');
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error saving photo:', error);
-      toast.error('Gagal menyimpan foto');
+      toast.error(`Gagal menyimpan: ${error.message || 'Terjadi kesalahan'}`);
     } finally {
       setIsSaving(false);
     }
@@ -143,8 +150,8 @@ export const CalorieScanModal = ({ isOpen, onClose }: CalorieScanModalProps) => 
       setIsPosting(true);
       console.log('Starting post process...');
 
-      // Upload image to storage
-      const fileName = `calorie-scan-${Date.now()}.jpg`;
+      // Upload image to storage with user folder
+      const fileName = `${user.id}/calorie-scan-${Date.now()}.jpg`;
       const blob = await fetch(imagePreview).then(r => r.blob());
       console.log('Blob created:', blob.size, 'bytes');
       
@@ -157,6 +164,7 @@ export const CalorieScanModal = ({ isOpen, onClose }: CalorieScanModalProps) => 
 
       if (uploadError) {
         console.error('Upload error:', uploadError);
+        toast.error(`Gagal upload gambar: ${uploadError.message}`);
         throw uploadError;
       }
       console.log('Upload success:', uploadData);
