@@ -6,7 +6,7 @@ import { CalorieScanModal } from './CalorieScanModal';
 export const AIFloatingButton = () => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [isScanOpen, setIsScanOpen] = useState(false);
-  const [position, setPosition] = useState({ x: window.innerWidth - 80, y: window.innerHeight - 200 });
+  const [position, setPosition] = useState({ x: 20, y: window.innerHeight - 150 });
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const buttonRef = useRef<HTMLDivElement>(null);
@@ -74,7 +74,7 @@ export const AIFloatingButton = () => {
     <>
       <div
         ref={buttonRef}
-        className="fixed z-50"
+        className="fixed z-[9999]"
         style={{
           left: `${position.x}px`,
           top: `${position.y}px`,
@@ -90,30 +90,30 @@ export const AIFloatingButton = () => {
           className={`relative transition-all duration-300 ${isExpanded ? 'scale-110' : ''}`}
           onClick={handleButtonClick}
         >
-          <div className="w-14 h-14 bg-gradient-to-br from-primary to-primary/80 rounded-full shadow-lg flex items-center justify-center cursor-pointer border-2 border-white/20 backdrop-blur-sm">
+          <div className="w-16 h-16 bg-gradient-to-br from-primary to-primary/80 rounded-full shadow-[0_8px_30px_rgba(0,0,0,0.4)] flex items-center justify-center cursor-pointer border-4 border-white backdrop-blur-sm hover:shadow-[0_10px_40px_rgba(0,0,0,0.5)] transition-all">
             {isExpanded ? (
-              <X className="w-6 h-6 text-white" />
+              <X className="w-7 h-7 text-white" />
             ) : (
-              <Bot className="w-6 h-6 text-white" />
+              <Bot className="w-7 h-7 text-white" />
             )}
           </div>
         </div>
 
         {/* Expanded Options */}
         {isExpanded && (
-          <div className="absolute bottom-16 right-0 flex flex-col gap-3 animate-in fade-in slide-in-from-bottom-4 duration-300">
+          <div className="absolute bottom-20 left-0 flex flex-col gap-3 animate-in fade-in slide-in-from-bottom-4 duration-300">
             {/* Scan Button */}
             <button
               onClick={() => {
                 setIsScanOpen(true);
                 setIsExpanded(false);
               }}
-              className="flex items-center gap-3 bg-white rounded-full shadow-lg px-4 py-3 hover:bg-gray-50 transition-colors"
+              className="flex items-center gap-3 bg-white rounded-full shadow-[0_4px_20px_rgba(0,0,0,0.25)] px-5 py-3 hover:bg-gray-50 transition-all hover:shadow-[0_6px_25px_rgba(0,0,0,0.3)] border-2 border-gray-100"
             >
-              <div className="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center">
-                <Camera className="w-5 h-5 text-white" />
+              <div className="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center shadow-lg">
+                <Camera className="w-6 h-6 text-white" />
               </div>
-              <span className="font-semibold text-sm pr-2">Scan Makanan</span>
+              <span className="font-bold text-base pr-2 text-gray-900">Scan Makanan</span>
             </button>
 
             {/* Tanya Button */}
@@ -122,12 +122,12 @@ export const AIFloatingButton = () => {
                 // TODO: Implement chat feature
                 setIsExpanded(false);
               }}
-              className="flex items-center gap-3 bg-white rounded-full shadow-lg px-4 py-3 hover:bg-gray-50 transition-colors"
+              className="flex items-center gap-3 bg-white rounded-full shadow-[0_4px_20px_rgba(0,0,0,0.25)] px-5 py-3 hover:bg-gray-50 transition-all hover:shadow-[0_6px_25px_rgba(0,0,0,0.3)] border-2 border-gray-100"
             >
-              <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center">
-                <MessageSquare className="w-5 h-5 text-white" />
+              <div className="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center shadow-lg">
+                <MessageSquare className="w-6 h-6 text-white" />
               </div>
-              <span className="font-semibold text-sm pr-2">Tanya AI</span>
+              <span className="font-bold text-base pr-2 text-gray-900">Tanya AI</span>
             </button>
           </div>
         )}
