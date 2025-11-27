@@ -1,7 +1,7 @@
 import { useState, useRef } from 'react';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Camera, X, Loader2, Image as ImageIcon } from 'lucide-react';
+import { Camera, X, Loader2, Image as ImageIcon, Tag } from 'lucide-react';
 import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -29,6 +29,7 @@ export const CalorieScanModal = ({ isOpen, onClose }: CalorieScanModalProps) => 
   const [scanResult, setScanResult] = useState<ScanResult | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [showLabels, setShowLabels] = useState(true);
+  const [showTable, setShowTable] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
 
@@ -77,6 +78,7 @@ export const CalorieScanModal = ({ isOpen, onClose }: CalorieScanModalProps) => 
     setScanResult(null);
     setImagePreview(null);
     setShowLabels(true);
+    setShowTable(false);
     if (fileInputRef.current) fileInputRef.current.value = '';
     if (cameraInputRef.current) cameraInputRef.current.value = '';
   };
@@ -188,6 +190,17 @@ export const CalorieScanModal = ({ isOpen, onClose }: CalorieScanModalProps) => 
                     {item.calories} kal<br />{item.name}
                   </div>
                 ))}
+
+                {/* Tag button like Instagram */}
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setShowTable(!showTable);
+                  }}
+                  className="absolute bottom-4 left-4 bg-black/70 hover:bg-black/80 text-white p-2 rounded-full transition-colors"
+                >
+                  <Tag className="w-5 h-5" />
+                </button>
               </div>
             </div>
 
@@ -203,31 +216,33 @@ export const CalorieScanModal = ({ isOpen, onClose }: CalorieScanModalProps) => 
             </div>
 
             {/* Ingredients Table */}
-            <div className="px-4 pb-6">
-              <h3 className="font-semibold mb-3">Ingredient Breakdown</h3>
-              <div className="border rounded-lg overflow-hidden">
-                <table className="w-full">
-                  <thead className="bg-muted">
-                    <tr>
-                      <th className="text-left p-3 text-sm font-semibold">Ingredient</th>
-                      <th className="text-center p-3 text-sm font-semibold">Amount</th>
-                      <th className="text-center p-3 text-sm font-semibold">Calories</th>
-                      <th className="text-center p-3 text-sm font-semibold">Protein</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {scanResult.items.map((item, index) => (
-                      <tr key={index} className="border-t">
-                        <td className="p-3 text-sm capitalize">{item.name}</td>
-                        <td className="p-3 text-sm text-center">{item.amount}</td>
-                        <td className="p-3 text-sm text-center font-semibold">{item.calories}</td>
-                        <td className="p-3 text-sm text-center">{item.protein}</td>
+            {showTable && (
+              <div className="px-4 pb-6">
+                <h3 className="font-semibold mb-3">Ingredient Breakdown</h3>
+                <div className="border rounded-lg overflow-hidden">
+                  <table className="w-full">
+                    <thead className="bg-muted">
+                      <tr>
+                        <th className="text-left p-3 text-sm font-semibold">Ingredient</th>
+                        <th className="text-center p-3 text-sm font-semibold">Amount</th>
+                        <th className="text-center p-3 text-sm font-semibold">Calories</th>
+                        <th className="text-center p-3 text-sm font-semibold">Protein</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody>
+                      {scanResult.items.map((item, index) => (
+                        <tr key={index} className="border-t">
+                          <td className="p-3 text-sm capitalize">{item.name}</td>
+                          <td className="p-3 text-sm text-center">{item.amount}</td>
+                          <td className="p-3 text-sm text-center font-semibold">{item.calories}</td>
+                          <td className="p-3 text-sm text-center">{item.protein}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               </div>
-            </div>
+            )}
 
             {/* Action Buttons */}
             <div className="px-4 pb-6 space-y-2">
