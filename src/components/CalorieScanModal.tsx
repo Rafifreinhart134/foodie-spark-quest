@@ -197,9 +197,10 @@ export const CalorieScanModal = ({ isOpen, onClose }: CalorieScanModalProps) => 
                     e.stopPropagation();
                     setShowTable(!showTable);
                   }}
-                  className="absolute bottom-4 left-4 bg-white hover:bg-gray-100 text-gray-900 p-3 rounded-full shadow-lg transition-all z-10 border-2 border-gray-200"
+                  className="absolute bottom-4 left-4 bg-white hover:bg-gray-50 text-gray-900 px-4 py-3 rounded-full shadow-[0_4px_12px_rgba(0,0,0,0.3)] transition-all z-50 border-2 border-gray-300 flex items-center gap-2 font-medium"
                 >
-                  <Tag className="w-6 h-6" />
+                  <Tag className="w-5 h-5" />
+                  <span className="text-sm">View Details</span>
                 </button>
               </div>
             </div>
