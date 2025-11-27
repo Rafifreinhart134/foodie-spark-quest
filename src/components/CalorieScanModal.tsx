@@ -135,60 +135,93 @@ export const CalorieScanModal = ({ isOpen, onClose }: CalorieScanModalProps) => 
   const handlePost = async () => {
     if (!imagePreview || !scanResult || !user) {
       toast.error('Tidak ada data untuk diposting');
+      console.error('Missing data:', { imagePreview: !!imagePreview, scanResult: !!scanResult, user: !!user });
       return;
     }
 
     try {
       setIsPosting(true);
+      console.log('Starting post process...');
 
       // Upload image to storage
       const fileName = `calorie-scan-${Date.now()}.jpg`;
       const blob = await fetch(imagePreview).then(r => r.blob());
+      console.log('Blob created:', blob.size, 'bytes');
       
       const { data: uploadData, error: uploadError } = await supabase.storage
         .from('thumbnails')
-        .upload(fileName, blob);
+        .upload(fileName, blob, {
+          contentType: 'image/jpeg',
+          upsert: false
+        });
 
-      if (uploadError) throw uploadError;
+      if (uploadError) {
+        console.error('Upload error:', uploadError);
+        throw uploadError;
+      }
+      console.log('Upload success:', uploadData);
 
       const { data: { publicUrl } } = supabase.storage
         .from('thumbnails')
         .getPublicUrl(fileName);
+      
+      console.log('Public URL:', publicUrl);
 
       // Create post as video with tips category
-      const { error: videoError } = await supabase
+      const videoData = {
+        user_id: user.id,
+        title: `Scan Kalori - ${scanResult.totalCalories} kal`,
+        description: `Total kalori: ${scanResult.totalCalories} kal\n\nBreakdown:\n${scanResult.items.map(item => `• ${item.name}: ${item.calories} kal (${item.amount})`).join('\n')}`,
+        thumbnail_url: publicUrl,
+        category: 'tips' as const,
+        tags: ['kalori', 'nutrisi', 'scan'],
+        is_public: true
+      };
+      
+      console.log('Inserting video:', videoData);
+      
+      const { data: videoResult, error: videoError } = await supabase
         .from('videos')
-        .insert({
-          user_id: user.id,
-          title: `Scan Kalori - ${scanResult.totalCalories} kal`,
-          description: `Total kalori: ${scanResult.totalCalories} kal\n\nBreakdown:\n${scanResult.items.map(item => `• ${item.name}: ${item.calories} kal (${item.amount})`).join('\n')}`,
-          thumbnail_url: publicUrl,
-          category: 'tips',
-          tags: ['kalori', 'nutrisi', 'scan'],
-          is_public: true
-        });
+        .insert(videoData)
+        .select()
+        .single();
 
-      if (videoError) throw videoError;
+      if (videoError) {
+        console.error('Video insert error:', videoError);
+        toast.error(`Gagal membuat post: ${videoError.message}`);
+        throw videoError;
+      }
+      
+      console.log('Video created:', videoResult);
 
       // Save scan to database with posted flag
+      const scanData = {
+        user_id: user.id,
+        image_url: publicUrl,
+        total_calories: scanResult.totalCalories,
+        items: scanResult.items as any,
+        is_posted: true
+      };
+      
+      console.log('Inserting scan:', scanData);
+
       const { error: scanError } = await supabase
         .from('calorie_scans')
-        .insert({
-          user_id: user.id,
-          image_url: publicUrl,
-          total_calories: scanResult.totalCalories,
-          items: scanResult.items as any,
-          is_posted: true
-        });
+        .insert(scanData);
 
-      if (scanError) throw scanError;
+      if (scanError) {
+        console.error('Scan insert error:', scanError);
+        // Don't throw - video already created
+        console.warn('Scan save failed but post was created');
+      }
 
       toast.success('Berhasil diposting ke feed!');
       handleReset();
       onClose();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error posting:', error);
-      toast.error('Gagal memposting');
+      const errorMsg = error?.message || 'Terjadi kesalahan';
+      toast.error(`Gagal memposting: ${errorMsg}`);
     } finally {
       setIsPosting(false);
     }
