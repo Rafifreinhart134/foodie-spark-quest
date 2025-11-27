@@ -35,6 +35,36 @@ export type Database = {
         }
         Relationships: []
       }
+      calorie_scans: {
+        Row: {
+          created_at: string
+          id: string
+          image_url: string
+          is_posted: boolean | null
+          items: Json
+          total_calories: number
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          image_url: string
+          is_posted?: boolean | null
+          items: Json
+          total_calories: number
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          image_url?: string
+          is_posted?: boolean | null
+          items?: Json
+          total_calories?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
       coins: {
         Row: {
           balance: number | null

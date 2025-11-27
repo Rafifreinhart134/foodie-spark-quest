@@ -1,10 +1,11 @@
 import { useState, useRef } from 'react';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Camera, X, Loader2, Image as ImageIcon, Tag } from 'lucide-react';
+import { Camera, X, Loader2, Image as ImageIcon, Tag, Download } from 'lucide-react';
 import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { useAuth } from '@/hooks/useAuth';
 
 interface CalorieScanModalProps {
   isOpen: boolean;
@@ -30,8 +31,11 @@ export const CalorieScanModal = ({ isOpen, onClose }: CalorieScanModalProps) => 
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [showLabels, setShowLabels] = useState(true);
   const [showTable, setShowTable] = useState(false);
+  const [isPosting, setIsPosting] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
+  const { user } = useAuth();
 
   const handleImageSelect = async (file: File) => {
     if (!file) return;
@@ -81,6 +85,113 @@ export const CalorieScanModal = ({ isOpen, onClose }: CalorieScanModalProps) => 
     setShowTable(false);
     if (fileInputRef.current) fileInputRef.current.value = '';
     if (cameraInputRef.current) cameraInputRef.current.value = '';
+  };
+
+  const handleSavePhoto = async () => {
+    if (!imagePreview || !scanResult || !user) {
+      toast.error('Tidak ada foto untuk disimpan');
+      return;
+    }
+
+    try {
+      setIsSaving(true);
+
+      // Upload image to storage
+      const fileName = `calorie-scan-${Date.now()}.jpg`;
+      const blob = await fetch(imagePreview).then(r => r.blob());
+      
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from('thumbnails')
+        .upload(fileName, blob);
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('thumbnails')
+        .getPublicUrl(fileName);
+
+      // Save scan to database
+      const { error: insertError } = await supabase
+        .from('calorie_scans')
+        .insert({
+          user_id: user.id,
+          image_url: publicUrl,
+          total_calories: scanResult.totalCalories,
+          items: scanResult.items as any,
+          is_posted: false
+        });
+
+      if (insertError) throw insertError;
+
+      toast.success('Foto berhasil disimpan!');
+    } catch (error) {
+      console.error('Error saving photo:', error);
+      toast.error('Gagal menyimpan foto');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handlePost = async () => {
+    if (!imagePreview || !scanResult || !user) {
+      toast.error('Tidak ada data untuk diposting');
+      return;
+    }
+
+    try {
+      setIsPosting(true);
+
+      // Upload image to storage
+      const fileName = `calorie-scan-${Date.now()}.jpg`;
+      const blob = await fetch(imagePreview).then(r => r.blob());
+      
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from('thumbnails')
+        .upload(fileName, blob);
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('thumbnails')
+        .getPublicUrl(fileName);
+
+      // Create post as video with tips category
+      const { error: videoError } = await supabase
+        .from('videos')
+        .insert({
+          user_id: user.id,
+          title: `Scan Kalori - ${scanResult.totalCalories} kal`,
+          description: `Total kalori: ${scanResult.totalCalories} kal\n\nBreakdown:\n${scanResult.items.map(item => `• ${item.name}: ${item.calories} kal (${item.amount})`).join('\n')}`,
+          thumbnail_url: publicUrl,
+          category: 'tips',
+          tags: ['kalori', 'nutrisi', 'scan'],
+          is_public: true
+        });
+
+      if (videoError) throw videoError;
+
+      // Save scan to database with posted flag
+      const { error: scanError } = await supabase
+        .from('calorie_scans')
+        .insert({
+          user_id: user.id,
+          image_url: publicUrl,
+          total_calories: scanResult.totalCalories,
+          items: scanResult.items as any,
+          is_posted: true
+        });
+
+      if (scanError) throw scanError;
+
+      toast.success('Berhasil diposting ke feed!');
+      handleReset();
+      onClose();
+    } catch (error) {
+      console.error('Error posting:', error);
+      toast.error('Gagal memposting');
+    } finally {
+      setIsPosting(false);
+    }
   };
 
   return (
@@ -207,11 +318,28 @@ export const CalorieScanModal = ({ isOpen, onClose }: CalorieScanModalProps) => 
 
             {/* Action Buttons */}
             <div className="px-4 pb-4 grid grid-cols-2 gap-2">
-              <Button variant="outline" className="w-full">
-                <ImageIcon className="w-4 h-4 mr-2" />
+              <Button 
+                variant="outline" 
+                className="w-full"
+                onClick={handleSavePhoto}
+                disabled={isSaving}
+              >
+                {isSaving ? (
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                ) : (
+                  <Download className="w-4 h-4 mr-2" />
+                )}
                 Save Photo
               </Button>
-              <Button variant="default" className="w-full">
+              <Button 
+                variant="default" 
+                className="w-full"
+                onClick={handlePost}
+                disabled={isPosting}
+              >
+                {isPosting ? (
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                ) : null}
                 Post
               </Button>
             </div>
