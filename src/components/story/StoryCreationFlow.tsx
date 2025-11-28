@@ -1,13 +1,11 @@
 import { useState } from 'react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
-import { StoryEntrySheet } from './StoryEntrySheet';
 import { StoryCameraScreen } from './StoryCameraScreen';
 import { StoryEditorScreen } from './StoryEditorScreen';
 import { StoryPostingProgress } from './StoryPostingProgress';
 import { StoryPublishedSheet } from './StoryPublishedSheet';
 
 type StoryFlowStage = 
-  | 'entry'
   | 'camera' 
   | 'editor'
   | 'settings'
@@ -20,7 +18,7 @@ interface StoryCreationFlowProps {
 }
 
 export const StoryCreationFlow = ({ isOpen, onClose }: StoryCreationFlowProps) => {
-  const [stage, setStage] = useState<StoryFlowStage>('entry');
+  const [stage, setStage] = useState<StoryFlowStage>('camera'); // Start directly at camera
   const [capturedMedia, setCapturedMedia] = useState<{
     url: string;
     type: 'photo' | 'video';
@@ -29,7 +27,7 @@ export const StoryCreationFlow = ({ isOpen, onClose }: StoryCreationFlowProps) =
   const [editedStory, setEditedStory] = useState<any>(null);
 
   const handleReset = () => {
-    setStage('entry');
+    setStage('camera'); // Reset to camera instead of entry
     setCapturedMedia(null);
     setEditedStory(null);
   };
@@ -42,15 +40,7 @@ export const StoryCreationFlow = ({ isOpen, onClose }: StoryCreationFlowProps) =
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="max-w-full max-h-full h-screen w-screen p-0 bg-black border-none">
-        {/* 1️⃣ ENTRY POINT - Story Options Sheet */}
-        {stage === 'entry' && (
-          <StoryEntrySheet 
-            onClose={handleClose}
-            onSelectStory={() => setStage('camera')}
-          />
-        )}
-
-        {/* 2️⃣ CAMERA SCREEN */}
+        {/* 2️⃣ CAMERA SCREEN - Now the entry point */}
         {stage === 'camera' && (
           <StoryCameraScreen
             onClose={handleClose}
