@@ -163,17 +163,20 @@ const VideoCard = ({ video, isActive, onLike, onSave, onComment, onShare, onReci
       setLongPressTimer(null);
     }
     
-    setTouchStartY(null);
-    setTouchStartX(null);
-    
     if (isLongPress) {
       setHideUI(false);
       e.preventDefault();
       e.stopPropagation();
-    } else if (touchStartX && touchStartX <= window.innerWidth * 0.7) {
-      // Short tap on left/center area - toggle play/pause
-      handleVideoClick(e);
+    } else {
+      // Short tap area (exclude right side used for volume)
+      if (touchStartX === null || touchStartX <= window.innerWidth * 0.7) {
+        handleVideoClick(e);
+      }
     }
+
+    // Reset touch positions after handling
+    setTouchStartY(null);
+    setTouchStartX(null);
   };
 
   const handleMouseDown = (e: React.MouseEvent) => {
