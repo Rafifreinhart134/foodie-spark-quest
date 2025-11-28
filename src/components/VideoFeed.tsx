@@ -193,6 +193,9 @@ const VideoCard = ({ video, isActive, onLike, onSave, onComment, onShare, onReci
     
     if (isLongPress) {
       setHideUI(false);
+    } else {
+      // Single click - toggle play/pause
+      handleVideoClick(e);
     }
   };
 
