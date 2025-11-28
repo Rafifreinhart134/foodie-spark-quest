@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { Heart, MessageCircle, Share, Bookmark, Utensils, Search, Plus, Play, Pause, Tag, X } from 'lucide-react';
+import { Heart, MessageCircle, Share, Bookmark, Utensils, Search, Plus, Play, Pause, Tag, X, Volume2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
@@ -36,6 +36,11 @@ const VideoCard = ({ video, isActive, onLike, onSave, onComment, onShare, onReci
   const [hideUI, setHideUI] = useState(false);
   const [longPressTimer, setLongPressTimer] = useState<NodeJS.Timeout | null>(null);
   const [showNutritionTable, setShowNutritionTable] = useState(false);
+  const [volume, setVolume] = useState(1);
+  const [showVolumeIndicator, setShowVolumeIndicator] = useState(false);
+  const [volumeIndicatorTimer, setVolumeIndicatorTimer] = useState<NodeJS.Timeout | null>(null);
+  const [touchStartY, setTouchStartY] = useState<number | null>(null);
+  const [touchStartX, setTouchStartX] = useState<number | null>(null);
   
   const handleLike = () => {
     onLike(video.id);
@@ -99,11 +104,57 @@ const VideoCard = ({ video, isActive, onLike, onSave, onComment, onShare, onReci
 
   const handleTouchStart = (e: React.TouchEvent) => {
     isLongPress = false;
+    const touch = e.touches[0];
+    setTouchStartY(touch.clientY);
+    setTouchStartX(touch.clientX);
+    
     const timer = setTimeout(() => {
       isLongPress = true;
       setHideUI(true);
     }, 500);
     setLongPressTimer(timer);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (!isVideo || touchStartY === null || touchStartX === null) return;
+    
+    const touch = e.touches[0];
+    const screenWidth = window.innerWidth;
+    const screenHeight = window.innerHeight;
+    
+    // Check if swipe started on the right side of the screen (right 30%)
+    if (touchStartX > screenWidth * 0.7) {
+      e.preventDefault();
+      
+      const deltaY = touchStartY - touch.clientY;
+      const swipeDistance = deltaY / (screenHeight * 0.5); // Normalize to 0-1 range
+      
+      // Update volume based on swipe
+      let newVolume = volume + swipeDistance * 0.5;
+      newVolume = Math.max(0, Math.min(1, newVolume));
+      
+      if (videoRef.current) {
+        videoRef.current.volume = newVolume;
+        setVolume(newVolume);
+      }
+      
+      // Show volume indicator
+      setShowVolumeIndicator(true);
+      
+      // Clear existing timer
+      if (volumeIndicatorTimer) {
+        clearTimeout(volumeIndicatorTimer);
+      }
+      
+      // Hide volume indicator after 1.5 seconds
+      const timer = setTimeout(() => {
+        setShowVolumeIndicator(false);
+      }, 1500);
+      setVolumeIndicatorTimer(timer);
+      
+      // Reset touch start position for continuous adjustment
+      setTouchStartY(touch.clientY);
+    }
   };
 
   const handleTouchEnd = (e: React.TouchEvent) => {
@@ -112,12 +163,15 @@ const VideoCard = ({ video, isActive, onLike, onSave, onComment, onShare, onReci
       setLongPressTimer(null);
     }
     
+    setTouchStartY(null);
+    setTouchStartX(null);
+    
     if (isLongPress) {
       setHideUI(false);
       e.preventDefault();
       e.stopPropagation();
-    } else {
-      // Short tap - toggle play/pause
+    } else if (touchStartX && touchStartX <= window.innerWidth * 0.7) {
+      // Short tap on left/center area - toggle play/pause
       handleVideoClick(e);
     }
   };
@@ -146,6 +200,7 @@ const VideoCard = ({ video, isActive, onLike, onSave, onComment, onShare, onReci
     if (videoRef.current && isActive && isVideo) {
       // Autoplay when video comes into view
       videoRef.current.muted = false;
+      videoRef.current.volume = volume;
       videoRef.current.play();
       setIsPlaying(true);
     } else if (videoRef.current && !isActive) {
@@ -163,7 +218,7 @@ const VideoCard = ({ video, isActive, onLike, onSave, onComment, onShare, onReci
         setIsPlaying(false);
       }
     };
-  }, [isActive, isVideo]);
+  }, [isActive, isVideo, volume]);
 
   return (
     <div className="video-container relative h-screen w-full">
@@ -215,6 +270,7 @@ const VideoCard = ({ video, isActive, onLike, onSave, onComment, onShare, onReci
         <div 
           className="absolute inset-0 z-10" 
           onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
           onTouchEnd={handleTouchEnd}
           onMouseDown={handleMouseDown}
           onMouseUp={handleMouseUp}
@@ -248,6 +304,24 @@ const VideoCard = ({ video, isActive, onLike, onSave, onComment, onShare, onReci
               )}
             </div>
           </div>
+          
+          {/* Volume Indicator */}
+          {showVolumeIndicator && (
+            <div className="absolute right-8 top-1/2 -translate-y-1/2 flex flex-col items-center gap-2 animate-fade-in pointer-events-none z-50">
+              <div className="bg-black/70 backdrop-blur-sm rounded-full p-3">
+                <Volume2 className="w-6 h-6 text-white" />
+              </div>
+              <div className="h-48 w-12 bg-black/70 backdrop-blur-sm rounded-full p-2 flex flex-col justify-end">
+                <div 
+                  className="w-full bg-primary rounded-full transition-all duration-100"
+                  style={{ height: `${volume * 100}%` }}
+                />
+              </div>
+              <div className="bg-black/70 backdrop-blur-sm rounded-full px-3 py-1">
+                <span className="text-white text-sm font-medium">{Math.round(volume * 100)}%</span>
+              </div>
+            </div>
+          )}
         </div>
       ) : (
         <div 
