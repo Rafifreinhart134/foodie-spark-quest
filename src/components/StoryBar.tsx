@@ -1,103 +1,108 @@
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Plus } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
-
-interface Story {
-  id: string;
-  userId: string;
-  username: string;
-  avatarUrl: string;
-  hasNewStory: boolean;
-  isOwn?: boolean;
-}
+import { Story } from '@/hooks/useStories';
+import { useAuth } from '@/hooks/useAuth';
 
 interface StoryBarProps {
-  onStoryClick?: (story: Story) => void;
+  stories: Story[];
+  onStoryClick?: (storyIndex: number, userId: string) => void;
   onAddStory?: () => void;
 }
 
-const StoryBar = ({ onStoryClick, onAddStory }: StoryBarProps) => {
-  // Mock data - will be replaced with real data later
-  const stories: Story[] = [
-    {
-      id: '1',
-      userId: 'own',
-      username: 'Your Story',
-      avatarUrl: '',
-      hasNewStory: false,
-      isOwn: true,
-    },
-    {
-      id: '2',
-      userId: '2',
-      username: 'chef_rina',
-      avatarUrl: '',
-      hasNewStory: true,
-    },
-    {
-      id: '3',
-      userId: '3',
-      username: 'kuliner_jkt',
-      avatarUrl: '',
-      hasNewStory: true,
-    },
-    {
-      id: '4',
-      userId: '4',
-      username: 'food_lover',
-      avatarUrl: '',
-      hasNewStory: true,
-    },
-    {
-      id: '5',
-      userId: '5',
-      username: 'resep_mama',
-      avatarUrl: '',
-      hasNewStory: false,
-    },
-    {
-      id: '6',
-      userId: '6',
-      username: 'bakery_fresh',
-      avatarUrl: '',
-      hasNewStory: true,
-    },
-  ];
+const StoryBar = ({ stories, onStoryClick, onAddStory }: StoryBarProps) => {
+  const { user } = useAuth();
+
+  // Group stories by user
+  const groupedStories = stories.reduce((acc, story) => {
+    if (!acc[story.user_id]) {
+      acc[story.user_id] = [];
+    }
+    acc[story.user_id].push(story);
+    return {};
+  }, {} as Record<string, Story[]>);
+
+  // Get first story of each user for display
+  const userStories = Object.entries(groupedStories).map(([userId, userStoriesList]) => {
+    const firstStory = userStoriesList[0];
+    const hasViewed = userStoriesList.every(s => s.has_viewed);
+    return {
+      userId,
+      story: firstStory,
+      hasViewed,
+      storyCount: userStoriesList.length
+    };
+  });
+
+  // Check if current user has stories
+  const userHasStories = user && userStories.some(us => us.userId === user.id);
+  const userStoryGroup = userStories.find(us => us.userId === user?.id);
 
   return (
     <div className="w-full bg-background py-3 px-4 border-b border-border">
       <ScrollArea className="w-full">
         <div className="flex gap-3 pb-1">
-          {stories.map((story) => (
-            <div
-              key={story.id}
-              onClick={() => story.isOwn ? onAddStory?.() : onStoryClick?.(story)}
-              className="flex flex-col items-center gap-1 flex-shrink-0 cursor-pointer"
-            >
-              <div className={`relative ${
-                story.hasNewStory && !story.isOwn
-                  ? 'p-[2px] rounded-lg bg-gradient-to-tr from-primary via-primary/80 to-primary/60'
-                  : ''
-              }`}>
-                <div className={`${story.hasNewStory && !story.isOwn ? 'p-[2px] bg-background rounded-lg' : ''}`}>
-                  <Avatar className="w-14 h-14 border-2 border-background rounded-lg">
-                    <AvatarImage src={story.avatarUrl} alt={story.username} />
-                    <AvatarFallback className="bg-muted text-foreground font-semibold rounded-lg">
-                      {story.username[0].toUpperCase()}
-                    </AvatarFallback>
-                  </Avatar>
-                </div>
-                {story.isOwn && (
-                  <div className="absolute bottom-0 right-0 w-5 h-5 bg-primary rounded-md border-2 border-background flex items-center justify-center">
-                    <Plus className="w-3 h-3 text-primary-foreground" />
-                  </div>
-                )}
+          {/* Your Story - Always show first */}
+          <div
+            onClick={onAddStory}
+            className="flex flex-col items-center gap-1 flex-shrink-0 cursor-pointer"
+          >
+            <div className={`relative ${
+              userHasStories && !userStoryGroup?.hasViewed
+                ? 'p-[2px] rounded-lg bg-gradient-to-tr from-primary via-primary/80 to-primary/60'
+                : ''
+            }`}>
+              <div className={`${userHasStories && !userStoryGroup?.hasViewed ? 'p-[2px] bg-background rounded-lg' : ''}`}>
+                <Avatar className="w-14 h-14 border-2 border-background rounded-lg">
+                  <AvatarImage src={user?.user_metadata?.avatar_url} alt="Your Story" />
+                  <AvatarFallback className="bg-muted text-foreground font-semibold rounded-lg">
+                    {user?.user_metadata?.display_name?.[0]?.toUpperCase() || 'Y'}
+                  </AvatarFallback>
+                </Avatar>
               </div>
-              <span className="text-[10px] text-foreground font-medium max-w-[60px] truncate">
-                {story.username}
-              </span>
+              <div className="absolute bottom-0 right-0 w-5 h-5 bg-primary rounded-md border-2 border-background flex items-center justify-center">
+                <Plus className="w-3 h-3 text-primary-foreground" />
+              </div>
             </div>
-          ))}
+            <span className="text-[10px] text-foreground font-medium max-w-[60px] truncate">
+              Your Story
+            </span>
+          </div>
+
+          {/* Other users' stories */}
+          {userStories
+            .filter(us => us.userId !== user?.id)
+            .map((userStory, index) => (
+              <div
+                key={userStory.userId}
+                onClick={() => {
+                  const storyIndex = stories.findIndex(s => s.user_id === userStory.userId);
+                  onStoryClick?.(storyIndex, userStory.userId);
+                }}
+                className="flex flex-col items-center gap-1 flex-shrink-0 cursor-pointer"
+              >
+                <div className={`relative ${
+                  !userStory.hasViewed
+                    ? 'p-[2px] rounded-lg bg-gradient-to-tr from-primary via-primary/80 to-primary/60'
+                    : ''
+                }`}>
+                  <div className={`${!userStory.hasViewed ? 'p-[2px] bg-background rounded-lg' : ''}`}>
+                    <Avatar className="w-14 h-14 border-2 border-background rounded-lg">
+                      <AvatarImage 
+                        src={userStory.story.profiles?.avatar_url} 
+                        alt={userStory.story.profiles?.display_name || 'User'} 
+                      />
+                      <AvatarFallback className="bg-muted text-foreground font-semibold rounded-lg">
+                        {userStory.story.profiles?.display_name?.[0]?.toUpperCase() || 'U'}
+                      </AvatarFallback>
+                    </Avatar>
+                  </div>
+                </div>
+                <span className="text-[10px] text-foreground font-medium max-w-[60px] truncate">
+                  {userStory.story.profiles?.display_name || 'User'}
+                </span>
+              </div>
+            ))}
         </div>
       </ScrollArea>
     </div>
