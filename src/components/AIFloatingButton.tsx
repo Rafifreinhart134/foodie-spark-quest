@@ -90,7 +90,7 @@ export const AIFloatingButton = () => {
           className={`relative transition-all duration-300 ${isExpanded ? 'scale-110' : ''}`}
           onClick={handleButtonClick}
         >
-          <div className="w-16 h-16 bg-gradient-to-br from-primary to-primary/80 rounded-full shadow-[0_8px_30px_rgba(0,0,0,0.4)] flex items-center justify-center cursor-pointer border-4 border-white backdrop-blur-sm hover:shadow-[0_10px_40px_rgba(0,0,0,0.5)] transition-all">
+          <div className="w-16 h-16 bg-gradient-to-br from-primary to-primary/80 rounded-xl shadow-[0_8px_30px_rgba(0,0,0,0.4)] flex items-center justify-center cursor-pointer border-4 border-white backdrop-blur-sm hover:shadow-[0_10px_40px_rgba(0,0,0,0.5)] transition-all">
             {isExpanded ? (
               <X className="w-7 h-7 text-white" />
             ) : (
@@ -99,7 +99,6 @@ export const AIFloatingButton = () => {
                 <circle cx="10" cy="12" r="1" fill="white"/>
                 <circle cx="14" cy="12" r="1" fill="white"/>
                 <line x1="9" y1="15" x2="15" y2="15" stroke="white" strokeWidth="1.5" strokeLinecap="round"/>
-                <line x1="12" y1="6" x2="12" y2="8" stroke="white" strokeWidth="2" strokeLinecap="round"/>
               </svg>
             )}
           </div>
@@ -114,9 +113,9 @@ export const AIFloatingButton = () => {
                 setIsScanOpen(true);
                 setIsExpanded(false);
               }}
-              className="flex items-center gap-3 bg-white rounded-full shadow-[0_4px_20px_rgba(0,0,0,0.25)] px-5 py-3 hover:bg-gray-50 transition-all hover:shadow-[0_6px_25px_rgba(0,0,0,0.3)] border-2 border-gray-100"
+              className="flex items-center gap-3 bg-white rounded-2xl shadow-[0_4px_20px_rgba(0,0,0,0.25)] px-5 py-3 hover:bg-gray-50 transition-all hover:shadow-[0_6px_25px_rgba(0,0,0,0.3)] border-2 border-gray-100"
             >
-              <div className="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center shadow-lg">
+              <div className="w-12 h-12 bg-green-500 rounded-xl flex items-center justify-center shadow-lg">
                 <Camera className="w-6 h-6 text-white" />
               </div>
               <span className="font-bold text-base pr-2 text-gray-900">Scan Makanan</span>
@@ -128,9 +127,9 @@ export const AIFloatingButton = () => {
                 // TODO: Implement chat feature
                 setIsExpanded(false);
               }}
-              className="flex items-center gap-3 bg-white rounded-full shadow-[0_4px_20px_rgba(0,0,0,0.25)] px-5 py-3 hover:bg-gray-50 transition-all hover:shadow-[0_6px_25px_rgba(0,0,0,0.3)] border-2 border-gray-100"
+              className="flex items-center gap-3 bg-white rounded-2xl shadow-[0_4px_20px_rgba(0,0,0,0.25)] px-5 py-3 hover:bg-gray-50 transition-all hover:shadow-[0_6px_25px_rgba(0,0,0,0.3)] border-2 border-gray-100"
             >
-              <div className="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center shadow-lg">
+              <div className="w-12 h-12 bg-blue-500 rounded-xl flex items-center justify-center shadow-lg">
                 <MessageSquare className="w-6 h-6 text-white" />
               </div>
               <span className="font-bold text-base pr-2 text-gray-900">Tanya AI</span>
