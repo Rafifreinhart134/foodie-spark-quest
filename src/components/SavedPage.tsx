@@ -5,7 +5,7 @@ import { useSavedVideos } from '@/hooks/useSavedVideos';
 import { useStories } from '@/hooks/useStories';
 import { useState } from 'react';
 import StoryBar from './StoryBar';
-import { StoryCreateModal } from './StoryCreateModal';
+import { StoryCreationFlow } from './story/StoryCreationFlow';
 import { StoryViewerModal } from './StoryViewerModal';
 
 const SavedPage = () => {
@@ -102,7 +102,7 @@ const SavedPage = () => {
       </div>
 
       {/* Modals */}
-      <StoryCreateModal 
+      <StoryCreationFlow 
         isOpen={isCreateModalOpen}
         onClose={() => setIsCreateModalOpen(false)}
       />
