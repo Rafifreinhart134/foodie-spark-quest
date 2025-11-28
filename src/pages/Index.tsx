@@ -16,6 +16,7 @@ import { AIFloatingButton } from '@/components/AIFloatingButton';
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState('home');
+  const [isStoryOpen, setIsStoryOpen] = useState(false);
   const { userId } = useParams();
   const location = useLocation();
 
@@ -42,7 +43,7 @@ const Index = () => {
       case 'upload':
         return <UploadPage />;
       case 'saved':
-        return <SavedPage />;
+        return <SavedPage onStoryOpenChange={setIsStoryOpen} />;
       case 'notifications':
         return <NotificationPage />;
       case 'profile':
@@ -102,8 +103,8 @@ const Index = () => {
         <BottomNavigation activeTab={activeTab} onTabChange={setActiveTab} />
       )}
 
-      {/* AI Floating Button - Always visible */}
-      <AIFloatingButton />
+      {/* AI Floating Button - Hide when story is open */}
+      {!isStoryOpen && <AIFloatingButton />}
     </div>
   );
 };
