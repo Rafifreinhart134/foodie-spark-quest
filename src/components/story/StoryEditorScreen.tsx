@@ -202,35 +202,37 @@ export const StoryEditorScreen = ({ media, onClose, onPost, onBack }: StoryEdito
         </div>
       </div>
 
-      {/* BOTTOM BAR - Send To */}
-      <div className="absolute bottom-0 left-0 right-0 z-50 p-6 bg-gradient-to-t from-black/80 via-black/60 to-transparent">
-        <div className="space-y-3">
-          {/* Quick Actions */}
-          <div className="flex gap-2">
+      {/* BOTTOM BAR - Send To (Hidden when tools are active) */}
+      {activeTool === 'none' && (
+        <div className="absolute bottom-0 left-0 right-0 z-50 p-6 bg-gradient-to-t from-black/80 via-black/60 to-transparent">
+          <div className="space-y-3">
+            {/* Quick Actions */}
+            <div className="flex gap-2">
+              <Button
+                className="flex-1 bg-white/20 hover:bg-white/30 text-white border border-white/30 rounded-full"
+                onClick={() => setActiveTool('settings')}
+              >
+                <span>Your Story</span>
+              </Button>
+              <Button
+                className="flex-1 bg-white/20 hover:bg-white/30 text-white border border-white/30 rounded-full"
+                onClick={() => setActiveTool('settings')}
+              >
+                <span>Close Friends</span>
+              </Button>
+            </div>
+
+            {/* Main Send To Button */}
             <Button
-              className="flex-1 bg-white/20 hover:bg-white/30 text-white border border-white/30 rounded-full"
+              className="w-full bg-white hover:bg-white/90 text-black font-semibold rounded-full h-12 text-base"
               onClick={() => setActiveTool('settings')}
             >
-              <span>Your Story</span>
-            </Button>
-            <Button
-              className="flex-1 bg-white/20 hover:bg-white/30 text-white border border-white/30 rounded-full"
-              onClick={() => setActiveTool('settings')}
-            >
-              <span>Close Friends</span>
+              <span>Send To</span>
+              <ChevronRight className="w-5 h-5 ml-2" />
             </Button>
           </div>
-
-          {/* Main Send To Button */}
-          <Button
-            className="w-full bg-white hover:bg-white/90 text-black font-semibold rounded-full h-12 text-base"
-            onClick={() => setActiveTool('settings')}
-          >
-            <span>Send To</span>
-            <ChevronRight className="w-5 h-5 ml-2" />
-          </Button>
         </div>
-      </div>
+      )}
 
       {/* TOOL PANELS */}
       {activeTool === 'text' && (
