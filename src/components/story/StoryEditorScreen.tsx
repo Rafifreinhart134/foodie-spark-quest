@@ -23,6 +23,7 @@ export const StoryEditorScreen = ({ media, onClose, onPost, onBack }: StoryEdito
   const [stickerElements, setStickerElements] = useState<any[]>([]);
   const [drawingElements, setDrawingElements] = useState<any[]>([]);
   const [selectedFilter, setSelectedFilter] = useState<string | null>(null);
+  const [editingTextIndex, setEditingTextIndex] = useState<number | null>(null);
 
   const handleSave = () => {
     // Logic to save to device
@@ -73,10 +74,15 @@ export const StoryEditorScreen = ({ media, onClose, onPost, onBack }: StoryEdito
             initialRotation={text.rotation}
             initialScale={text.scale}
             style={text.style}
+            editable={true}
             onUpdate={(data) => {
               const updated = [...textElements];
               updated[idx] = { ...text, ...data };
               setTextElements(updated);
+            }}
+            onEdit={() => {
+              setEditingTextIndex(idx);
+              setActiveTool('text');
             }}
             onDelete={() => {
               setTextElements(textElements.filter((_, i) => i !== idx));
@@ -229,11 +235,23 @@ export const StoryEditorScreen = ({ media, onClose, onPost, onBack }: StoryEdito
       {/* TOOL PANELS */}
       {activeTool === 'text' && (
         <StoryTextTool
-          onClose={() => setActiveTool('none')}
+          onClose={() => {
+            setActiveTool('none');
+            setEditingTextIndex(null);
+          }}
           onAdd={(text) => {
-            setTextElements([...textElements, text]);
+            if (editingTextIndex !== null) {
+              const updated = [...textElements];
+              updated[editingTextIndex] = { ...updated[editingTextIndex], ...text };
+              setTextElements(updated);
+              setEditingTextIndex(null);
+            } else {
+              setTextElements([...textElements, text]);
+            }
             setActiveTool('none');
           }}
+          initialText={editingTextIndex !== null ? textElements[editingTextIndex] : undefined}
+          isEditing={editingTextIndex !== null}
         />
       )}
 
