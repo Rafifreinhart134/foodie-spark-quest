@@ -263,32 +263,27 @@ const ContentDetailModal = ({
 
             {/* Nutritional Info Table for Food Scans */}
             {content.nutritional_info && (
-              <div className="px-4 pb-4">
-                <h4 className="font-semibold text-sm mb-2">Rincian Nutrisi</h4>
+              <div className="px-4 pb-6">
+                <h3 className="font-semibold mb-3">Ingredient Breakdown</h3>
                 <div className="border rounded-lg overflow-hidden">
-                  <table className="w-full text-sm">
+                  <table className="w-full">
                     <thead className="bg-muted">
                       <tr>
-                        <th className="text-left p-2 font-semibold">Item</th>
-                        <th className="text-center p-2 font-semibold">Jumlah</th>
-                        <th className="text-center p-2 font-semibold">Kalori</th>
-                        <th className="text-center p-2 font-semibold">Protein</th>
+                        <th className="text-left p-3 text-sm font-semibold">Ingredient</th>
+                        <th className="text-center p-3 text-sm font-semibold">Amount</th>
+                        <th className="text-center p-3 text-sm font-semibold">Calories</th>
+                        <th className="text-center p-3 text-sm font-semibold">Protein</th>
                       </tr>
                     </thead>
                     <tbody>
-                      {content.nutritional_info.items.map((item, index) => (
+                      {content.nutritional_info.items.map((item: any, index: number) => (
                         <tr key={index} className="border-t">
-                          <td className="p-2 capitalize">{item.name}</td>
-                          <td className="p-2 text-center text-xs">{item.amount}</td>
-                          <td className="p-2 text-center font-semibold">{item.calories}</td>
-                          <td className="p-2 text-center">{item.protein}g</td>
+                          <td className="p-3 text-sm capitalize">{item.name}</td>
+                          <td className="p-3 text-sm text-center">{item.amount}</td>
+                          <td className="p-3 text-sm text-center font-semibold">{item.calories}</td>
+                          <td className="p-3 text-sm text-center">{item.protein}</td>
                         </tr>
                       ))}
-                      <tr className="border-t bg-muted/50 font-semibold">
-                        <td colSpan={2} className="p-2">Total</td>
-                        <td className="p-2 text-center">{content.nutritional_info.totalCalories}</td>
-                        <td className="p-2 text-center">{content.nutritional_info.items.reduce((sum, item) => sum + item.protein, 0)}g</td>
-                      </tr>
                     </tbody>
                   </table>
                 </div>
