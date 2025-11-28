@@ -2,7 +2,6 @@ import { useState, useRef, useEffect } from 'react';
 import { Camera, MessageSquare, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { CalorieScanModal } from './CalorieScanModal';
-import aiLogo from '@/assets/ai-logo.png';
 
 export const AIFloatingButton = () => {
   const [isExpanded, setIsExpanded] = useState(false);
@@ -95,7 +94,9 @@ export const AIFloatingButton = () => {
             {isExpanded ? (
               <X className="w-7 h-7 text-white" />
             ) : (
-              <img src={aiLogo} alt="AI Logo" className="w-8 h-8 brightness-0 invert" />
+              <svg width="32" height="32" viewBox="0 0 300 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M50 260L120 40L150 120L180 40L250 260H210L180 180L150 240L120 180L90 260H50Z" fill="white"/>
+              </svg>
             )}
           </div>
         </div>
