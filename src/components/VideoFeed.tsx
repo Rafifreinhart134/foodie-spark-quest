@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { Heart, MessageCircle, Share, Bookmark, Utensils, Search, Plus, Play, Pause, Tag, X, Volume2, Download } from 'lucide-react';
+import { Heart, MessageCircle, Share, Bookmark, Utensils, Search, Plus, Play, Pause, Tag, X, Volume2, VolumeX, Download } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
@@ -591,6 +591,31 @@ const VideoCard = ({ video, isActive, onLike, onSave, onComment, onShare, onReci
                   <Share className="w-7 h-7" />
                 </Button>
               </div>
+
+              {/* Volume Button */}
+              {isVideo && (
+                <div className="flex flex-col items-center">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (videoRef.current) {
+                        const newVolume = volume > 0 ? 0 : 1;
+                        videoRef.current.volume = newVolume;
+                        setVolume(newVolume);
+                      }
+                    }}
+                    className="text-white hover:bg-transparent"
+                  >
+                    {volume > 0 ? (
+                      <Volume2 className="w-7 h-7" />
+                    ) : (
+                      <VolumeX className="w-7 h-7" />
+                    )}
+                  </Button>
+                </div>
+              )}
             </div>
           </div>
         </div>
