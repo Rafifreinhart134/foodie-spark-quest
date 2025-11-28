@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { Heart, MessageCircle, Share, Bookmark, Utensils, Search, Plus, Play, Pause, Tag, X, Volume2 } from 'lucide-react';
+import { Heart, MessageCircle, Share, Bookmark, Utensils, Search, Plus, Play, Pause, Tag, X, Volume2, Download } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
@@ -222,8 +222,8 @@ const VideoCard = ({ video, isActive, onLike, onSave, onComment, onShare, onReci
 
   return (
     <div className="video-container relative h-screen w-full">
-      {/* Top overlay with Tabs */}
-      {!hideUI && (
+      {/* Top overlay with Tabs - Hide for AI scan posts */}
+      {!hideUI && !video.nutritional_info && (
         <div className="absolute top-0 left-0 right-0 z-40">
           {/* Feed Type Tabs */}
           <div className="bg-gradient-to-b from-black/60 to-transparent pt-3 pb-6">
@@ -325,7 +325,7 @@ const VideoCard = ({ video, isActive, onLike, onSave, onComment, onShare, onReci
         </div>
       ) : (
         <div 
-          className="absolute inset-0 flex items-center justify-center bg-black z-10"
+          className="absolute inset-0 z-10"
           onTouchStart={handleTouchStart}
           onTouchEnd={handleTouchEnd}
           onMouseDown={handleMouseDown}
@@ -338,86 +338,124 @@ const VideoCard = ({ video, isActive, onLike, onSave, onComment, onShare, onReci
             setHideUI(false);
           }}
         >
-          <img 
-            src={video.thumbnail_url || video.video_url || 'https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=400'}
-            alt={video.title}
-            className="max-w-full max-h-full object-contain"
-          />
-          
-          {/* Total Calories Badge for Food Scans */}
-          {video.nutritional_info && (
-            <div className="absolute top-20 left-4 bg-primary text-primary-foreground px-4 py-2 rounded-lg shadow-lg">
-              <p className="text-xs font-medium">Total Kalori</p>
-              <p className="text-2xl font-bold">{video.nutritional_info.totalCalories} kal</p>
+          {video.nutritional_info ? (
+            // AI Scan Post Layout
+            <div className="absolute inset-0 bg-[#F5F1E8] overflow-y-auto">
+              <div className="max-w-2xl mx-auto p-4 space-y-4">
+                {/* Header */}
+                <div className="flex items-center justify-between">
+                  <h2 className="text-xl font-semibold text-gray-900">Hasil Analisis</h2>
+                  <button 
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      // Close functionality can be added here
+                    }}
+                    className="text-gray-600 hover:text-gray-900"
+                  >
+                    <X className="w-6 h-6" />
+                  </button>
+                </div>
+
+                {/* Food Image with Overlays */}
+                <div className="relative rounded-2xl overflow-hidden">
+                  <img 
+                    src={video.thumbnail_url || video.video_url || 'https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=400'}
+                    alt={video.title}
+                    className="w-full h-auto object-cover"
+                  />
+                  
+                  {/* Total Calories Badge */}
+                  <div className="absolute top-4 left-4 bg-[#0F4C3A] text-white px-4 py-2 rounded-xl shadow-lg">
+                    <p className="text-xs font-medium">Total Kalori</p>
+                    <p className="text-2xl font-bold">{video.nutritional_info.totalCalories} kal</p>
+                  </div>
+                  
+                  {/* View Details Button */}
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setShowNutritionTable(!showNutritionTable);
+                    }}
+                    className="absolute bottom-4 left-4 bg-white hover:bg-gray-50 text-gray-900 px-4 py-2.5 rounded-full shadow-lg transition-all border-2 border-gray-300 flex items-center gap-2 font-medium"
+                  >
+                    <Tag className="w-5 h-5" />
+                    <span className="text-sm">View Details</span>
+                  </button>
+                </div>
+
+                {/* Action Buttons */}
+                <div className="flex gap-3">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      // Save photo functionality
+                      const link = document.createElement('a');
+                      link.href = video.thumbnail_url || video.video_url || '';
+                      link.download = `${video.title}.jpg`;
+                      link.click();
+                    }}
+                    className="flex-1 bg-white hover:bg-gray-50 text-gray-900 px-6 py-3 rounded-xl shadow-md transition-all border-2 border-gray-300 flex items-center justify-center gap-2 font-medium"
+                  >
+                    <Download className="w-5 h-5" />
+                    <span>Save Photo</span>
+                  </button>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      // Post functionality - could trigger a modal or action
+                    }}
+                    className="flex-1 bg-[#0F4C3A] hover:bg-[#0D3F2F] text-white px-6 py-3 rounded-xl shadow-md transition-all flex items-center justify-center font-medium"
+                  >
+                    Post
+                  </button>
+                </div>
+
+                {/* Ingredient Breakdown */}
+                <div className="bg-white rounded-2xl shadow-md p-5 space-y-4">
+                  <h3 className="text-lg font-semibold text-gray-900">Ingredient Breakdown</h3>
+                  <div className="overflow-hidden rounded-lg border border-gray-200">
+                    <table className="w-full">
+                      <thead className="bg-gray-100">
+                        <tr>
+                          <th className="text-left p-3 text-sm font-semibold text-gray-900">Ingredient</th>
+                          <th className="text-center p-3 text-sm font-semibold text-gray-900">Amount</th>
+                          <th className="text-center p-3 text-sm font-semibold text-gray-900">Calories</th>
+                          <th className="text-center p-3 text-sm font-semibold text-gray-900">Protein</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {video.nutritional_info.items?.map((item: any, index: number) => (
+                          <tr key={index} className="border-t border-gray-200">
+                            <td className="p-3 text-sm text-gray-900 capitalize">{item.name}</td>
+                            <td className="p-3 text-sm text-gray-700 text-center">{item.amount}</td>
+                            <td className="p-3 text-sm text-gray-900 text-center font-semibold">{item.calories}</td>
+                            <td className="p-3 text-sm text-gray-700 text-center">{item.protein}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ) : (
+            // Regular Photo Post Layout
+            <div className="absolute inset-0 flex items-center justify-center bg-black">
+              <img 
+                src={video.thumbnail_url || video.video_url || 'https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=400'}
+                alt={video.title}
+                className="max-w-full max-h-full object-contain"
+              />
+              <div className="video-overlay" />
             </div>
           )}
-          
-          {/* View Details Button for Food Scans */}
-          {video.nutritional_info && (
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                setShowNutritionTable(!showNutritionTable);
-              }}
-              className="absolute bottom-24 left-4 bg-white hover:bg-gray-50 text-gray-900 px-4 py-3 rounded-full shadow-[0_4px_12px_rgba(0,0,0,0.3)] transition-all z-50 border-2 border-gray-300 flex items-center gap-2 font-medium"
-            >
-              <Tag className="w-5 h-5" />
-              <span className="text-sm">View Details</span>
-            </button>
-          )}
-          
-          <div className="video-overlay" />
         </div>
       )}
 
       {/* Middle Area - Removed duplicate play button, now handled in video overlay */}
 
-      {/* Nutrition Table for Food Scans */}
-      {showNutritionTable && video.nutritional_info && !hideUI && (
-        <div className="absolute bottom-96 left-0 right-0 mx-4 bg-background/95 backdrop-blur-sm rounded-lg shadow-xl z-40 max-h-[40vh] overflow-y-auto">
-          <div className="p-4">
-            <div className="flex items-center justify-between mb-3">
-              <h3 className="font-semibold">Ingredient Breakdown</h3>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setShowNutritionTable(false);
-                }}
-                className="h-8 w-8"
-              >
-                <X className="w-4 h-4" />
-              </Button>
-            </div>
-            <div className="border rounded-lg overflow-hidden">
-              <table className="w-full">
-                <thead className="bg-muted">
-                  <tr>
-                    <th className="text-left p-3 text-sm font-semibold">Ingredient</th>
-                    <th className="text-center p-3 text-sm font-semibold">Amount</th>
-                    <th className="text-center p-3 text-sm font-semibold">Calories</th>
-                    <th className="text-center p-3 text-sm font-semibold">Protein</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {video.nutritional_info.items?.map((item: any, index: number) => (
-                    <tr key={index} className="border-t">
-                      <td className="p-3 text-sm capitalize">{item.name}</td>
-                      <td className="p-3 text-sm text-center">{item.amount}</td>
-                      <td className="p-3 text-sm text-center font-semibold">{item.calories}</td>
-                      <td className="p-3 text-sm text-center">{item.protein}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Bottom Information */}
-      {!hideUI && (
+      {/* Bottom Information - Hide for AI scan posts */}
+      {!hideUI && !video.nutritional_info && (
         <div className="absolute bottom-20 left-0 right-0 px-4 pb-6 bg-gradient-to-t from-black/80 via-black/40 to-transparent z-30">
           <div className="flex items-end justify-between">
             {/* Left side - User info and caption */}
