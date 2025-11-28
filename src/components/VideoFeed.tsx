@@ -71,7 +71,14 @@ const VideoCard = ({ video, isActive, onLike, onSave, onComment, onShare, onReci
 
   const isPhoto = !isVideo;
 
-  const handleVideoClick = () => {
+  const handleVideoClick = (e: React.MouseEvent | React.TouchEvent) => {
+    e.stopPropagation();
+    
+    // Don't trigger click if it was a long press
+    if (hideUI) {
+      return;
+    }
+    
     console.log('Video clicked!', { isVideo, isPlaying, hasVideoRef: !!videoRef.current });
     
     if (videoRef.current && isVideo) {
@@ -79,30 +86,60 @@ const VideoCard = ({ video, isActive, onLike, onSave, onComment, onShare, onReci
         console.log('Pausing video');
         videoRef.current.pause();
         setIsPlaying(false);
-        // UI elements akan kembali aktif setelah pause
       } else {
         console.log('Playing video');
         videoRef.current.muted = false;
-        videoRef.current.play();
+        videoRef.current.play().catch(err => console.error('Play error:', err));
         setIsPlaying(true);
       }
     }
   };
 
-  const handleLongPressStart = (e: React.TouchEvent | React.MouseEvent) => {
-    e.preventDefault();
+  let isLongPress = false;
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    isLongPress = false;
     const timer = setTimeout(() => {
+      isLongPress = true;
       setHideUI(true);
-    }, 500); // 500ms for long press
+    }, 500);
     setLongPressTimer(timer);
   };
 
-  const handleLongPressEnd = () => {
+  const handleTouchEnd = (e: React.TouchEvent) => {
     if (longPressTimer) {
       clearTimeout(longPressTimer);
       setLongPressTimer(null);
     }
-    setHideUI(false);
+    
+    if (isLongPress) {
+      setHideUI(false);
+      e.preventDefault();
+      e.stopPropagation();
+    } else {
+      // Short tap - toggle play/pause
+      handleVideoClick(e);
+    }
+  };
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    isLongPress = false;
+    const timer = setTimeout(() => {
+      isLongPress = true;
+      setHideUI(true);
+    }, 500);
+    setLongPressTimer(timer);
+  };
+
+  const handleMouseUp = (e: React.MouseEvent) => {
+    if (longPressTimer) {
+      clearTimeout(longPressTimer);
+      setLongPressTimer(null);
+    }
+    
+    if (isLongPress) {
+      setHideUI(false);
+    }
   };
 
   useEffect(() => {
@@ -177,12 +214,17 @@ const VideoCard = ({ video, isActive, onLike, onSave, onComment, onShare, onReci
       {isVideo ? (
         <div 
           className="absolute inset-0 z-10" 
-          onClick={handleVideoClick}
-          onTouchStart={handleLongPressStart}
-          onTouchEnd={handleLongPressEnd}
-          onMouseDown={handleLongPressStart}
-          onMouseUp={handleLongPressEnd}
-          onMouseLeave={handleLongPressEnd}
+          onTouchStart={handleTouchStart}
+          onTouchEnd={handleTouchEnd}
+          onMouseDown={handleMouseDown}
+          onMouseUp={handleMouseUp}
+          onMouseLeave={() => {
+            if (longPressTimer) {
+              clearTimeout(longPressTimer);
+              setLongPressTimer(null);
+            }
+            setHideUI(false);
+          }}
         >
           <video
             ref={videoRef}
@@ -210,11 +252,17 @@ const VideoCard = ({ video, isActive, onLike, onSave, onComment, onShare, onReci
       ) : (
         <div 
           className="absolute inset-0 flex items-center justify-center bg-black z-10"
-          onTouchStart={handleLongPressStart}
-          onTouchEnd={handleLongPressEnd}
-          onMouseDown={handleLongPressStart}
-          onMouseUp={handleLongPressEnd}
-          onMouseLeave={handleLongPressEnd}
+          onTouchStart={handleTouchStart}
+          onTouchEnd={handleTouchEnd}
+          onMouseDown={handleMouseDown}
+          onMouseUp={handleMouseUp}
+          onMouseLeave={() => {
+            if (longPressTimer) {
+              clearTimeout(longPressTimer);
+              setLongPressTimer(null);
+            }
+            setHideUI(false);
+          }}
         >
           <img 
             src={video.thumbnail_url || video.video_url || 'https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=400'}
