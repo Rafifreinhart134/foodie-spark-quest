@@ -34,7 +34,8 @@ const VideoCard = ({ video, isActive, onLike, onSave, onComment, onShare, onReci
   const [showDetails, setShowDetails] = useState(false);
   const [showFullDescription, setShowFullDescription] = useState(false);
   const [hideUI, setHideUI] = useState(false);
-  const [longPressTimer, setLongPressTimer] = useState<NodeJS.Timeout | null>(null);
+  const longPressTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const isLongPressRef = useRef(false);
   const [showNutritionTable, setShowNutritionTable] = useState(false);
   const [volume, setVolume] = useState(1);
   const [showVolumeIndicator, setShowVolumeIndicator] = useState(false);
@@ -100,19 +101,17 @@ const VideoCard = ({ video, isActive, onLike, onSave, onComment, onShare, onReci
     }
   };
 
-  let isLongPress = false;
-
   const handleTouchStart = (e: React.TouchEvent) => {
-    isLongPress = false;
+    isLongPressRef.current = false;
     const touch = e.touches[0];
     setTouchStartY(touch.clientY);
     setTouchStartX(touch.clientX);
     
     const timer = setTimeout(() => {
-      isLongPress = true;
+      isLongPressRef.current = true;
       setHideUI(true);
     }, 500);
-    setLongPressTimer(timer);
+    longPressTimerRef.current = timer;
   };
 
   const handleTouchMove = (e: React.TouchEvent) => {
@@ -158,12 +157,12 @@ const VideoCard = ({ video, isActive, onLike, onSave, onComment, onShare, onReci
   };
 
   const handleTouchEnd = (e: React.TouchEvent) => {
-    if (longPressTimer) {
-      clearTimeout(longPressTimer);
-      setLongPressTimer(null);
+    if (longPressTimerRef.current) {
+      clearTimeout(longPressTimerRef.current);
+      longPressTimerRef.current = null;
     }
     
-    if (isLongPress) {
+    if (isLongPressRef.current) {
       setHideUI(false);
       e.preventDefault();
       e.stopPropagation();
@@ -178,23 +177,23 @@ const VideoCard = ({ video, isActive, onLike, onSave, onComment, onShare, onReci
     setTouchStartY(null);
     setTouchStartX(null);
   };
-
+  
   const handleMouseDown = (e: React.MouseEvent) => {
-    isLongPress = false;
+    isLongPressRef.current = false;
     const timer = setTimeout(() => {
-      isLongPress = true;
+      isLongPressRef.current = true;
       setHideUI(true);
     }, 500);
-    setLongPressTimer(timer);
+    longPressTimerRef.current = timer;
   };
 
   const handleMouseUp = (e: React.MouseEvent) => {
-    if (longPressTimer) {
-      clearTimeout(longPressTimer);
-      setLongPressTimer(null);
+    if (longPressTimerRef.current) {
+      clearTimeout(longPressTimerRef.current);
+      longPressTimerRef.current = null;
     }
     
-    if (isLongPress) {
+    if (isLongPressRef.current) {
       setHideUI(false);
     } else {
       // Single click - toggle play/pause
@@ -280,10 +279,11 @@ const VideoCard = ({ video, isActive, onLike, onSave, onComment, onShare, onReci
           onTouchEnd={handleTouchEnd}
           onMouseDown={handleMouseDown}
           onMouseUp={handleMouseUp}
+          onClick={handleVideoClick}
           onMouseLeave={() => {
-            if (longPressTimer) {
-              clearTimeout(longPressTimer);
-              setLongPressTimer(null);
+            if (longPressTimerRef.current) {
+              clearTimeout(longPressTimerRef.current);
+              longPressTimerRef.current = null;
             }
             setHideUI(false);
           }}
@@ -336,10 +336,11 @@ const VideoCard = ({ video, isActive, onLike, onSave, onComment, onShare, onReci
           onTouchEnd={handleTouchEnd}
           onMouseDown={handleMouseDown}
           onMouseUp={handleMouseUp}
+          onClick={handleVideoClick}
           onMouseLeave={() => {
-            if (longPressTimer) {
-              clearTimeout(longPressTimer);
-              setLongPressTimer(null);
+            if (longPressTimerRef.current) {
+              clearTimeout(longPressTimerRef.current);
+              longPressTimerRef.current = null;
             }
             setHideUI(false);
           }}
