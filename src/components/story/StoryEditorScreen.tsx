@@ -6,6 +6,7 @@ import { StoryStickerMenu } from './StoryStickerMenu';
 import { StoryDrawTool } from './StoryDrawTool';
 import { StoryFiltersMenu } from './StoryFiltersMenu';
 import { StorySettingsSheet } from './StorySettingsSheet';
+import { DraggableStoryElement } from './DraggableStoryElement';
 
 interface StoryEditorScreenProps {
   media: { url: string; type: 'photo' | 'video'; file?: File };
@@ -20,7 +21,7 @@ export const StoryEditorScreen = ({ media, onClose, onPost, onBack }: StoryEdito
   const [activeTool, setActiveTool] = useState<EditorTool>('none');
   const [textElements, setTextElements] = useState<any[]>([]);
   const [stickerElements, setStickerElements] = useState<any[]>([]);
-  const [drawingData, setDrawingData] = useState<any>(null);
+  const [drawingElements, setDrawingElements] = useState<any[]>([]);
   const [selectedFilter, setSelectedFilter] = useState<string | null>(null);
 
   const handleSave = () => {
@@ -36,7 +37,7 @@ export const StoryEditorScreen = ({ media, onClose, onPost, onBack }: StoryEdito
       media,
       textElements,
       stickerElements,
-      drawingData,
+      drawingElements,
       filter: selectedFilter,
       settings
     });
@@ -65,33 +66,74 @@ export const StoryEditorScreen = ({ media, onClose, onPost, onBack }: StoryEdito
 
         {/* Text Elements Layer */}
         {textElements.map((text, idx) => (
-          <div
+          <DraggableStoryElement
             key={idx}
-            className="absolute"
-            style={{
-              left: text.x,
-              top: text.y,
-              transform: `rotate(${text.rotation}deg) scale(${text.scale})`,
-              ...text.style
+            initialX={text.x}
+            initialY={text.y}
+            initialRotation={text.rotation}
+            initialScale={text.scale}
+            style={text.style}
+            onUpdate={(data) => {
+              const updated = [...textElements];
+              updated[idx] = { ...text, ...data };
+              setTextElements(updated);
+            }}
+            onDelete={() => {
+              setTextElements(textElements.filter((_, i) => i !== idx));
             }}
           >
-            {text.content}
-          </div>
+            <div className="px-4 py-2 text-2xl font-bold">
+              {text.content}
+            </div>
+          </DraggableStoryElement>
         ))}
 
         {/* Sticker Elements Layer */}
         {stickerElements.map((sticker, idx) => (
-          <div
+          <DraggableStoryElement
             key={idx}
-            className="absolute"
-            style={{
-              left: sticker.x,
-              top: sticker.y,
-              transform: `rotate(${sticker.rotation}deg) scale(${sticker.scale})`,
+            initialX={sticker.x}
+            initialY={sticker.y}
+            initialRotation={sticker.rotation}
+            initialScale={sticker.scale}
+            onUpdate={(data) => {
+              const updated = [...stickerElements];
+              updated[idx] = { ...sticker, ...data };
+              setStickerElements(updated);
+            }}
+            onDelete={() => {
+              setStickerElements(stickerElements.filter((_, i) => i !== idx));
             }}
           >
-            {sticker.content}
-          </div>
+            <div className="text-4xl">
+              {sticker.content}
+            </div>
+          </DraggableStoryElement>
+        ))}
+
+        {/* Drawing Elements Layer */}
+        {drawingElements.map((drawing, idx) => (
+          <DraggableStoryElement
+            key={idx}
+            initialX={drawing.x || 0}
+            initialY={drawing.y || 0}
+            initialRotation={drawing.rotation || 0}
+            initialScale={drawing.scale || 1}
+            onUpdate={(data) => {
+              const updated = [...drawingElements];
+              updated[idx] = { ...drawing, ...data };
+              setDrawingElements(updated);
+            }}
+            onDelete={() => {
+              setDrawingElements(drawingElements.filter((_, i) => i !== idx));
+            }}
+          >
+            <img 
+              src={drawing.dataURL} 
+              alt="drawing" 
+              className="pointer-events-none max-w-full"
+            />
+          </DraggableStoryElement>
         ))}
       </div>
 
@@ -209,7 +251,13 @@ export const StoryEditorScreen = ({ media, onClose, onPost, onBack }: StoryEdito
         <StoryDrawTool
           onClose={() => setActiveTool('none')}
           onSave={(drawing) => {
-            setDrawingData(drawing);
+            setDrawingElements([...drawingElements, { 
+              ...drawing, 
+              x: 50, 
+              y: 100,
+              rotation: 0,
+              scale: 1
+            }]);
             setActiveTool('none');
           }}
         />

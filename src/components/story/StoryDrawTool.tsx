@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { X, Undo, Redo } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
@@ -9,9 +9,13 @@ interface StoryDrawToolProps {
 }
 
 export const StoryDrawTool = ({ onClose, onSave }: StoryDrawToolProps) => {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
   const [brushSize, setBrushSize] = useState(5);
   const [brushColor, setBrushColor] = useState('#FF0000');
   const [brushType, setBrushType] = useState<'marker' | 'brush' | 'neon' | 'eraser'>('marker');
+  const [isDrawing, setIsDrawing] = useState(false);
+  const [history, setHistory] = useState<ImageData[]>([]);
+  const [historyStep, setHistoryStep] = useState(-1);
 
   const colors = [
     '#FF0000', '#00FF00', '#0000FF', '#FFFF00',
@@ -24,6 +28,129 @@ export const StoryDrawTool = ({ onClose, onSave }: StoryDrawToolProps) => {
     { id: 'neon', label: 'Neon' },
     { id: 'eraser', label: 'Eraser' },
   ];
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    
+    const ctx = canvas.getContext('2d');
+    if (ctx) {
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+    }
+  }, []);
+
+  const saveToHistory = () => {
+    const canvas = canvasRef.current;
+    const ctx = canvas?.getContext('2d');
+    if (!ctx || !canvas) return;
+
+    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    const newHistory = history.slice(0, historyStep + 1);
+    newHistory.push(imageData);
+    setHistory(newHistory);
+    setHistoryStep(newHistory.length - 1);
+  };
+
+  const startDrawing = (e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
+    const canvas = canvasRef.current;
+    const ctx = canvas?.getContext('2d');
+    if (!ctx || !canvas) return;
+
+    setIsDrawing(true);
+    const rect = canvas.getBoundingClientRect();
+    let x, y;
+
+    if ('touches' in e) {
+      x = e.touches[0].clientX - rect.left;
+      y = e.touches[0].clientY - rect.top;
+    } else {
+      x = e.clientX - rect.left;
+      y = e.clientY - rect.top;
+    }
+
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+  };
+
+  const draw = (e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
+    if (!isDrawing) return;
+    const canvas = canvasRef.current;
+    const ctx = canvas?.getContext('2d');
+    if (!ctx || !canvas) return;
+
+    const rect = canvas.getBoundingClientRect();
+    let x, y;
+
+    if ('touches' in e) {
+      x = e.touches[0].clientX - rect.left;
+      y = e.touches[0].clientY - rect.top;
+    } else {
+      x = e.clientX - rect.left;
+      y = e.clientY - rect.top;
+    }
+
+    // Set brush properties
+    ctx.lineWidth = brushSize;
+    ctx.globalCompositeOperation = brushType === 'eraser' ? 'destination-out' : 'source-over';
+    
+    if (brushType === 'neon') {
+      ctx.strokeStyle = brushColor;
+      ctx.shadowBlur = 15;
+      ctx.shadowColor = brushColor;
+    } else {
+      ctx.strokeStyle = brushColor;
+      ctx.shadowBlur = 0;
+    }
+
+    ctx.lineTo(x, y);
+    ctx.stroke();
+  };
+
+  const stopDrawing = () => {
+    if (isDrawing) {
+      setIsDrawing(false);
+      saveToHistory();
+    }
+  };
+
+  const handleUndo = () => {
+    if (historyStep > 0) {
+      const canvas = canvasRef.current;
+      const ctx = canvas?.getContext('2d');
+      if (!ctx || !canvas) return;
+
+      setHistoryStep(historyStep - 1);
+      ctx.putImageData(history[historyStep - 1], 0, 0);
+    }
+  };
+
+  const handleRedo = () => {
+    if (historyStep < history.length - 1) {
+      const canvas = canvasRef.current;
+      const ctx = canvas?.getContext('2d');
+      if (!ctx || !canvas) return;
+
+      setHistoryStep(historyStep + 1);
+      ctx.putImageData(history[historyStep + 1], 0, 0);
+    }
+  };
+
+  const handleDone = () => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    
+    const dataURL = canvas.toDataURL('image/png');
+    onSave({ 
+      dataURL, 
+      brushType, 
+      brushSize, 
+      brushColor 
+    });
+  };
 
   return (
     <div className="absolute inset-0 z-[100] bg-black/50">
@@ -42,6 +169,8 @@ export const StoryDrawTool = ({ onClose, onSave }: StoryDrawToolProps) => {
             size="icon"
             variant="ghost"
             className="text-white"
+            onClick={handleUndo}
+            disabled={historyStep <= 0}
           >
             <Undo className="w-5 h-5" />
           </Button>
@@ -49,13 +178,15 @@ export const StoryDrawTool = ({ onClose, onSave }: StoryDrawToolProps) => {
             size="icon"
             variant="ghost"
             className="text-white"
+            onClick={handleRedo}
+            disabled={historyStep >= history.length - 1}
           >
             <Redo className="w-5 h-5" />
           </Button>
           <Button
             variant="ghost"
             className="text-white font-semibold"
-            onClick={() => onSave({ brushType, brushSize, brushColor })}
+            onClick={handleDone}
           >
             Done
           </Button>
@@ -64,9 +195,17 @@ export const StoryDrawTool = ({ onClose, onSave }: StoryDrawToolProps) => {
 
       {/* Drawing Canvas Area */}
       <div className="absolute inset-0 top-16 bottom-32">
-        <div className="w-full h-full flex items-center justify-center">
-          <p className="text-white/50">Draw here with your finger</p>
-        </div>
+        <canvas
+          ref={canvasRef}
+          className="w-full h-full touch-none"
+          onMouseDown={startDrawing}
+          onMouseMove={draw}
+          onMouseUp={stopDrawing}
+          onMouseLeave={stopDrawing}
+          onTouchStart={startDrawing}
+          onTouchMove={draw}
+          onTouchEnd={stopDrawing}
+        />
       </div>
 
       {/* Bottom Controls */}
