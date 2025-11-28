@@ -94,7 +94,7 @@ export const AIFloatingButton = () => {
             {isExpanded ? (
               <X className="w-7 h-7 text-white" />
             ) : (
-              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <svg width="36" height="36" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <rect x="7" y="8" width="10" height="10" rx="2" stroke="white" strokeWidth="2" fill="none"/>
                 <circle cx="10" cy="12" r="1" fill="white"/>
                 <circle cx="14" cy="12" r="1" fill="white"/>
