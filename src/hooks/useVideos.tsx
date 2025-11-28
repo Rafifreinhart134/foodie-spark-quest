@@ -26,6 +26,7 @@ export interface Video {
   };
   user_liked?: boolean;
   user_saved?: boolean;
+  nutritional_info?: any;
 }
 
 export const useVideos = (feedType: 'inspirasi' | 'mengikuti' = 'inspirasi') => {
@@ -102,7 +103,8 @@ export const useVideos = (feedType: 'inspirasi' | 'mengikuti' = 'inspirasi') => 
           comment_count,
           is_public,
           created_at,
-          updated_at
+          updated_at,
+          nutritional_info
         `)
         .eq('is_public', true);
 

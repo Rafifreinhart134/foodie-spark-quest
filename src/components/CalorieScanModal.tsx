@@ -183,7 +183,11 @@ export const CalorieScanModal = ({ isOpen, onClose }: CalorieScanModalProps) => 
         thumbnail_url: publicUrl,
         category: 'tips' as const,
         tags: ['kalori', 'nutrisi', 'scan'],
-        is_public: true
+        is_public: true,
+        nutritional_info: {
+          totalCalories: scanResult.totalCalories,
+          items: scanResult.items
+        } as any
       };
       
       console.log('Inserting video:', videoData);
