@@ -398,6 +398,7 @@ export type Database = {
           is_public: boolean | null
           like_count: number | null
           location: string | null
+          nutritional_info: Json | null
           tags: string[] | null
           thumbnail_url: string | null
           title: string
@@ -416,6 +417,7 @@ export type Database = {
           is_public?: boolean | null
           like_count?: number | null
           location?: string | null
+          nutritional_info?: Json | null
           tags?: string[] | null
           thumbnail_url?: string | null
           title: string
@@ -434,6 +436,7 @@ export type Database = {
           is_public?: boolean | null
           like_count?: number | null
           location?: string | null
+          nutritional_info?: Json | null
           tags?: string[] | null
           thumbnail_url?: string | null
           title?: string

@@ -4,6 +4,18 @@ import { Heart, MessageCircle, Share, X, ChevronLeft, ChevronRight, Bookmark, Pl
 import { useState, useRef, useEffect } from 'react';
 import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
 
+interface FoodItem {
+  name: string;
+  amount: string;
+  calories: number;
+  protein: number;
+}
+
+interface NutritionalInfo {
+  totalCalories: number;
+  items: FoodItem[];
+}
+
 interface ContentDetailModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -17,6 +29,7 @@ interface ContentDetailModalProps {
     comment_count: number;
     user_liked?: boolean;
     user_saved?: boolean;
+    nutritional_info?: NutritionalInfo;
   };
   onLike?: () => void;
   onSave?: () => void;
@@ -223,7 +236,7 @@ const ContentDetailModal = ({
           </div>
 
           {/* Content Info - 30% of height - Fully interactive bottom area */}
-          <div className="bg-background border-t-2 border-border relative z-20 pointer-events-auto" style={{ height: '30%' }}>
+          <div className="bg-background border-t-2 border-border relative z-20 pointer-events-auto overflow-y-auto" style={{ height: '30%' }}>
             {/* Title and Description Area */}
             <div className="p-4 pb-2">
               <h3 className="font-semibold text-lg mb-1 line-clamp-1">{content.title}</h3>
@@ -247,6 +260,40 @@ const ContentDetailModal = ({
                 </div>
               )}
             </div>
+
+            {/* Nutritional Info Table for Food Scans */}
+            {content.nutritional_info && (
+              <div className="px-4 pb-4">
+                <h4 className="font-semibold text-sm mb-2">Rincian Nutrisi</h4>
+                <div className="border rounded-lg overflow-hidden">
+                  <table className="w-full text-sm">
+                    <thead className="bg-muted">
+                      <tr>
+                        <th className="text-left p-2 font-semibold">Item</th>
+                        <th className="text-center p-2 font-semibold">Jumlah</th>
+                        <th className="text-center p-2 font-semibold">Kalori</th>
+                        <th className="text-center p-2 font-semibold">Protein</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {content.nutritional_info.items.map((item, index) => (
+                        <tr key={index} className="border-t">
+                          <td className="p-2 capitalize">{item.name}</td>
+                          <td className="p-2 text-center text-xs">{item.amount}</td>
+                          <td className="p-2 text-center font-semibold">{item.calories}</td>
+                          <td className="p-2 text-center">{item.protein}g</td>
+                        </tr>
+                      ))}
+                      <tr className="border-t bg-muted/50 font-semibold">
+                        <td colSpan={2} className="p-2">Total</td>
+                        <td className="p-2 text-center">{content.nutritional_info.totalCalories}</td>
+                        <td className="p-2 text-center">{content.nutritional_info.items.reduce((sum, item) => sum + item.protein, 0)}g</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
             
             {/* Interactive Buttons Area - Dedicated clickable zone */}
             <div className="px-4 py-2 pointer-events-auto">
