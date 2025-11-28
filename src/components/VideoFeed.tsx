@@ -549,13 +549,13 @@ const VideoCard = ({ video, isActive, onLike, onSave, onComment, onShare, onReci
                 <span className="text-xs text-white font-medium font-poppins">{video.comment_count || 0}</span>
               </div>
 
-              {/* Recipe Button - Circular with Green Background */}
+              {/* Recipe Button - Square with Fillet and Green Background */}
               <div className="flex flex-col items-center">
                 <Button
                   variant="ghost"
                   size="icon"
                   onClick={() => onRecipe(video)}
-                  className="w-14 h-14 rounded-full bg-primary text-white hover:scale-110 hover:bg-primary/90 shadow-elevated transition-fast active:scale-95"
+                  className="w-14 h-14 rounded-xl bg-primary text-white hover:scale-110 hover:bg-primary/90 shadow-elevated transition-fast active:scale-95"
                 >
                   <Utensils className="w-7 h-7" />
                 </Button>
