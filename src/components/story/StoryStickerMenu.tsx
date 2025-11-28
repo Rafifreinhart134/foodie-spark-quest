@@ -1,98 +1,132 @@
 import { useState } from 'react';
-import { X, Search, MapPin, AtSign, Hash, Music, BarChart, HelpCircle, Clock, Timer } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { MapPin, AtSign, Hash, BarChart3, MessageCircle, Clock, Image } from 'lucide-react';
 import { Input } from '@/components/ui/input';
-import { ScrollArea } from '@/components/ui/scroll-area';
+import { LocationSticker } from './stickers/LocationSticker';
+import { MentionSticker } from './stickers/MentionSticker';
+import { HashtagSticker } from './stickers/HashtagSticker';
+import { PollSticker } from './stickers/PollSticker';
+import { QuestionSticker } from './stickers/QuestionSticker';
+import { TimeSticker } from './stickers/TimeSticker';
+import { GifSticker } from './stickers/GifSticker';
 
 interface StoryStickerMenuProps {
   onClose: () => void;
   onAdd: (sticker: any) => void;
 }
 
+type StickerType = 'none' | 'location' | 'mention' | 'hashtag' | 'poll' | 'question' | 'time' | 'gif';
+
 export const StoryStickerMenu = ({ onClose, onAdd }: StoryStickerMenuProps) => {
-  const [searchQuery, setSearchQuery] = useState('');
+  const [search, setSearch] = useState('');
+  const [activeSticker, setActiveSticker] = useState<StickerType>('none');
 
   const stickerCategories = [
-    { icon: MapPin, label: 'Location', color: 'bg-blue-500' },
-    { icon: AtSign, label: 'Mention', color: 'bg-purple-500' },
-    { icon: Hash, label: 'Hashtag', color: 'bg-pink-500' },
-    { icon: Music, label: 'Music', color: 'bg-green-500' },
-    { icon: BarChart, label: 'Poll', color: 'bg-orange-500' },
-    { icon: HelpCircle, label: 'Question', color: 'bg-red-500' },
-    { icon: Timer, label: 'Countdown', color: 'bg-yellow-500' },
-    { icon: Clock, label: 'Time', color: 'bg-indigo-500' },
+    { id: 'location' as StickerType, label: 'Location', icon: MapPin },
+    { id: 'mention' as StickerType, label: 'Mention', icon: AtSign },
+    { id: 'hashtag' as StickerType, label: 'Hashtag', icon: Hash },
+    { id: 'poll' as StickerType, label: 'Poll', icon: BarChart3 },
+    { id: 'question' as StickerType, label: 'Question', icon: MessageCircle },
+    { id: 'time' as StickerType, label: 'Time', icon: Clock },
+    { id: 'gif' as StickerType, label: 'GIF', icon: Image },
   ];
 
-  const handleStickerClick = (sticker: any) => {
+  const handleStickerAdd = (content: any, type: StickerType) => {
     onAdd({
-      content: sticker.label,
-      icon: sticker.icon,
-      x: window.innerWidth / 2,
-      y: window.innerHeight / 2,
+      type,
+      content,
+      x: window.innerWidth / 2 - 100,
+      y: window.innerHeight / 3,
       rotation: 0,
       scale: 1
     });
   };
 
+  if (activeSticker === 'location') {
+    return (
+      <LocationSticker
+        onAdd={(location) => handleStickerAdd(location, 'location')}
+        onClose={() => setActiveSticker('none')}
+      />
+    );
+  }
+
+  if (activeSticker === 'mention') {
+    return (
+      <MentionSticker
+        onAdd={(mention) => handleStickerAdd(mention, 'mention')}
+        onClose={() => setActiveSticker('none')}
+      />
+    );
+  }
+
+  if (activeSticker === 'hashtag') {
+    return (
+      <HashtagSticker
+        onAdd={(hashtag) => handleStickerAdd(hashtag, 'hashtag')}
+        onClose={() => setActiveSticker('none')}
+      />
+    );
+  }
+
+  if (activeSticker === 'poll') {
+    return (
+      <PollSticker
+        onAdd={(poll) => handleStickerAdd(poll, 'poll')}
+        onClose={() => setActiveSticker('none')}
+      />
+    );
+  }
+
+  if (activeSticker === 'question') {
+    return (
+      <QuestionSticker
+        onAdd={(question) => handleStickerAdd(question, 'question')}
+        onClose={() => setActiveSticker('none')}
+      />
+    );
+  }
+
+  if (activeSticker === 'time') {
+    return (
+      <TimeSticker
+        onAdd={(time) => handleStickerAdd(time, 'time')}
+        onClose={() => setActiveSticker('none')}
+      />
+    );
+  }
+
+  if (activeSticker === 'gif') {
+    return (
+      <GifSticker
+        onAdd={(gif) => handleStickerAdd(gif, 'gif')}
+        onClose={() => setActiveSticker('none')}
+      />
+    );
+  }
+
   return (
-    <div className="absolute inset-x-0 bottom-0 z-[100] bg-background rounded-t-3xl max-h-[80vh]">
-      {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b border-border">
-        <h3 className="font-semibold text-lg">Stickers</h3>
-        <Button
-          size="icon"
-          variant="ghost"
-          onClick={onClose}
-        >
-          <X className="w-5 h-5" />
-        </Button>
+    <div className="absolute bottom-0 left-0 right-0 z-[100] bg-background rounded-t-3xl p-6 space-y-4 max-h-[80vh] overflow-y-auto">
+      <div className="relative">
+        <Input
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="Search stickers..."
+          className="w-full"
+        />
       </div>
 
-      {/* Search */}
-      <div className="p-4">
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-          <Input
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search stickers..."
-            className="pl-10"
-          />
-        </div>
+      <div className="grid grid-cols-4 gap-3">
+        {stickerCategories.map((category) => (
+          <button
+            key={category.id}
+            onClick={() => setActiveSticker(category.id)}
+            className="flex flex-col items-center gap-2 p-4 rounded-2xl bg-accent hover:bg-accent/80 transition-colors"
+          >
+            <category.icon className="w-8 h-8" />
+            <span className="text-xs font-medium">{category.label}</span>
+          </button>
+        ))}
       </div>
-
-      {/* Sticker Grid */}
-      <ScrollArea className="h-[50vh] px-4">
-        <div className="grid grid-cols-3 gap-3 pb-4">
-          {stickerCategories.map((sticker) => (
-            <button
-              key={sticker.label}
-              onClick={() => handleStickerClick(sticker)}
-              className="flex flex-col items-center gap-2 p-4 rounded-2xl bg-card hover:bg-accent transition-colors"
-            >
-              <div className={`w-16 h-16 rounded-full ${sticker.color} flex items-center justify-center`}>
-                <sticker.icon className="w-8 h-8 text-white" />
-              </div>
-              <span className="text-xs font-medium text-center">{sticker.label}</span>
-            </button>
-          ))}
-        </div>
-
-        {/* GIF Section */}
-        <div className="mt-4 mb-6">
-          <h4 className="font-semibold mb-3">Trending GIFs</h4>
-          <div className="grid grid-cols-2 gap-2">
-            {[1, 2, 3, 4].map((i) => (
-              <div
-                key={i}
-                className="aspect-square rounded-lg bg-muted flex items-center justify-center text-muted-foreground text-sm"
-              >
-                GIF {i}
-              </div>
-            ))}
-          </div>
-        </div>
-      </ScrollArea>
     </div>
   );
 };

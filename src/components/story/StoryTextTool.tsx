@@ -6,14 +6,23 @@ import { Input } from '@/components/ui/input';
 interface StoryTextToolProps {
   onClose: () => void;
   onAdd: (text: any) => void;
+  initialText?: {
+    content: string;
+    style: any;
+  };
+  isEditing?: boolean;
 }
 
-export const StoryTextTool = ({ onClose, onAdd }: StoryTextToolProps) => {
-  const [text, setText] = useState('');
-  const [style, setStyle] = useState('classic');
-  const [color, setColor] = useState('#FFFFFF');
-  const [alignment, setAlignment] = useState<'left' | 'center' | 'right'>('center');
-  const [hasBackground, setHasBackground] = useState(false);
+export const StoryTextTool = ({ onClose, onAdd, initialText, isEditing }: StoryTextToolProps) => {
+  const [text, setText] = useState(initialText?.content || '');
+  const [style, setStyle] = useState(initialText?.style?.fontFamily?.replace('font-', '') || 'classic');
+  const [color, setColor] = useState(initialText?.style?.color || '#FFFFFF');
+  const [alignment, setAlignment] = useState<'left' | 'center' | 'right'>(
+    (initialText?.style?.textAlign as any) || 'center'
+  );
+  const [hasBackground, setHasBackground] = useState(
+    initialText?.style?.backgroundColor !== 'transparent'
+  );
 
   const styles = [
     { id: 'classic', label: 'Classic', font: 'font-sans' },

@@ -10,7 +10,9 @@ interface DraggableStoryElementProps {
   initialScale?: number;
   onUpdate?: (data: { x: number; y: number; rotation: number; scale: number }) => void;
   onDelete?: () => void;
+  onEdit?: () => void;
   style?: React.CSSProperties;
+  editable?: boolean;
 }
 
 export const DraggableStoryElement = ({
@@ -21,7 +23,9 @@ export const DraggableStoryElement = ({
   initialScale = 1,
   onUpdate,
   onDelete,
-  style
+  onEdit,
+  style,
+  editable = false
 }: DraggableStoryElementProps) => {
   const elementRef = useRef<HTMLDivElement>(null);
   const [position, setPosition] = useState({ x: initialX, y: initialY });
@@ -31,6 +35,7 @@ export const DraggableStoryElement = ({
   const [isSelected, setIsSelected] = useState(false);
   const dragStart = useRef({ x: 0, y: 0, elementX: 0, elementY: 0 });
   const touchStart = useRef({ distance: 0, angle: 0 });
+  const lastTap = useRef(0);
 
   useEffect(() => {
     onUpdate?.({ x: position.x, y: position.y, rotation, scale });
@@ -52,6 +57,16 @@ export const DraggableStoryElement = ({
   const handleTouchStart = (e: React.TouchEvent) => {
     if ((e.target as HTMLElement).closest('.delete-btn')) return;
     setIsSelected(true);
+    
+    // Double tap detection for edit
+    if (editable && onEdit && e.touches.length === 1) {
+      const now = Date.now();
+      if (now - lastTap.current < 300) {
+        onEdit();
+        return;
+      }
+      lastTap.current = now;
+    }
     
     if (e.touches.length === 1) {
       setIsDragging(true);
