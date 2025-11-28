@@ -8,7 +8,11 @@ import StoryBar from './StoryBar';
 import { StoryCreationFlow } from './story/StoryCreationFlow';
 import { StoryViewerModal } from './StoryViewerModal';
 
-const SavedPage = () => {
+interface SavedPageProps {
+  onStoryOpenChange?: (isOpen: boolean) => void;
+}
+
+const SavedPage = ({ onStoryOpenChange }: SavedPageProps) => {
   const navigate = useNavigate();
   const { savedVideos, loading } = useSavedVideos();
   const { stories, loading: storiesLoading, markStoryAsViewed, deleteStory } = useStories();
@@ -16,6 +20,17 @@ const SavedPage = () => {
   const [isViewerModalOpen, setIsViewerModalOpen] = useState(false);
   const [selectedStoryIndex, setSelectedStoryIndex] = useState(0);
   const [selectedUserId, setSelectedUserId] = useState<string>('');
+
+  // Notify parent when story modal state changes
+  const handleStoryModalChange = (isOpen: boolean) => {
+    setIsCreateModalOpen(isOpen);
+    onStoryOpenChange?.(isOpen);
+  };
+
+  const handleViewerModalChange = (isOpen: boolean) => {
+    setIsViewerModalOpen(isOpen);
+    onStoryOpenChange?.(isOpen);
+  };
 
   if (loading) {
     return (
@@ -35,11 +50,11 @@ const SavedPage = () => {
       {/* Story Bar */}
       <StoryBar 
         stories={stories}
-        onAddStory={() => setIsCreateModalOpen(true)}
+        onAddStory={() => handleStoryModalChange(true)}
         onStoryClick={(storyIndex, userId) => {
           setSelectedStoryIndex(storyIndex);
           setSelectedUserId(userId);
-          setIsViewerModalOpen(true);
+          handleViewerModalChange(true);
         }}
       />
       
@@ -104,16 +119,13 @@ const SavedPage = () => {
       {/* Modals */}
       <StoryCreationFlow 
         isOpen={isCreateModalOpen}
-        onClose={() => setIsCreateModalOpen(false)}
+        onClose={() => handleStoryModalChange(false)}
       />
       
       {userStories.length > 0 && (
         <StoryViewerModal
           isOpen={isViewerModalOpen}
-          onClose={() => {
-            setIsViewerModalOpen(false);
-            setSelectedUserId('');
-          }}
+          onClose={() => handleViewerModalChange(false)}
           stories={userStories}
           initialStoryIndex={0}
           onMarkAsViewed={markStoryAsViewed}
