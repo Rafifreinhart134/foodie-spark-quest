@@ -503,9 +503,9 @@ const VideoCard = ({ video, isActive, onLike, onSave, onComment, onShare, onReci
                 className="relative cursor-pointer"
                 onClick={handleUserClick}
               >
-                <Avatar className="w-12 h-12 border-2 border-white">
-                  <AvatarImage src={video.profiles?.avatar_url || ''} alt={video.profiles?.display_name || 'User'} />
-                  <AvatarFallback className="bg-primary text-white font-bold">
+                <Avatar className="w-12 h-12 border-2 border-white rounded-xl">
+                  <AvatarImage src={video.profiles?.avatar_url || ''} alt={video.profiles?.display_name || 'User'} className="rounded-xl" />
+                  <AvatarFallback className="bg-primary text-white font-bold rounded-xl">
                     {(video.profiles?.display_name || 'U')[0].toUpperCase()}
                   </AvatarFallback>
                 </Avatar>
