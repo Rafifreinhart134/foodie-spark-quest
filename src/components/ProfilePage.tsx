@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Settings, LogOut, Heart, Play, Grid3X3, Edit, Repeat2, Tag, List } from 'lucide-react';
+import { Settings, LogOut, Heart, Play, Grid3X3, Edit, Repeat2, Tag, List, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
@@ -9,6 +9,8 @@ import ProfileEditModal from './ProfileEditModal';
 import ContentDetailModal from './ContentDetailModal';
 import { CommentsModal } from './CommentsModal';
 import { ShareModal } from './ShareModal';
+import FollowersModal from './FollowersModal';
+import PlaylistModal from './PlaylistModal';
 import { useNavigate } from 'react-router-dom';
 import { useStories } from '@/hooks/useStories';
 import StoryBar from './StoryBar';
@@ -25,7 +27,7 @@ const ProfilePage = ({ onNavigateToSettings }: ProfilePageProps) => {
   const navigate = useNavigate();
   const { stories, loading: storiesLoading, markStoryAsViewed, deleteStory, archiveStory, unarchiveStory } = useStories();
   
-  const [activeTab, setActiveTab] = useState<'content' | 'repost' | 'tag'>('content');
+  const [activeTab, setActiveTab] = useState<'content' | 'repost' | 'tag' | 'playlist'>('content');
   const [profile, setProfile] = useState<any>(null);
   const [userVideos, setUserVideos] = useState<any[]>([]);
   const [userReposts, setUserReposts] = useState<any[]>([]);
@@ -47,6 +49,9 @@ const ProfilePage = ({ onNavigateToSettings }: ProfilePageProps) => {
   const [showShareModal, setShowShareModal] = useState(false);
   const [selectedVideoId, setSelectedVideoId] = useState<string>('');
   const [selectedVideoTitle, setSelectedVideoTitle] = useState<string>('');
+  const [showFollowersModal, setShowFollowersModal] = useState(false);
+  const [followersType, setFollowersType] = useState<'followers' | 'following'>('followers');
+  const [showPlaylistModal, setShowPlaylistModal] = useState(false);
 
   // Get current content array based on active tab
   const getCurrentContentArray = () => {
@@ -416,11 +421,23 @@ const ProfilePage = ({ onNavigateToSettings }: ProfilePageProps) => {
               
               {/* Stats - sejajar horizontal */}
               <div className="flex items-center gap-4">
-                <div className="text-center">
+                <div 
+                  className="text-center cursor-pointer hover:opacity-70 transition-opacity"
+                  onClick={() => {
+                    setFollowersType('followers');
+                    setShowFollowersModal(true);
+                  }}
+                >
                   <p className="font-bold text-sm">{formatNumber(profile?.follower_count || 0)}</p>
                   <p className="text-muted-foreground text-[10px]">Followers</p>
                 </div>
-                <div className="text-center">
+                <div 
+                  className="text-center cursor-pointer hover:opacity-70 transition-opacity"
+                  onClick={() => {
+                    setFollowersType('following');
+                    setShowFollowersModal(true);
+                  }}
+                >
                   <p className="font-bold text-sm">{profile?.following_count || 0}</p>
                   <p className="text-muted-foreground text-[10px]">Following</p>
                 </div>
@@ -465,8 +482,7 @@ const ProfilePage = ({ onNavigateToSettings }: ProfilePageProps) => {
             }`}
             onClick={() => setActiveTab('content')}
           >
-            <Grid3X3 className="w-5 h-5 mx-auto mb-0.5" />
-            <span className="text-[10px]">Post</span>
+            <Grid3X3 className="w-5 h-5 mx-auto" />
           </button>
 
           <button 
@@ -477,8 +493,7 @@ const ProfilePage = ({ onNavigateToSettings }: ProfilePageProps) => {
             }`}
             onClick={() => setActiveTab('repost')}
           >
-            <Repeat2 className="w-5 h-5 mx-auto mb-0.5" />
-            <span className="text-[10px]">Repost</span>
+            <Repeat2 className="w-5 h-5 mx-auto" />
           </button>
           
           <button 
@@ -489,8 +504,18 @@ const ProfilePage = ({ onNavigateToSettings }: ProfilePageProps) => {
             }`}
             onClick={() => setActiveTab('tag')}
           >
-            <Tag className="w-5 h-5 mx-auto mb-0.5" />
-            <span className="text-[10px]">Tag</span>
+            <Tag className="w-5 h-5 mx-auto" />
+          </button>
+
+          <button 
+            className={`flex-1 py-3 text-center font-medium border-b-2 transition-all ${
+              activeTab === 'playlist' 
+                ? 'border-primary text-primary' 
+                : 'border-transparent text-muted-foreground hover:text-foreground'
+            }`}
+            onClick={() => setActiveTab('playlist')}
+          >
+            <List className="w-5 h-5 mx-auto" />
           </button>
         </div>
       </div>
@@ -717,74 +742,79 @@ const ProfilePage = ({ onNavigateToSettings }: ProfilePageProps) => {
             )}
           </div>
         </div>
-      ) : null}
+      ) : activeTab === 'playlist' ? (
+        <div className="p-4">
+          <div className="mb-4">
+            <Button 
+              onClick={() => setShowPlaylistModal(true)}
+              className="w-full"
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              Create New Playlist
+            </Button>
+          </div>
 
-      {/* Playlists Section */}
-      <div className="mt-6 px-4">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-bold flex items-center gap-2">
-            <List className="w-5 h-5" />
-            Playlists
-          </h2>
-        </div>
-
-        {playlists.length > 0 ? (
-          <div className="space-y-4">
-            {playlists.map((playlist) => (
-              <div key={playlist.id} className="border rounded-lg overflow-hidden">
-                <div className="p-3 bg-muted/30">
-                  <h3 className="font-semibold">{playlist.name}</h3>
-                  {playlist.description && (
-                    <p className="text-sm text-muted-foreground mt-1">{playlist.description}</p>
-                  )}
-                  <p className="text-xs text-muted-foreground mt-1">
-                    {playlist.playlist_videos?.length || 0} videos
-                  </p>
-                </div>
-                
-                {playlist.playlist_videos && playlist.playlist_videos.length > 0 && (
-                  <div className="flex overflow-x-auto gap-2 p-2 bg-background">
-                    {playlist.playlist_videos.slice(0, 5).map((pv: any) => {
-                      const video = pv.videos;
-                      if (!video) return null;
-                      
-                      return (
-                        <div
-                          key={pv.video_id}
-                          className="flex-shrink-0 w-24 cursor-pointer"
-                          onClick={() => {
-                            setSelectedContent(video);
-                            setIsContentModalOpen(true);
-                          }}
-                        >
-                          <div className="relative aspect-[3/4] bg-muted rounded-lg overflow-hidden">
-                            <img
-                              src={video.thumbnail_url || video.video_url || '/placeholder.svg'}
-                              alt={video.title}
-                              className="w-full h-full object-cover"
-                            />
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end p-1">
-                              <span className="text-white text-[10px] flex items-center gap-0.5">
-                                <Heart className="w-2.5 h-2.5" fill="white" />
-                                {formatNumber(video.like_count || 0)}
-                              </span>
+          {playlists.length > 0 ? (
+            <div className="space-y-4">
+              {playlists.map((playlist) => (
+                <div key={playlist.id} className="border rounded-lg overflow-hidden">
+                  <div className="p-3 bg-muted/30">
+                    <h3 className="font-semibold">{playlist.name}</h3>
+                    {playlist.description && (
+                      <p className="text-sm text-muted-foreground mt-1">{playlist.description}</p>
+                    )}
+                    <p className="text-xs text-muted-foreground mt-1">
+                      {playlist.playlist_videos?.length || 0} videos
+                    </p>
+                  </div>
+                  
+                  {playlist.playlist_videos && playlist.playlist_videos.length > 0 && (
+                    <div className="grid grid-cols-3 gap-0.5">
+                      {playlist.playlist_videos.slice(0, 6).map((pv: any) => {
+                        const video = pv.videos;
+                        if (!video) return null;
+                        
+                        return (
+                          <div
+                            key={pv.video_id}
+                            className="cursor-pointer"
+                            onClick={() => {
+                              setSelectedContent(video);
+                              setIsContentModalOpen(true);
+                            }}
+                          >
+                            <div className="relative aspect-[3/5] bg-muted overflow-hidden">
+                              <img
+                                src={video.thumbnail_url || video.video_url || '/placeholder.svg'}
+                                alt={video.title}
+                                className="w-full h-full object-cover"
+                              />
+                              <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end p-2">
+                                <span className="text-white text-xs flex items-center gap-1">
+                                  <Heart className="w-3 h-3" fill="white" />
+                                  {formatNumber(video.like_count || 0)}
+                                </span>
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
-        ) : (
-          <div className="text-center py-12 text-muted-foreground border rounded-lg">
-            <List className="w-12 h-12 mx-auto mb-2 opacity-50" />
-            <p>No playlists yet</p>
-          </div>
-        )}
-      </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-12 text-muted-foreground border rounded-lg">
+              <List className="w-12 h-12 mx-auto mb-2 opacity-50" />
+              <p>No playlists yet</p>
+              <p className="text-sm mt-2">Create your first playlist to organize your favorite videos</p>
+            </div>
+          )}
+        </div>
+      ) : null}
+
+      {/* Playlists Section - REMOVED, now in tab */}
 
       {/* Profile Edit Modal */}
       <ProfileEditModal
@@ -859,6 +889,21 @@ const ProfilePage = ({ onNavigateToSettings }: ProfilePageProps) => {
           onUnarchiveStory={unarchiveStory}
         />
       )}
+
+      {/* Followers/Following Modal */}
+      <FollowersModal
+        isOpen={showFollowersModal}
+        onClose={() => setShowFollowersModal(false)}
+        userId={user?.id || ''}
+        type={followersType}
+      />
+
+      {/* Playlist Modal */}
+      <PlaylistModal
+        isOpen={showPlaylistModal}
+        onClose={() => setShowPlaylistModal(false)}
+        onPlaylistCreated={fetchPlaylists}
+      />
     </div>
   );
 };
