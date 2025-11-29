@@ -19,7 +19,7 @@ const StoryBar = ({ stories, onStoryClick, onAddStory }: StoryBarProps) => {
       acc[story.user_id] = [];
     }
     acc[story.user_id].push(story);
-    return {};
+    return acc;
   }, {} as Record<string, Story[]>);
 
   // Get first story of each user for display
@@ -44,28 +44,37 @@ const StoryBar = ({ stories, onStoryClick, onAddStory }: StoryBarProps) => {
         <div className="flex gap-3 pb-1">
           {/* Your Story - Always show first */}
           <div
-            onClick={onAddStory}
+            onClick={() => {
+              if (userHasStories && onStoryClick) {
+                const storyIndex = stories.findIndex(s => s.user_id === user?.id);
+                onStoryClick(storyIndex, user!.id);
+              } else {
+                onAddStory?.();
+              }
+            }}
             className="flex flex-col items-center gap-1 flex-shrink-0 cursor-pointer"
           >
             <div className={`relative ${
               userHasStories && !userStoryGroup?.hasViewed
-                ? 'p-[2px] rounded-lg bg-gradient-to-tr from-primary via-primary/80 to-primary/60'
+                ? 'p-[3px] rounded-full bg-gradient-to-tr from-emerald-600 via-emerald-500 to-emerald-400 shadow-lg shadow-emerald-500/30'
                 : ''
             }`}>
-              <div className={`${userHasStories && !userStoryGroup?.hasViewed ? 'p-[2px] bg-background rounded-lg' : ''}`}>
-                <Avatar className="w-14 h-14 border-2 border-background rounded-lg">
+              <div className={`${userHasStories && !userStoryGroup?.hasViewed ? 'p-[3px] bg-background rounded-full' : ''}`}>
+                <Avatar className="w-16 h-16 border-2 border-background rounded-full">
                   <AvatarImage src={user?.user_metadata?.avatar_url} alt="Your Story" />
-                  <AvatarFallback className="bg-muted text-foreground font-semibold rounded-lg">
+                  <AvatarFallback className="bg-muted text-foreground font-semibold rounded-full">
                     {user?.user_metadata?.display_name?.[0]?.toUpperCase() || 'Y'}
                   </AvatarFallback>
                 </Avatar>
               </div>
-              <div className="absolute bottom-0 right-0 w-5 h-5 bg-primary rounded-md border-2 border-background flex items-center justify-center">
-                <Plus className="w-3 h-3 text-primary-foreground" />
-              </div>
+              {!userHasStories && (
+                <div className="absolute bottom-0 right-0 w-6 h-6 bg-primary rounded-full border-2 border-background flex items-center justify-center shadow-md">
+                  <Plus className="w-4 h-4 text-primary-foreground" />
+                </div>
+              )}
             </div>
             <span className="text-[10px] text-foreground font-medium max-w-[60px] truncate">
-              Your Story
+              {userHasStories ? 'Your Story' : 'Add Story'}
             </span>
           </div>
 
@@ -83,16 +92,16 @@ const StoryBar = ({ stories, onStoryClick, onAddStory }: StoryBarProps) => {
               >
                 <div className={`relative ${
                   !userStory.hasViewed
-                    ? 'p-[2px] rounded-lg bg-gradient-to-tr from-primary via-primary/80 to-primary/60'
+                    ? 'p-[3px] rounded-full bg-gradient-to-tr from-emerald-600 via-emerald-500 to-emerald-400 shadow-lg shadow-emerald-500/30'
                     : ''
                 }`}>
-                  <div className={`${!userStory.hasViewed ? 'p-[2px] bg-background rounded-lg' : ''}`}>
-                    <Avatar className="w-14 h-14 border-2 border-background rounded-lg">
+                  <div className={`${!userStory.hasViewed ? 'p-[3px] bg-background rounded-full' : ''}`}>
+                    <Avatar className="w-16 h-16 border-2 border-background rounded-full">
                       <AvatarImage 
                         src={userStory.story.profiles?.avatar_url} 
                         alt={userStory.story.profiles?.display_name || 'User'} 
                       />
-                      <AvatarFallback className="bg-muted text-foreground font-semibold rounded-lg">
+                      <AvatarFallback className="bg-muted text-foreground font-semibold rounded-full">
                         {userStory.story.profiles?.display_name?.[0]?.toUpperCase() || 'U'}
                       </AvatarFallback>
                     </Avatar>
