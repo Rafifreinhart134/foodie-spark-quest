@@ -55,7 +55,7 @@ const Index = () => {
     }
   };
 
-  const shouldShowHeader = activeTab !== 'home' && !location.pathname.startsWith('/profile/');
+  const shouldShowHeader = activeTab !== 'home' && activeTab !== 'upload' && activeTab !== 'saved' && activeTab !== 'profile' && !location.pathname.startsWith('/profile/');
   const shouldShowBottomNav = !location.pathname.startsWith('/profile/');
   const isHomePage = activeTab === 'home' && !location.pathname.startsWith('/profile/');
 

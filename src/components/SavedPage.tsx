@@ -46,7 +46,7 @@ const SavedPage = ({ onStoryOpenChange }: SavedPageProps) => {
     : stories;
 
   return (
-    <div className="min-h-screen pt-16 pb-20">
+    <div className="min-h-screen pb-20">
       {/* Story Bar */}
       <StoryBar 
         stories={stories}
@@ -58,8 +58,8 @@ const SavedPage = ({ onStoryOpenChange }: SavedPageProps) => {
         }}
       />
       
-      <div className="max-w-4xl mx-auto px-4">
-        <h1 className="text-2xl font-bold mb-6 mt-4">Video Tersimpan</h1>
+      <div className="max-w-4xl mx-auto px-4 pt-4">
+        <h1 className="text-2xl font-bold mb-6">Video Tersimpan</h1>
         
         {savedVideos.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20">
