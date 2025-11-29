@@ -178,9 +178,9 @@ const UploadPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background pt-16 pb-20">
+    <div className="min-h-screen bg-background pb-20">
       {/* Header */}
-      <div className="p-4 border-b bg-white">
+      <div className="p-4 border-b">
         <h1 className="text-2xl font-bold gradient-primary bg-clip-text text-transparent">
           Upload Konten
         </h1>

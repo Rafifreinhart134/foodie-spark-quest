@@ -359,7 +359,7 @@ const ProfilePage = ({ onNavigateToSettings }: ProfilePageProps) => {
   }
 
   return (
-    <div className="min-h-screen bg-background pt-16 pb-20">
+    <div className="min-h-screen bg-background pb-20">
       {/* Profile Header */}
       <div className="bg-card border-b">
         {/* Username dan Settings button */}
