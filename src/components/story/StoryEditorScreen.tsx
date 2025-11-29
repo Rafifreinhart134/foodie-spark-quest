@@ -7,6 +7,7 @@ import { StoryDrawTool } from './StoryDrawTool';
 import { StoryFiltersMenu } from './StoryFiltersMenu';
 import { StorySettingsSheet } from './StorySettingsSheet';
 import { DraggableStoryElement } from './DraggableStoryElement';
+import { StickerRenderer } from './StickerRenderer';
 
 interface StoryEditorScreenProps {
   media: { url: string; type: 'photo' | 'video'; file?: File };
@@ -111,9 +112,7 @@ export const StoryEditorScreen = ({ media, onClose, onPost, onBack }: StoryEdito
               setStickerElements(stickerElements.filter((_, i) => i !== idx));
             }}
           >
-            <div className="text-4xl">
-              {sticker.content}
-            </div>
+            <StickerRenderer sticker={sticker} />
           </DraggableStoryElement>
         ))}
 

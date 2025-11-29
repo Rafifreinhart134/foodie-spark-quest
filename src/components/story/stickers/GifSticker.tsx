@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Loader2 } from 'lucide-react';
@@ -8,17 +8,66 @@ interface GifStickerProps {
   onClose: () => void;
 }
 
+interface GiphyGif {
+  id: string;
+  images: {
+    fixed_height: {
+      url: string;
+    };
+  };
+}
+
 export const GifSticker = ({ onAdd, onClose }: GifStickerProps) => {
   const [search, setSearch] = useState('');
+  const [gifs, setGifs] = useState<GiphyGif[]>([]);
   const [loading, setLoading] = useState(false);
 
-  // Placeholder GIFs for demo
-  const popularGifs = [
-    'https://media.giphy.com/media/xT0xeJpnrWC4XWblEk/giphy.gif',
-    'https://media.giphy.com/media/3o7TKtnuHOHHUjR38Y/giphy.gif',
-    'https://media.giphy.com/media/l0HlQXlQ3nHyLMvte/giphy.gif',
-    'https://media.giphy.com/media/26u4cqiYI30juCOGY/giphy.gif'
-  ];
+  // Giphy API key - using public beta key for demo
+  const GIPHY_API_KEY = 'sXpGFDGZs0Dv1mmNFvYaGUvYwKX0PWIh';
+
+  useEffect(() => {
+    // Load trending GIFs on mount
+    fetchTrendingGifs();
+  }, []);
+
+  useEffect(() => {
+    if (search.length > 2) {
+      const debounce = setTimeout(() => {
+        searchGifs();
+      }, 500);
+      return () => clearTimeout(debounce);
+    } else if (search.length === 0) {
+      fetchTrendingGifs();
+    }
+  }, [search]);
+
+  const fetchTrendingGifs = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch(
+        `https://api.giphy.com/v1/gifs/trending?api_key=${GIPHY_API_KEY}&limit=12&rating=g`
+      );
+      const data = await response.json();
+      setGifs(data.data || []);
+    } catch (error) {
+      console.error('Error fetching trending GIFs:', error);
+    }
+    setLoading(false);
+  };
+
+  const searchGifs = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch(
+        `https://api.giphy.com/v1/gifs/search?api_key=${GIPHY_API_KEY}&q=${encodeURIComponent(search)}&limit=12&rating=g`
+      );
+      const data = await response.json();
+      setGifs(data.data || []);
+    } catch (error) {
+      console.error('Error searching GIFs:', error);
+    }
+    setLoading(false);
+  };
 
   return (
     <div className="absolute bottom-0 left-0 right-0 bg-background rounded-t-3xl p-6 space-y-4 max-h-[70vh] overflow-y-auto">
@@ -40,17 +89,17 @@ export const GifSticker = ({ onAdd, onClose }: GifStickerProps) => {
         </div>
       ) : (
         <div className="grid grid-cols-2 gap-2">
-          {popularGifs.map((gif, idx) => (
+          {gifs.map((gif) => (
             <button
-              key={idx}
+              key={gif.id}
               onClick={() => {
-                onAdd(gif);
+                onAdd(gif.images.fixed_height.url);
                 onClose();
               }}
               className="aspect-square rounded-lg overflow-hidden hover:opacity-80 transition-opacity"
             >
               <img 
-                src={gif} 
+                src={gif.images.fixed_height.url} 
                 alt="GIF" 
                 className="w-full h-full object-cover"
               />
