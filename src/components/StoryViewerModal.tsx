@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { X, Pause, Play, ChevronLeft, ChevronRight, Trash2 } from 'lucide-react';
+import { X, Pause, Play, ChevronLeft, ChevronRight, Trash2, Archive, ArchiveX } from 'lucide-react';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Story } from '@/hooks/useStories';
 import { useAuth } from '@/hooks/useAuth';
@@ -13,6 +13,8 @@ interface StoryViewerModalProps {
   initialStoryIndex: number;
   onMarkAsViewed: (storyId: string) => void;
   onDeleteStory?: (storyId: string) => void;
+  onArchiveStory?: (storyId: string) => void;
+  onUnarchiveStory?: (storyId: string) => void;
 }
 
 export const StoryViewerModal = ({ 
@@ -21,7 +23,9 @@ export const StoryViewerModal = ({
   stories, 
   initialStoryIndex,
   onMarkAsViewed,
-  onDeleteStory
+  onDeleteStory,
+  onArchiveStory,
+  onUnarchiveStory
 }: StoryViewerModalProps) => {
   const [currentIndex, setCurrentIndex] = useState(initialStoryIndex);
   const [progress, setProgress] = useState(0);
@@ -125,6 +129,18 @@ export const StoryViewerModal = ({
     }
   };
 
+  const handleArchive = () => {
+    if (onArchiveStory && currentStory) {
+      onArchiveStory(currentStory.id);
+    }
+  };
+
+  const handleUnarchive = () => {
+    if (onUnarchiveStory && currentStory) {
+      onUnarchiveStory(currentStory.id);
+    }
+  };
+
   if (!currentStory) return null;
 
   return (
@@ -176,15 +192,42 @@ export const StoryViewerModal = ({
               >
                 {isPaused ? <Play className="w-5 h-5" /> : <Pause className="w-5 h-5" />}
               </Button>
-              {isOwner && onDeleteStory && (
-                <Button
-                  size="icon"
-                  variant="ghost"
-                  className="text-white hover:bg-red-500/80"
-                  onClick={handleDelete}
-                >
-                  <Trash2 className="w-5 h-5" />
-                </Button>
+              {isOwner && (
+                <>
+                  {currentStory.is_archived ? (
+                    onUnarchiveStory && (
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        className="text-white hover:bg-blue-500/80"
+                        onClick={handleUnarchive}
+                      >
+                        <ArchiveX className="w-5 h-5" />
+                      </Button>
+                    )
+                  ) : (
+                    onArchiveStory && (
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        className="text-white hover:bg-green-500/80"
+                        onClick={handleArchive}
+                      >
+                        <Archive className="w-5 h-5" />
+                      </Button>
+                    )
+                  )}
+                  {onDeleteStory && (
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      className="text-white hover:bg-red-500/80"
+                      onClick={handleDelete}
+                    >
+                      <Trash2 className="w-5 h-5" />
+                    </Button>
+                  )}
+                </>
               )}
               <Button
                 size="icon"

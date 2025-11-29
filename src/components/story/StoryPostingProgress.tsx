@@ -27,9 +27,11 @@ export const StoryPostingProgress = ({ story, onComplete }: StoryPostingProgress
       try {
         // Upload story
         if (story.media.file) {
+          // Convert 'photo' to 'image' for database compatibility
+          const mediaType = story.media.type === 'photo' ? 'image' : story.media.type;
           await createStory(
             story.media.file, 
-            story.media.type,
+            mediaType as 'image' | 'video',
             story.media.type === 'video' ? 15 : 5
           );
         }
