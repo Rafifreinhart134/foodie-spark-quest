@@ -330,16 +330,6 @@ const ProfilePage = ({ onNavigateToSettings }: ProfilePageProps) => {
 
   return (
     <div className="min-h-screen bg-background pt-16 pb-20">
-      {/* Story Bar */}
-      <StoryBar 
-        stories={stories.filter(s => s.user_id === user?.id)}
-        onAddStory={() => setIsCreateStoryModalOpen(true)}
-        onStoryClick={(storyIndex) => {
-          setSelectedStoryIndex(storyIndex);
-          setIsViewStoryModalOpen(true);
-        }}
-      />
-      
       {/* Profile Header */}
       <div className="bg-white">
         <div className="relative">
@@ -352,12 +342,12 @@ const ProfilePage = ({ onNavigateToSettings }: ProfilePageProps) => {
               {/* Profile Avatar with Story Indicator */}
               <div className="relative flex-shrink-0">
                 {stories.filter(s => s.user_id === user?.id && !s.has_viewed).length > 0 ? (
-                  <div className="p-[3px] rounded-full bg-gradient-to-tr from-emerald-600 via-emerald-500 to-emerald-400 shadow-lg shadow-emerald-500/30">
-                    <div className="p-[3px] bg-white rounded-full">
+                  <div className="p-[3px] rounded-lg bg-gradient-to-tr from-emerald-600 via-emerald-500 to-emerald-400 shadow-lg shadow-emerald-500/30">
+                    <div className="p-[3px] bg-white rounded-lg">
                       <img
                         src={profile?.avatar_url || '/placeholder.svg'}
                         alt={profile?.display_name || 'User'}
-                        className="w-24 h-24 rounded-full cursor-pointer"
+                        className="w-24 h-24 rounded-lg cursor-pointer"
                         onClick={() => {
                           const userStories = stories.filter(s => s.user_id === user?.id);
                           if (userStories.length > 0) {
@@ -372,12 +362,15 @@ const ProfilePage = ({ onNavigateToSettings }: ProfilePageProps) => {
                   <img
                     src={profile?.avatar_url || '/placeholder.svg'}
                     alt={profile?.display_name || 'User'}
-                    className="w-24 h-24 rounded-full border-4 border-white shadow-lg cursor-pointer"
+                    className="w-24 h-24 rounded-lg border-4 border-white shadow-lg cursor-pointer"
                     onClick={() => {
                       const userStories = stories.filter(s => s.user_id === user?.id);
                       if (userStories.length > 0) {
                         setSelectedStoryIndex(0);
                         setIsViewStoryModalOpen(true);
+                      } else {
+                        // Open create story modal if no stories
+                        setIsCreateStoryModalOpen(true);
                       }
                     }}
                   />

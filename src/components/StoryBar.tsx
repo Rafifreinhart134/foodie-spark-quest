@@ -56,19 +56,19 @@ const StoryBar = ({ stories, onStoryClick, onAddStory }: StoryBarProps) => {
           >
             <div className={`relative ${
               userHasStories && !userStoryGroup?.hasViewed
-                ? 'p-[3px] rounded-full bg-gradient-to-tr from-emerald-600 via-emerald-500 to-emerald-400 shadow-lg shadow-emerald-500/30'
+                ? 'p-[3px] rounded-lg bg-gradient-to-tr from-emerald-600 via-emerald-500 to-emerald-400 shadow-lg shadow-emerald-500/30'
                 : ''
             }`}>
-              <div className={`${userHasStories && !userStoryGroup?.hasViewed ? 'p-[3px] bg-background rounded-full' : ''}`}>
-                <Avatar className="w-16 h-16 border-2 border-background rounded-full">
+              <div className={`${userHasStories && !userStoryGroup?.hasViewed ? 'p-[3px] bg-background rounded-lg' : ''}`}>
+                <Avatar className="w-16 h-16 border-2 border-background rounded-lg">
                   <AvatarImage src={user?.user_metadata?.avatar_url} alt="Your Story" />
-                  <AvatarFallback className="bg-muted text-foreground font-semibold rounded-full">
+                  <AvatarFallback className="bg-muted text-foreground font-semibold rounded-lg">
                     {user?.user_metadata?.display_name?.[0]?.toUpperCase() || 'Y'}
                   </AvatarFallback>
                 </Avatar>
               </div>
               {!userHasStories && (
-                <div className="absolute bottom-0 right-0 w-6 h-6 bg-primary rounded-full border-2 border-background flex items-center justify-center shadow-md">
+                <div className="absolute bottom-0 right-0 w-6 h-6 bg-primary rounded-md border-2 border-background flex items-center justify-center shadow-md">
                   <Plus className="w-4 h-4 text-primary-foreground" />
                 </div>
               )}
@@ -92,16 +92,16 @@ const StoryBar = ({ stories, onStoryClick, onAddStory }: StoryBarProps) => {
               >
                 <div className={`relative ${
                   !userStory.hasViewed
-                    ? 'p-[3px] rounded-full bg-gradient-to-tr from-emerald-600 via-emerald-500 to-emerald-400 shadow-lg shadow-emerald-500/30'
+                    ? 'p-[3px] rounded-lg bg-gradient-to-tr from-emerald-600 via-emerald-500 to-emerald-400 shadow-lg shadow-emerald-500/30'
                     : ''
                 }`}>
-                  <div className={`${!userStory.hasViewed ? 'p-[3px] bg-background rounded-full' : ''}`}>
-                    <Avatar className="w-16 h-16 border-2 border-background rounded-full">
+                  <div className={`${!userStory.hasViewed ? 'p-[3px] bg-background rounded-lg' : ''}`}>
+                    <Avatar className="w-16 h-16 border-2 border-background rounded-lg">
                       <AvatarImage 
                         src={userStory.story.profiles?.avatar_url} 
                         alt={userStory.story.profiles?.display_name || 'User'} 
                       />
-                      <AvatarFallback className="bg-muted text-foreground font-semibold rounded-full">
+                      <AvatarFallback className="bg-muted text-foreground font-semibold rounded-lg">
                         {userStory.story.profiles?.display_name?.[0]?.toUpperCase() || 'U'}
                       </AvatarFallback>
                     </Avatar>
