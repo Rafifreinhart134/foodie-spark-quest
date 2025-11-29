@@ -373,14 +373,14 @@ const ProfilePage = ({ onNavigateToSettings }: ProfilePageProps) => {
               {stories.filter(s => s.user_id === user?.id).length > 0 ? (
                 <div className={`${
                   stories.filter(s => s.user_id === user?.id && !s.has_viewed).length > 0
-                    ? 'p-[3px] rounded-lg bg-gradient-to-tr from-emerald-600 via-emerald-500 to-emerald-400 shadow-lg shadow-emerald-500/30'
-                    : 'p-[3px] rounded-lg bg-gradient-to-tr from-gray-400 via-gray-300 to-gray-400'
+                    ? 'p-[2px] rounded-lg bg-gradient-to-tr from-emerald-600 via-emerald-500 to-emerald-400 shadow-lg shadow-emerald-500/30'
+                    : 'p-[2px] rounded-lg bg-gradient-to-tr from-gray-400 via-gray-300 to-gray-400'
                 }`}>
-                  <div className="p-[3px] bg-white rounded-lg">
+                  <div className="p-[2px] bg-white rounded-lg">
                     <img
                       src={profile?.avatar_url || '/placeholder.svg'}
                       alt={profile?.display_name || 'User'}
-                      className="w-20 h-20 rounded-lg cursor-pointer"
+                      className="w-16 h-16 rounded-lg cursor-pointer"
                       onClick={() => {
                         const userStories = stories.filter(s => s.user_id === user?.id);
                         if (userStories.length > 0) {
@@ -395,7 +395,7 @@ const ProfilePage = ({ onNavigateToSettings }: ProfilePageProps) => {
                 <img
                   src={profile?.avatar_url || '/placeholder.svg'}
                   alt={profile?.display_name || 'User'}
-                  className="w-20 h-20 rounded-lg border-2 border-border cursor-pointer"
+                  className="w-16 h-16 rounded-lg border-2 border-border cursor-pointer"
                   onClick={() => {
                     const userStories = stories.filter(s => s.user_id === user?.id);
                     if (userStories.length > 0) {
@@ -411,8 +411,8 @@ const ProfilePage = ({ onNavigateToSettings }: ProfilePageProps) => {
             
             {/* Nama dan Stats - disebelah kanan foto */}
             <div className="flex-1">
-              {/* Display name */}
-              <h2 className="text-base font-bold mb-2">{profile?.display_name || 'Anonymous User'}</h2>
+              {/* Display name - centered */}
+              <h2 className="text-base font-bold mb-2 text-center">{profile?.display_name || 'Anonymous User'}</h2>
               
               {/* Stats - sejajar horizontal */}
               <div className="flex items-center gap-4">
