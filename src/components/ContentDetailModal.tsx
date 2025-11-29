@@ -1,6 +1,6 @@
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Heart, MessageCircle, Share, X, ChevronLeft, ChevronRight, Bookmark, Play, Pause } from 'lucide-react';
+import { Heart, MessageCircle, Share, X, ChevronLeft, ChevronRight, Bookmark, Play, Pause, ListPlus } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
 import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
 
@@ -35,6 +35,7 @@ interface ContentDetailModalProps {
   onSave?: () => void;
   onComment?: (videoId: string, videoTitle: string) => void;
   onShare?: (videoId: string, videoTitle: string) => void;
+  onAddToPlaylist?: () => void;
   canNavigate?: boolean;
   onNavigate?: (direction: 'prev' | 'next') => void;
   currentIndex?: number;
@@ -49,6 +50,7 @@ const ContentDetailModal = ({
   onSave, 
   onComment,
   onShare,
+  onAddToPlaylist,
   canNavigate = false, 
   onNavigate, 
   currentIndex = 0, 
@@ -329,6 +331,19 @@ const ContentDetailModal = ({
                     <Share className="w-6 h-6" />
                     <span className="text-xs font-medium">Share</span>
                   </button>
+                  {onAddToPlaylist && (
+                    <button 
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        onAddToPlaylist();
+                      }}
+                      className="flex flex-col items-center space-y-1 text-muted-foreground hover:text-purple-500 transition-all duration-200 p-3 rounded-lg hover:bg-accent/50 pointer-events-auto cursor-pointer"
+                    >
+                      <ListPlus className="w-6 h-6" />
+                      <span className="text-xs font-medium">Playlist</span>
+                    </button>
+                  )}
                 </div>
                 
                 {onSave && (
