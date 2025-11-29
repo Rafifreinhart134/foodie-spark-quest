@@ -117,6 +117,7 @@ const ProfileEditModal = ({ isOpen, onClose, profile, onProfileUpdate }: Profile
     try {
       // Validate input before database update
       const validated = profileUpdateSchema.parse({
+        username: username,
         display_name: displayName,
         bio: bio || undefined
       });
@@ -132,7 +133,7 @@ const ProfileEditModal = ({ isOpen, onClose, profile, onProfileUpdate }: Profile
       const { data, error } = await supabase
         .from('profiles')
         .update({
-          username: username,
+          username: validated.username,
           display_name: validated.display_name,
           bio: validated.bio,
           ...(avatarUrl && { avatar_url: avatarUrl })

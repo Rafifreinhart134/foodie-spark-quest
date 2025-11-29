@@ -28,11 +28,15 @@ export const videoUploadSchema = z.object({
 });
 
 export const profileUpdateSchema = z.object({
+  username: z.string()
+    .trim()
+    .min(3, 'Username must be at least 3 characters')
+    .max(30, 'Username must be less than 30 characters')
+    .regex(/^[a-zA-Z0-9_]+$/, 'Username can only contain letters, numbers, and underscores'),
   display_name: z.string()
     .trim()
-    .min(3, 'Display name must be at least 3 characters')
-    .max(50, 'Display name must be less than 50 characters')
-    .regex(/^[a-zA-Z0-9_]+$/, 'Only letters, numbers, and underscores allowed'),
+    .min(1, 'Full name is required')
+    .max(35, 'Full name must be less than 35 characters'),
   bio: z.string()
     .trim()
     .max(200, 'Bio must be less than 200 characters')
