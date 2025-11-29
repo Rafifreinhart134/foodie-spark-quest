@@ -10,6 +10,10 @@ import ContentDetailModal from './ContentDetailModal';
 import { CommentsModal } from './CommentsModal';
 import { ShareModal } from './ShareModal';
 import { useNavigate } from 'react-router-dom';
+import { useStories } from '@/hooks/useStories';
+import StoryBar from './StoryBar';
+import { StoryCreationFlow } from './story/StoryCreationFlow';
+import { StoryViewerModal } from './StoryViewerModal';
 
 interface ProfilePageProps {
   onNavigateToSettings?: () => void;
@@ -19,6 +23,7 @@ const ProfilePage = ({ onNavigateToSettings }: ProfilePageProps) => {
   const { user, signOut } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
+  const { stories, loading: storiesLoading, markStoryAsViewed, deleteStory, archiveStory, unarchiveStory } = useStories();
   
   const [activeTab, setActiveTab] = useState<'content' | 'repost' | 'tag'>('content');
   const [profile, setProfile] = useState<any>(null);
@@ -30,6 +35,11 @@ const ProfilePage = ({ onNavigateToSettings }: ProfilePageProps) => {
   const [selectedContent, setSelectedContent] = useState<any>(null);
   const [isContentModalOpen, setIsContentModalOpen] = useState(false);
   const [currentContentIndex, setCurrentContentIndex] = useState(0);
+  
+  // Story modal states
+  const [isCreateStoryModalOpen, setIsCreateStoryModalOpen] = useState(false);
+  const [isViewStoryModalOpen, setIsViewStoryModalOpen] = useState(false);
+  const [selectedStoryIndex, setSelectedStoryIndex] = useState(0);
   
   // Modal states
   const [showCommentsModal, setShowCommentsModal] = useState(false);
@@ -320,6 +330,16 @@ const ProfilePage = ({ onNavigateToSettings }: ProfilePageProps) => {
 
   return (
     <div className="min-h-screen bg-background pt-16 pb-20">
+      {/* Story Bar */}
+      <StoryBar 
+        stories={stories.filter(s => s.user_id === user?.id)}
+        onAddStory={() => setIsCreateStoryModalOpen(true)}
+        onStoryClick={(storyIndex) => {
+          setSelectedStoryIndex(storyIndex);
+          setIsViewStoryModalOpen(true);
+        }}
+      />
+      
       {/* Profile Header */}
       <div className="bg-white">
         <div className="relative">
@@ -329,11 +349,40 @@ const ProfilePage = ({ onNavigateToSettings }: ProfilePageProps) => {
           {/* Profile info */}
           <div className="px-4 pb-6">
             <div className="flex items-start gap-4 -mt-16 mb-4">
-              <img
-                src={profile?.avatar_url || '/placeholder.svg'}
-                alt={profile?.display_name || 'User'}
-                className="w-24 h-24 rounded-lg border-4 border-white shadow-lg flex-shrink-0"
-              />
+              {/* Profile Avatar with Story Indicator */}
+              <div className="relative flex-shrink-0">
+                {stories.filter(s => s.user_id === user?.id && !s.has_viewed).length > 0 ? (
+                  <div className="p-[3px] rounded-full bg-gradient-to-tr from-emerald-600 via-emerald-500 to-emerald-400 shadow-lg shadow-emerald-500/30">
+                    <div className="p-[3px] bg-white rounded-full">
+                      <img
+                        src={profile?.avatar_url || '/placeholder.svg'}
+                        alt={profile?.display_name || 'User'}
+                        className="w-24 h-24 rounded-full cursor-pointer"
+                        onClick={() => {
+                          const userStories = stories.filter(s => s.user_id === user?.id);
+                          if (userStories.length > 0) {
+                            setSelectedStoryIndex(0);
+                            setIsViewStoryModalOpen(true);
+                          }
+                        }}
+                      />
+                    </div>
+                  </div>
+                ) : (
+                  <img
+                    src={profile?.avatar_url || '/placeholder.svg'}
+                    alt={profile?.display_name || 'User'}
+                    className="w-24 h-24 rounded-full border-4 border-white shadow-lg cursor-pointer"
+                    onClick={() => {
+                      const userStories = stories.filter(s => s.user_id === user?.id);
+                      if (userStories.length > 0) {
+                        setSelectedStoryIndex(0);
+                        setIsViewStoryModalOpen(true);
+                      }
+                    }}
+                  />
+                )}
+              </div>
               
               {/* Stats - disebelah kanan foto */}
               <div className="flex-1 grid grid-cols-2 gap-x-6 gap-y-2 pt-4">
@@ -712,6 +761,26 @@ const ProfilePage = ({ onNavigateToSettings }: ProfilePageProps) => {
         videoId={selectedVideoId}
         videoTitle={selectedVideoTitle}
       />
+
+      {/* Story Creation Modal */}
+      <StoryCreationFlow 
+        isOpen={isCreateStoryModalOpen}
+        onClose={() => setIsCreateStoryModalOpen(false)}
+      />
+
+      {/* Story Viewer Modal */}
+      {stories.filter(s => s.user_id === user?.id).length > 0 && (
+        <StoryViewerModal
+          isOpen={isViewStoryModalOpen}
+          onClose={() => setIsViewStoryModalOpen(false)}
+          stories={stories.filter(s => s.user_id === user?.id)}
+          initialStoryIndex={selectedStoryIndex}
+          onMarkAsViewed={markStoryAsViewed}
+          onDeleteStory={deleteStory}
+          onArchiveStory={archiveStory}
+          onUnarchiveStory={unarchiveStory}
+        />
+      )}
     </div>
   );
 };
