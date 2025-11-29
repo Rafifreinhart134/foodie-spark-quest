@@ -223,14 +223,14 @@ const ProfileEditModal = ({ isOpen, onClose, profile, onProfileUpdate }: Profile
             <p className="text-sm text-muted-foreground">Click to change avatar</p>
           </div>
 
-          {/* Username */}
+          {/* Full Name */}
           <div className="space-y-2">
-            <label className="text-sm font-medium">Username</label>
+            <label className="text-sm font-medium">Nama Lengkap</label>
             <div className="relative">
               <Input
                 value={displayName}
                 onChange={(e) => setDisplayName(e.target.value)}
-                placeholder="Enter username"
+                placeholder="Masukkan nama lengkap"
                 className={`pr-20 ${
                   usernameAvailable === false ? 'border-red-500' : 
                   usernameAvailable === true ? 'border-green-500' : ''
