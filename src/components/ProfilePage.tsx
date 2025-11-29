@@ -359,7 +359,7 @@ const ProfilePage = ({ onNavigateToSettings }: ProfilePageProps) => {
       <div className="bg-card border-b">
         {/* Username dan Settings button */}
         <div className="flex items-center justify-between px-4 py-3 border-b">
-          <h1 className="text-lg font-bold">@{profile?.display_name?.toLowerCase().replace(/\s+/g, '_') || 'user'}</h1>
+          <h1 className="text-lg font-bold text-center flex-1">@{profile?.username || 'user'}</h1>
           <Button variant="ghost" size="icon" onClick={onNavigateToSettings}>
             <Settings className="w-5 h-5" />
           </Button>
@@ -411,8 +411,8 @@ const ProfilePage = ({ onNavigateToSettings }: ProfilePageProps) => {
             
             {/* Nama dan Stats - disebelah kanan foto */}
             <div className="flex-1">
-              {/* Display name - centered */}
-              <h2 className="text-base font-bold mb-2 text-center">{profile?.display_name || 'Anonymous User'}</h2>
+              {/* Display name - aligned left */}
+              <h2 className="text-base font-bold mb-2">{profile?.display_name || 'Anonymous User'}</h2>
               
               {/* Stats - sejajar horizontal */}
               <div className="flex items-center gap-4">

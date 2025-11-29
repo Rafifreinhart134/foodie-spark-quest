@@ -21,6 +21,7 @@ const ProfileEditModal = ({ isOpen, onClose, profile, onProfileUpdate }: Profile
   const { user } = useAuth();
   const { toast } = useToast();
   
+  const [username, setUsername] = useState(profile?.username || '');
   const [displayName, setDisplayName] = useState(profile?.display_name || '');
   const [bio, setBio] = useState(profile?.bio || '');
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
@@ -31,6 +32,7 @@ const ProfileEditModal = ({ isOpen, onClose, profile, onProfileUpdate }: Profile
 
   useEffect(() => {
     if (profile) {
+      setUsername(profile.username || '');
       setDisplayName(profile.display_name || '');
       setBio(profile.bio || '');
     }
@@ -39,23 +41,23 @@ const ProfileEditModal = ({ isOpen, onClose, profile, onProfileUpdate }: Profile
   useEffect(() => {
     // Check username availability with debounce
     const timeoutId = setTimeout(async () => {
-      if (displayName && displayName !== profile?.display_name) {
-        await checkUsernameAvailability(displayName);
-      } else if (displayName === profile?.display_name) {
+      if (username && username !== profile?.username) {
+        await checkUsernameAvailability(username);
+      } else if (username === profile?.username) {
         setUsernameAvailable(null);
       }
     }, 500);
 
     return () => clearTimeout(timeoutId);
-  }, [displayName, profile?.display_name]);
+  }, [username, profile?.username]);
 
-  const checkUsernameAvailability = async (username: string) => {
+  const checkUsernameAvailability = async (usernameToCheck: string) => {
     setIsCheckingUsername(true);
     try {
       const { data, error } = await supabase
         .from('profiles')
-        .select('display_name')
-        .eq('display_name', username)
+        .select('username')
+        .eq('username', usernameToCheck)
         .neq('user_id', user?.id);
 
       if (error) throw error;
@@ -101,7 +103,7 @@ const ProfileEditModal = ({ isOpen, onClose, profile, onProfileUpdate }: Profile
   const handleSave = async () => {
     if (!user) return;
 
-    if (displayName !== profile?.display_name && usernameAvailable === false) {
+    if (username !== profile?.username && usernameAvailable === false) {
       toast({
         title: "Username not available",
         description: "Please choose a different username",
@@ -130,6 +132,7 @@ const ProfileEditModal = ({ isOpen, onClose, profile, onProfileUpdate }: Profile
       const { data, error } = await supabase
         .from('profiles')
         .update({
+          username: username,
           display_name: validated.display_name,
           bio: validated.bio,
           ...(avatarUrl && { avatar_url: avatarUrl })
@@ -172,7 +175,7 @@ const ProfileEditModal = ({ isOpen, onClose, profile, onProfileUpdate }: Profile
     if (isCheckingUsername) {
       return { icon: null, text: "Checking...", color: "text-muted-foreground" };
     }
-    if (displayName === profile?.display_name) {
+    if (username === profile?.username) {
       return { icon: null, text: "", color: "" };
     }
     if (usernameAvailable === true) {
@@ -223,14 +226,14 @@ const ProfileEditModal = ({ isOpen, onClose, profile, onProfileUpdate }: Profile
             <p className="text-sm text-muted-foreground">Click to change avatar</p>
           </div>
 
-          {/* Full Name */}
+          {/* Username */}
           <div className="space-y-2">
-            <label className="text-sm font-medium">Nama Lengkap</label>
+            <label className="text-sm font-medium">Username</label>
             <div className="relative">
               <Input
-                value={displayName}
-                onChange={(e) => setDisplayName(e.target.value)}
-                placeholder="Masukkan nama lengkap"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                placeholder="Masukkan username"
                 className={`pr-20 ${
                   usernameAvailable === false ? 'border-red-500' : 
                   usernameAvailable === true ? 'border-green-500' : ''
@@ -243,6 +246,16 @@ const ProfileEditModal = ({ isOpen, onClose, profile, onProfileUpdate }: Profile
                 </div>
               )}
             </div>
+          </div>
+
+          {/* Full Name */}
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Nama Lengkap</label>
+            <Input
+              value={displayName}
+              onChange={(e) => setDisplayName(e.target.value)}
+              placeholder="Masukkan nama lengkap"
+            />
           </div>
 
           {/* Bio */}

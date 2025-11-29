@@ -337,6 +337,7 @@ export type Database = {
           id: string
           updated_at: string
           user_id: string
+          username: string | null
           video_count: number | null
         }
         Insert: {
@@ -349,6 +350,7 @@ export type Database = {
           id?: string
           updated_at?: string
           user_id: string
+          username?: string | null
           video_count?: number | null
         }
         Update: {
@@ -361,6 +363,7 @@ export type Database = {
           id?: string
           updated_at?: string
           user_id?: string
+          username?: string | null
           video_count?: number | null
         }
         Relationships: []
