@@ -1,10 +1,13 @@
 import { useState, useEffect, useRef } from 'react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { X, Pause, Play, ChevronLeft, ChevronRight, Trash2, Archive, ArchiveX } from 'lucide-react';
+import { X, Pause, Play, ChevronLeft, ChevronRight, Trash2, Archive, ArchiveX, Heart, Eye } from 'lucide-react';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Story } from '@/hooks/useStories';
 import { useAuth } from '@/hooks/useAuth';
+import { supabase } from '@/integrations/supabase/client';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 interface StoryViewerModalProps {
   isOpen: boolean;
@@ -31,6 +34,8 @@ export const StoryViewerModal = ({
   const [progress, setProgress] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
   const [isVideoPlaying, setIsVideoPlaying] = useState(false);
+  const [viewers, setViewers] = useState<any[]>([]);
+  const [isLiked, setIsLiked] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
   const progressIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const { user } = useAuth();
@@ -45,6 +50,14 @@ export const StoryViewerModal = ({
     if (!currentStory.has_viewed) {
       onMarkAsViewed(currentStory.id);
     }
+
+    // Fetch viewers if owner
+    if (isOwner) {
+      fetchViewers();
+    }
+
+    // Check if liked
+    checkIfLiked();
 
     setProgress(0);
 
@@ -61,6 +74,63 @@ export const StoryViewerModal = ({
       }
     };
   }, [currentIndex, isOpen, currentStory]);
+
+  const fetchViewers = async () => {
+    if (!currentStory) return;
+
+    const { data, error } = await supabase
+      .from('story_views')
+      .select(`
+        viewer_id,
+        viewed_at,
+        profiles:viewer_id (
+          display_name,
+          avatar_url
+        )
+      `)
+      .eq('story_id', currentStory.id)
+      .order('viewed_at', { ascending: false });
+
+    if (!error && data) {
+      setViewers(data);
+    }
+  };
+
+  const checkIfLiked = async () => {
+    if (!user || !currentStory) return;
+
+    const { data } = await supabase
+      .from('likes')
+      .select('id')
+      .eq('video_id', currentStory.id)
+      .eq('user_id', user.id)
+      .eq('is_like', true)
+      .maybeSingle();
+
+    setIsLiked(!!data);
+  };
+
+  const handleLike = async () => {
+    if (!user || !currentStory) return;
+
+    if (isLiked) {
+      await supabase
+        .from('likes')
+        .delete()
+        .eq('video_id', currentStory.id)
+        .eq('user_id', user.id);
+      setIsLiked(false);
+    } else {
+      await supabase
+        .from('likes')
+        .insert({
+          video_id: currentStory.id,
+          user_id: user.id,
+          is_like: true
+        });
+      setIsLiked(true);
+    }
+  };
 
   useEffect(() => {
     if (!isOpen || isPaused || !currentStory) return;
@@ -284,14 +354,75 @@ export const StoryViewerModal = ({
           </div>
         </div>
 
-        {/* Footer info */}
-        {isOwner && (
-          <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/70 to-transparent">
-            <div className="flex items-center justify-center gap-4 text-white text-sm">
-              <span>👁️ {currentStory.view_count || 0} views</span>
-            </div>
+        {/* Footer actions */}
+        <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/70 to-transparent">
+          <div className="flex items-center justify-between">
+            {/* Views on bottom left */}
+            {isOwner ? (
+              <Sheet>
+                <SheetTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="text-white hover:bg-white/20 gap-2"
+                  >
+                    <Eye className="w-5 h-5" />
+                    <span>{currentStory.view_count || 0}</span>
+                  </Button>
+                </SheetTrigger>
+                <SheetContent side="bottom" className="max-h-[70vh]">
+                  <SheetHeader>
+                    <SheetTitle>Viewers ({viewers.length})</SheetTitle>
+                  </SheetHeader>
+                  <ScrollArea className="h-[calc(70vh-100px)] mt-4">
+                    <div className="space-y-3">
+                      {viewers.map((view: any) => (
+                        <div key={view.viewer_id} className="flex items-center gap-3">
+                          <Avatar className="w-10 h-10">
+                            <AvatarImage src={view.profiles?.avatar_url} />
+                            <AvatarFallback>
+                              {view.profiles?.display_name?.[0]?.toUpperCase() || 'U'}
+                            </AvatarFallback>
+                          </Avatar>
+                          <div className="flex-1">
+                            <p className="font-medium text-sm">
+                              {view.profiles?.display_name || 'User'}
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                              {new Date(view.viewed_at).toLocaleString('id-ID', {
+                                day: 'numeric',
+                                month: 'short',
+                                hour: '2-digit',
+                                minute: '2-digit'
+                              })}
+                            </p>
+                          </div>
+                        </div>
+                      ))}
+                      {viewers.length === 0 && (
+                        <p className="text-center text-muted-foreground py-8">
+                          Belum ada yang melihat story ini
+                        </p>
+                      )}
+                    </div>
+                  </ScrollArea>
+                </SheetContent>
+              </Sheet>
+            ) : (
+              <div />
+            )}
+
+            {/* Like button on bottom right */}
+            <Button
+              variant="ghost"
+              size="icon"
+              className={`${isLiked ? 'text-red-500' : 'text-white'} hover:bg-white/20 hover:scale-110 transition-all`}
+              onClick={handleLike}
+            >
+              <Heart className={`w-6 h-6 ${isLiked ? 'fill-current' : ''}`} />
+            </Button>
           </div>
-        )}
+        </div>
       </DialogContent>
     </Dialog>
   );
