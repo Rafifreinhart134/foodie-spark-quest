@@ -367,8 +367,8 @@ const ProfilePage = ({ onNavigateToSettings }: ProfilePageProps) => {
 
         {/* Profile info */}
         <div className="px-4 py-6">
-          <div className="flex items-start gap-4 mb-4">
-            {/* Profile Avatar with Story Indicator */}
+          {/* Profile Avatar with Story Indicator */}
+          <div className="flex items-center gap-4 mb-4">
             <div className="relative flex-shrink-0">
               {stories.filter(s => s.user_id === user?.id).length > 0 ? (
                 <div className={`${
@@ -409,29 +409,29 @@ const ProfilePage = ({ onNavigateToSettings }: ProfilePageProps) => {
               )}
             </div>
             
-            {/* Stats dan nama lengkap - disebelah kanan foto */}
-            <div className="flex-1">
-              <h2 className="text-lg font-bold mb-3">{profile?.display_name || 'Anonymous User'}</h2>
-              <div className="grid grid-cols-2 gap-x-4 gap-y-2">
-                <div className="text-left">
-                  <p className="font-bold text-base">{formatNumber(profile?.follower_count || 0)}</p>
-                  <p className="text-muted-foreground text-xs">Followers</p>
-                </div>
-                <div className="text-left">
-                  <p className="font-bold text-base">{profile?.following_count || 0}</p>
-                  <p className="text-muted-foreground text-xs">Following</p>
-                </div>
-                <div className="text-left">
-                  <p className="font-bold text-base">{userVideos.length}</p>
-                  <p className="text-muted-foreground text-xs">Videos</p>
-                </div>
-                <div className="text-left">
-                  <p className="font-bold text-base">{formatNumber(userVideos.reduce((acc, video) => acc + (video.like_count || 0), 0))}</p>
-                  <p className="text-muted-foreground text-xs">Likes</p>
-                </div>
+            {/* Stats - sejajar horizontal dengan foto */}
+            <div className="flex-1 flex items-center justify-around">
+              <div className="text-center">
+                <p className="font-bold text-base">{formatNumber(profile?.follower_count || 0)}</p>
+                <p className="text-muted-foreground text-xs">Followers</p>
+              </div>
+              <div className="text-center">
+                <p className="font-bold text-base">{profile?.following_count || 0}</p>
+                <p className="text-muted-foreground text-xs">Following</p>
+              </div>
+              <div className="text-center">
+                <p className="font-bold text-base">{userVideos.length}</p>
+                <p className="text-muted-foreground text-xs">Videos</p>
+              </div>
+              <div className="text-center">
+                <p className="font-bold text-base">{formatNumber(userVideos.reduce((acc, video) => acc + (video.like_count || 0), 0))}</p>
+                <p className="text-muted-foreground text-xs">Likes</p>
               </div>
             </div>
           </div>
+          
+          {/* Display name */}
+          <h2 className="text-lg font-bold mb-4">{profile?.display_name || 'Anonymous User'}</h2>
 
           {/* Edit Profile button */}
           <Button 
