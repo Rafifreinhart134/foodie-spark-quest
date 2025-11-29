@@ -57,9 +57,11 @@ const StoryBar = ({ stories, onStoryClick, onAddStory }: StoryBarProps) => {
             <div className={`relative ${
               userHasStories && !userStoryGroup?.hasViewed
                 ? 'p-[3px] rounded-lg bg-gradient-to-tr from-emerald-600 via-emerald-500 to-emerald-400 shadow-lg shadow-emerald-500/30'
+                : userHasStories && userStoryGroup?.hasViewed
+                ? 'p-[3px] rounded-lg bg-gradient-to-tr from-gray-400 via-gray-300 to-gray-400'
                 : ''
             }`}>
-              <div className={`${userHasStories && !userStoryGroup?.hasViewed ? 'p-[3px] bg-background rounded-lg' : ''}`}>
+              <div className={`${userHasStories ? 'p-[3px] bg-background rounded-lg' : ''}`}>
                 <Avatar className="w-16 h-16 border-2 border-background rounded-lg">
                   <AvatarImage src={user?.user_metadata?.avatar_url} alt="Your Story" />
                   <AvatarFallback className="bg-muted text-foreground font-semibold rounded-lg">
@@ -93,9 +95,9 @@ const StoryBar = ({ stories, onStoryClick, onAddStory }: StoryBarProps) => {
                 <div className={`relative ${
                   !userStory.hasViewed
                     ? 'p-[3px] rounded-lg bg-gradient-to-tr from-emerald-600 via-emerald-500 to-emerald-400 shadow-lg shadow-emerald-500/30'
-                    : ''
+                    : 'p-[3px] rounded-lg bg-gradient-to-tr from-gray-400 via-gray-300 to-gray-400'
                 }`}>
-                  <div className={`${!userStory.hasViewed ? 'p-[3px] bg-background rounded-lg' : ''}`}>
+                  <div className="p-[3px] bg-background rounded-lg">
                     <Avatar className="w-16 h-16 border-2 border-background rounded-lg">
                       <AvatarImage 
                         src={userStory.story.profiles?.avatar_url} 

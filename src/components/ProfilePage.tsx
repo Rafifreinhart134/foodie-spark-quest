@@ -341,8 +341,12 @@ const ProfilePage = ({ onNavigateToSettings }: ProfilePageProps) => {
             <div className="flex items-start gap-4 -mt-16 mb-4">
               {/* Profile Avatar with Story Indicator */}
               <div className="relative flex-shrink-0">
-                {stories.filter(s => s.user_id === user?.id && !s.has_viewed).length > 0 ? (
-                  <div className="p-[3px] rounded-lg bg-gradient-to-tr from-emerald-600 via-emerald-500 to-emerald-400 shadow-lg shadow-emerald-500/30">
+                {stories.filter(s => s.user_id === user?.id).length > 0 ? (
+                  <div className={`${
+                    stories.filter(s => s.user_id === user?.id && !s.has_viewed).length > 0
+                      ? 'p-[3px] rounded-lg bg-gradient-to-tr from-emerald-600 via-emerald-500 to-emerald-400 shadow-lg shadow-emerald-500/30'
+                      : 'p-[3px] rounded-lg bg-gradient-to-tr from-gray-400 via-gray-300 to-gray-400'
+                  }`}>
                     <div className="p-[3px] bg-white rounded-lg">
                       <img
                         src={profile?.avatar_url || '/placeholder.svg'}
