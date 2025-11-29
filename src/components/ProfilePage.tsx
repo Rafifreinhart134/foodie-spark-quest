@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Settings, LogOut, Heart, Play, Grid3X3, Edit, Repeat2, Tag } from 'lucide-react';
+import { Settings, LogOut, Heart, Play, Grid3X3, Edit, Repeat2, Tag, List } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
@@ -30,6 +30,7 @@ const ProfilePage = ({ onNavigateToSettings }: ProfilePageProps) => {
   const [userVideos, setUserVideos] = useState<any[]>([]);
   const [userReposts, setUserReposts] = useState<any[]>([]);
   const [userTags, setUserTags] = useState<any[]>([]);
+  const [playlists, setPlaylists] = useState<any[]>([]);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedContent, setSelectedContent] = useState<any>(null);
@@ -63,6 +64,7 @@ const ProfilePage = ({ onNavigateToSettings }: ProfilePageProps) => {
       fetchUserVideos();
       fetchUserReposts();
       fetchUserTags();
+      fetchPlaylists();
     }
   }, [user]);
 
@@ -143,6 +145,29 @@ const ProfilePage = ({ onNavigateToSettings }: ProfilePageProps) => {
       setUserTags(data || []);
     } catch (error) {
       console.error('Error fetching user tags:', error);
+    }
+  };
+
+  const fetchPlaylists = async () => {
+    if (!user) return;
+
+    try {
+      const { data, error } = await supabase
+        .from('playlists')
+        .select(`
+          *,
+          playlist_videos (
+            video_id,
+            videos (*)
+          )
+        `)
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setPlaylists(data || []);
+    } catch (error) {
+      console.error('Error fetching playlists:', error);
     }
   };
 
@@ -331,117 +356,118 @@ const ProfilePage = ({ onNavigateToSettings }: ProfilePageProps) => {
   return (
     <div className="min-h-screen bg-background pt-16 pb-20">
       {/* Profile Header */}
-      <div className="bg-white">
-        <div className="relative">
-          {/* Cover gradient */}
-          <div className="h-32 gradient-primary"></div>
-          
-          {/* Profile info */}
-          <div className="px-4 pb-6">
-            <div className="flex items-start gap-4 -mt-16 mb-4">
-              {/* Profile Avatar with Story Indicator */}
-              <div className="relative flex-shrink-0">
-                {stories.filter(s => s.user_id === user?.id).length > 0 ? (
-                  <div className={`${
-                    stories.filter(s => s.user_id === user?.id && !s.has_viewed).length > 0
-                      ? 'p-[3px] rounded-lg bg-gradient-to-tr from-emerald-600 via-emerald-500 to-emerald-400 shadow-lg shadow-emerald-500/30'
-                      : 'p-[3px] rounded-lg bg-gradient-to-tr from-gray-400 via-gray-300 to-gray-400'
-                  }`}>
-                    <div className="p-[3px] bg-white rounded-lg">
-                      <img
-                        src={profile?.avatar_url || '/placeholder.svg'}
-                        alt={profile?.display_name || 'User'}
-                        className="w-24 h-24 rounded-lg cursor-pointer"
-                        onClick={() => {
-                          const userStories = stories.filter(s => s.user_id === user?.id);
-                          if (userStories.length > 0) {
-                            setSelectedStoryIndex(0);
-                            setIsViewStoryModalOpen(true);
-                          }
-                        }}
-                      />
-                    </div>
+      <div className="bg-card border-b">
+        {/* Username dan Settings button */}
+        <div className="flex items-center justify-between px-4 py-3 border-b">
+          <h1 className="text-lg font-bold">@{profile?.display_name?.toLowerCase().replace(/\s+/g, '_') || 'user'}</h1>
+          <Button variant="ghost" size="icon" onClick={onNavigateToSettings}>
+            <Settings className="w-5 h-5" />
+          </Button>
+        </div>
+
+        {/* Profile info */}
+        <div className="px-4 py-6">
+          <div className="flex items-start gap-4 mb-4">
+            {/* Profile Avatar with Story Indicator */}
+            <div className="relative flex-shrink-0">
+              {stories.filter(s => s.user_id === user?.id).length > 0 ? (
+                <div className={`${
+                  stories.filter(s => s.user_id === user?.id && !s.has_viewed).length > 0
+                    ? 'p-[3px] rounded-lg bg-gradient-to-tr from-emerald-600 via-emerald-500 to-emerald-400 shadow-lg shadow-emerald-500/30'
+                    : 'p-[3px] rounded-lg bg-gradient-to-tr from-gray-400 via-gray-300 to-gray-400'
+                }`}>
+                  <div className="p-[3px] bg-white rounded-lg">
+                    <img
+                      src={profile?.avatar_url || '/placeholder.svg'}
+                      alt={profile?.display_name || 'User'}
+                      className="w-20 h-20 rounded-lg cursor-pointer"
+                      onClick={() => {
+                        const userStories = stories.filter(s => s.user_id === user?.id);
+                        if (userStories.length > 0) {
+                          setSelectedStoryIndex(0);
+                          setIsViewStoryModalOpen(true);
+                        }
+                      }}
+                    />
                   </div>
-                ) : (
-                  <img
-                    src={profile?.avatar_url || '/placeholder.svg'}
-                    alt={profile?.display_name || 'User'}
-                    className="w-24 h-24 rounded-lg border-4 border-white shadow-lg cursor-pointer"
-                    onClick={() => {
-                      const userStories = stories.filter(s => s.user_id === user?.id);
-                      if (userStories.length > 0) {
-                        setSelectedStoryIndex(0);
-                        setIsViewStoryModalOpen(true);
-                      } else {
-                        // Open create story modal if no stories
-                        setIsCreateStoryModalOpen(true);
-                      }
-                    }}
-                  />
-                )}
-              </div>
-              
-              {/* Stats - disebelah kanan foto */}
-              <div className="flex-1 grid grid-cols-2 gap-x-6 gap-y-2 pt-4">
-                <div className="text-center">
-                  <p className="font-bold text-lg">{formatNumber(profile?.follower_count || 0)}</p>
+                </div>
+              ) : (
+                <img
+                  src={profile?.avatar_url || '/placeholder.svg'}
+                  alt={profile?.display_name || 'User'}
+                  className="w-20 h-20 rounded-lg border-2 border-border cursor-pointer"
+                  onClick={() => {
+                    const userStories = stories.filter(s => s.user_id === user?.id);
+                    if (userStories.length > 0) {
+                      setSelectedStoryIndex(0);
+                      setIsViewStoryModalOpen(true);
+                    } else {
+                      setIsCreateStoryModalOpen(true);
+                    }
+                  }}
+                />
+              )}
+            </div>
+            
+            {/* Stats dan nama lengkap - disebelah kanan foto */}
+            <div className="flex-1">
+              <h2 className="text-lg font-bold mb-3">{profile?.display_name || 'Anonymous User'}</h2>
+              <div className="grid grid-cols-2 gap-x-4 gap-y-2">
+                <div className="text-left">
+                  <p className="font-bold text-base">{formatNumber(profile?.follower_count || 0)}</p>
                   <p className="text-muted-foreground text-xs">Followers</p>
                 </div>
-                <div className="text-center">
-                  <p className="font-bold text-lg">{profile?.following_count || 0}</p>
+                <div className="text-left">
+                  <p className="font-bold text-base">{profile?.following_count || 0}</p>
                   <p className="text-muted-foreground text-xs">Following</p>
                 </div>
-                <div className="text-center">
-                  <p className="font-bold text-lg">{userVideos.length}</p>
+                <div className="text-left">
+                  <p className="font-bold text-base">{userVideos.length}</p>
                   <p className="text-muted-foreground text-xs">Videos</p>
                 </div>
-                <div className="text-center">
-                  <p className="font-bold text-lg">{formatNumber(userVideos.reduce((acc, video) => acc + (video.like_count || 0), 0))}</p>
+                <div className="text-left">
+                  <p className="font-bold text-base">{formatNumber(userVideos.reduce((acc, video) => acc + (video.like_count || 0), 0))}</p>
                   <p className="text-muted-foreground text-xs">Likes</p>
                 </div>
               </div>
             </div>
+          </div>
 
-            {/* Username dan Edit/Settings buttons */}
-            <div className="flex items-center justify-between mb-3">
-              <div>
-                <h1 className="text-xl font-bold">{profile?.display_name || 'Anonymous User'}</h1>
-                <p className="text-muted-foreground text-sm">@{profile?.display_name?.toLowerCase().replace(/\s+/g, '_') || 'user'}</p>
+          {/* Edit Profile button */}
+          <Button 
+            variant="outline" 
+            className="w-full mb-4" 
+            onClick={() => setIsEditModalOpen(true)}
+          >
+            <Edit className="w-4 h-4 mr-2" />
+            Edit Profile
+          </Button>
+
+          {/* Bio */}
+          {profile?.bio && (
+            <p className="text-sm mb-4 text-muted-foreground">{profile.bio}</p>
+          )}
+
+          {/* Coins & Level & Logout */}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-2">
+              <div className="flex items-center bg-yellow-50 px-3 py-1.5 rounded-full">
+                <span className="text-yellow-500 mr-1">🪙</span>
+                <span className="font-semibold text-yellow-700">0</span>
               </div>
-              <div className="flex items-center space-x-2">
-                <Button variant="outline" size="icon" onClick={() => setIsEditModalOpen(true)}>
-                  <Edit className="w-5 h-5" />
-                </Button>
-                <Button variant="outline" size="icon" onClick={onNavigateToSettings}>
-                  <Settings className="w-5 h-5" />
-                </Button>
-              </div>
+              <Badge className="gradient-golden text-food-brown">
+                Beginner
+              </Badge>
             </div>
-
-            <p className="text-sm mb-4">{profile?.bio || 'No bio available'}</p>
-
-            {/* Coins & Level */}
-            <div className="flex items-center justify-between mt-4">
-              <div className="flex items-center space-x-2">
-                <div className="flex items-center bg-yellow-50 px-3 py-1 rounded-full">
-                  <span className="text-yellow-500 mr-1">🪙</span>
-                  <span className="font-semibold text-yellow-700">0</span>
-                </div>
-                <Badge className="gradient-golden text-food-brown">
-                  Beginner
-                </Badge>
-              </div>
-              <Button variant="destructive" size="sm" onClick={handleLogout}>
-                <LogOut className="w-4 h-4 mr-2" />
-                Logout
-              </Button>
-            </div>
+            <Button variant="ghost" size="sm" onClick={handleLogout}>
+              <LogOut className="w-4 h-4" />
+            </Button>
           </div>
         </div>
       </div>
 
-      {/* Tabs - Klasifikasi dengan ikon jelas */}
-      <div className="border-b border-border/50">
+      {/* Tabs */}
+      <div className="border-b">
         <div className="flex">
           <button 
             className={`flex-1 py-3 text-center font-medium border-b-2 transition-all ${
@@ -704,6 +730,73 @@ const ProfilePage = ({ onNavigateToSettings }: ProfilePageProps) => {
           </div>
         </div>
       ) : null}
+
+      {/* Playlists Section */}
+      <div className="mt-6 px-4">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-lg font-bold flex items-center gap-2">
+            <List className="w-5 h-5" />
+            Playlists
+          </h2>
+        </div>
+
+        {playlists.length > 0 ? (
+          <div className="space-y-4">
+            {playlists.map((playlist) => (
+              <div key={playlist.id} className="border rounded-lg overflow-hidden">
+                <div className="p-3 bg-muted/30">
+                  <h3 className="font-semibold">{playlist.name}</h3>
+                  {playlist.description && (
+                    <p className="text-sm text-muted-foreground mt-1">{playlist.description}</p>
+                  )}
+                  <p className="text-xs text-muted-foreground mt-1">
+                    {playlist.playlist_videos?.length || 0} videos
+                  </p>
+                </div>
+                
+                {playlist.playlist_videos && playlist.playlist_videos.length > 0 && (
+                  <div className="flex overflow-x-auto gap-2 p-2 bg-background">
+                    {playlist.playlist_videos.slice(0, 5).map((pv: any) => {
+                      const video = pv.videos;
+                      if (!video) return null;
+                      
+                      return (
+                        <div
+                          key={pv.video_id}
+                          className="flex-shrink-0 w-24 cursor-pointer"
+                          onClick={() => {
+                            setSelectedContent(video);
+                            setIsContentModalOpen(true);
+                          }}
+                        >
+                          <div className="relative aspect-[3/4] bg-muted rounded-lg overflow-hidden">
+                            <img
+                              src={video.thumbnail_url || video.video_url || '/placeholder.svg'}
+                              alt={video.title}
+                              className="w-full h-full object-cover"
+                            />
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end p-1">
+                              <span className="text-white text-[10px] flex items-center gap-0.5">
+                                <Heart className="w-2.5 h-2.5" fill="white" />
+                                {formatNumber(video.like_count || 0)}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-12 text-muted-foreground border rounded-lg">
+            <List className="w-12 h-12 mx-auto mb-2 opacity-50" />
+            <p>No playlists yet</p>
+          </div>
+        )}
+      </div>
 
       {/* Profile Edit Modal */}
       <ProfileEditModal
