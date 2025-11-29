@@ -93,20 +93,6 @@ export const StoryCameraScreen = ({ onClose, onCapture }: StoryCameraScreenProps
         </div>
       </div>
 
-      {/* LEFT SIDEBAR - Tools */}
-      <div className="absolute left-4 top-1/2 -translate-y-1/2 z-40 flex flex-col gap-6">
-        {['Create', 'Normal', 'Boomerang', 'Layout', 'Hands-free', 'Multi', 'Photobooth', 'Dual'].map((tool) => (
-          <button
-            key={tool}
-            className="flex flex-col items-center gap-1 text-white/70 hover:text-white transition-colors"
-          >
-            <div className="w-10 h-10 rounded-full border-2 border-white/30 flex items-center justify-center text-xs font-bold">
-              {tool[0]}
-            </div>
-            <span className="text-[10px] font-medium">{tool}</span>
-          </button>
-        ))}
-      </div>
 
       {/* BOTTOM BAR */}
       <div className="absolute bottom-0 left-0 right-0 z-50 pb-8 pt-4">
