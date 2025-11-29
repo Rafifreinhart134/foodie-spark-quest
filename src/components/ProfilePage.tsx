@@ -11,6 +11,7 @@ import { CommentsModal } from './CommentsModal';
 import { ShareModal } from './ShareModal';
 import FollowersModal from './FollowersModal';
 import PlaylistModal from './PlaylistModal';
+import AddToPlaylistModal from './AddToPlaylistModal';
 import { useNavigate } from 'react-router-dom';
 import { useStories } from '@/hooks/useStories';
 import StoryBar from './StoryBar';
@@ -52,6 +53,7 @@ const ProfilePage = ({ onNavigateToSettings }: ProfilePageProps) => {
   const [showFollowersModal, setShowFollowersModal] = useState(false);
   const [followersType, setFollowersType] = useState<'followers' | 'following'>('followers');
   const [showPlaylistModal, setShowPlaylistModal] = useState(false);
+  const [showAddToPlaylistModal, setShowAddToPlaylistModal] = useState(false);
 
   // Get current content array based on active tab
   const getCurrentContentArray = () => {
@@ -847,6 +849,7 @@ const ProfilePage = ({ onNavigateToSettings }: ProfilePageProps) => {
           onComment={() => handleComment(selectedContent.id, selectedContent.title)}
           onShare={() => handleShare(selectedContent.id, selectedContent.title)}
           onSave={() => handleSave(selectedContent.id)}
+          onAddToPlaylist={() => setShowAddToPlaylistModal(true)}
           canNavigate={getCurrentContentArray().length > 1}
           onNavigate={handleNavigate}
           currentIndex={currentContentIndex}
@@ -904,6 +907,19 @@ const ProfilePage = ({ onNavigateToSettings }: ProfilePageProps) => {
         onClose={() => setShowPlaylistModal(false)}
         onPlaylistCreated={fetchPlaylists}
       />
+
+      {/* Add to Playlist Modal */}
+      {selectedContent && (
+        <AddToPlaylistModal
+          isOpen={showAddToPlaylistModal}
+          onClose={() => setShowAddToPlaylistModal(false)}
+          videoId={selectedContent.id}
+          onSuccess={() => {
+            fetchPlaylists();
+            setShowAddToPlaylistModal(false);
+          }}
+        />
+      )}
     </div>
   );
 };
