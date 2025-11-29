@@ -367,8 +367,8 @@ const ProfilePage = ({ onNavigateToSettings }: ProfilePageProps) => {
 
         {/* Profile info */}
         <div className="px-4 py-6">
-          {/* Profile Avatar with Story Indicator */}
-          <div className="flex items-center gap-4 mb-4">
+          <div className="flex items-start gap-4 mb-4">
+            {/* Profile Avatar with Story Indicator */}
             <div className="relative flex-shrink-0">
               {stories.filter(s => s.user_id === user?.id).length > 0 ? (
                 <div className={`${
@@ -409,60 +409,47 @@ const ProfilePage = ({ onNavigateToSettings }: ProfilePageProps) => {
               )}
             </div>
             
-            {/* Stats - sejajar horizontal dengan foto */}
-            <div className="flex-1 flex items-center justify-around">
-              <div className="text-center">
-                <p className="font-bold text-base">{formatNumber(profile?.follower_count || 0)}</p>
-                <p className="text-muted-foreground text-xs">Followers</p>
-              </div>
-              <div className="text-center">
-                <p className="font-bold text-base">{profile?.following_count || 0}</p>
-                <p className="text-muted-foreground text-xs">Following</p>
-              </div>
-              <div className="text-center">
-                <p className="font-bold text-base">{userVideos.length}</p>
-                <p className="text-muted-foreground text-xs">Videos</p>
-              </div>
-              <div className="text-center">
-                <p className="font-bold text-base">{formatNumber(userVideos.reduce((acc, video) => acc + (video.like_count || 0), 0))}</p>
-                <p className="text-muted-foreground text-xs">Likes</p>
+            {/* Nama dan Stats - disebelah kanan foto */}
+            <div className="flex-1">
+              {/* Display name */}
+              <h2 className="text-base font-bold mb-2">{profile?.display_name || 'Anonymous User'}</h2>
+              
+              {/* Stats - sejajar horizontal */}
+              <div className="flex items-center gap-4">
+                <div className="text-center">
+                  <p className="font-bold text-sm">{formatNumber(profile?.follower_count || 0)}</p>
+                  <p className="text-muted-foreground text-[10px]">Followers</p>
+                </div>
+                <div className="text-center">
+                  <p className="font-bold text-sm">{profile?.following_count || 0}</p>
+                  <p className="text-muted-foreground text-[10px]">Following</p>
+                </div>
+                <div className="text-center">
+                  <p className="font-bold text-sm">{userVideos.length}</p>
+                  <p className="text-muted-foreground text-[10px]">Videos</p>
+                </div>
+                <div className="text-center">
+                  <p className="font-bold text-sm">{formatNumber(userVideos.reduce((acc, video) => acc + (video.like_count || 0), 0))}</p>
+                  <p className="text-muted-foreground text-[10px]">Likes</p>
+                </div>
               </div>
             </div>
           </div>
-          
-          {/* Display name */}
-          <h2 className="text-lg font-bold mb-4">{profile?.display_name || 'Anonymous User'}</h2>
-
-          {/* Edit Profile button */}
-          <Button 
-            variant="outline" 
-            className="w-full mb-4" 
-            onClick={() => setIsEditModalOpen(true)}
-          >
-            <Edit className="w-4 h-4 mr-2" />
-            Edit Profile
-          </Button>
 
           {/* Bio */}
           {profile?.bio && (
             <p className="text-sm mb-4 text-muted-foreground">{profile.bio}</p>
           )}
 
-          {/* Coins & Level & Logout */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-2">
-              <div className="flex items-center bg-yellow-50 px-3 py-1.5 rounded-full">
-                <span className="text-yellow-500 mr-1">🪙</span>
-                <span className="font-semibold text-yellow-700">0</span>
-              </div>
-              <Badge className="gradient-golden text-food-brown">
-                Beginner
-              </Badge>
-            </div>
-            <Button variant="ghost" size="sm" onClick={handleLogout}>
-              <LogOut className="w-4 h-4" />
-            </Button>
-          </div>
+          {/* Edit Profile button */}
+          <Button 
+            variant="outline" 
+            className="w-full" 
+            onClick={() => setIsEditModalOpen(true)}
+          >
+            <Edit className="w-4 h-4 mr-2" />
+            Edit Profile
+          </Button>
         </div>
       </div>
 
