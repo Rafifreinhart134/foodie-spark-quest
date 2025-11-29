@@ -31,12 +31,21 @@ export const useStories = () => {
     try {
       setLoading(true);
       
-      // Fetch all active stories
-      const { data: storiesData, error: storiesError } = await supabase
+      // Fetch all active stories OR user's own stories (including expired)
+      let query = supabase
         .from('stories')
         .select('*')
-        .gt('expires_at', new Date().toISOString())
         .order('created_at', { ascending: false });
+      
+      // If user is logged in, fetch their own stories + public active stories
+      // Otherwise, just fetch public active stories
+      if (user) {
+        query = query.or(`expires_at.gt.${new Date().toISOString()},user_id.eq.${user.id}`);
+      } else {
+        query = query.gt('expires_at', new Date().toISOString());
+      }
+      
+      const { data: storiesData, error: storiesError } = await query;
 
       if (storiesError) throw storiesError;
 
