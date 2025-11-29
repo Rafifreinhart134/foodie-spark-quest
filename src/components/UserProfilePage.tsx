@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Heart, MessageCircle, Share, MoreHorizontal, Play, Grid3X3, Award, UserPlus, UserMinus, Repeat2, Tag, Bell } from 'lucide-react';
+import { ArrowLeft, Heart, MessageCircle, Share, MoreHorizontal, Play, Grid3X3, Award, UserPlus, UserMinus, Repeat2, Tag, Bell, List } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Switch } from '@/components/ui/switch';
@@ -31,11 +31,12 @@ const UserProfilePage = () => {
   const [userVideos, setUserVideos] = useState<any[]>([]);
   const [userReposts, setUserReposts] = useState<any[]>([]);
   const [userTags, setUserTags] = useState<any[]>([]);
+  const [playlists, setPlaylists] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedContent, setSelectedContent] = useState<any>(null);
   const [isContentModalOpen, setIsContentModalOpen] = useState(false);
   const [currentContentIndex, setCurrentContentIndex] = useState(0);
-  const [activeTab, setActiveTab] = useState<'content' | 'badges' | 'repost' | 'tag'>('content');
+  const [activeTab, setActiveTab] = useState<'content' | 'badges' | 'repost' | 'tag' | 'playlist'>('content');
   
   // Modal states for comments and share
   const [showCommentsModal, setShowCommentsModal] = useState(false);
@@ -49,6 +50,7 @@ const UserProfilePage = () => {
       fetchUserVideos();
       fetchUserReposts();
       fetchUserTags();
+      fetchPlaylists();
     }
   }, [userId]);
 
@@ -135,6 +137,29 @@ const UserProfilePage = () => {
       setUserTags(data || []);
     } catch (error) {
       console.error('Error fetching user tags:', error);
+    }
+  };
+
+  const fetchPlaylists = async () => {
+    if (!userId) return;
+
+    try {
+      const { data, error } = await supabase
+        .from('playlists')
+        .select(`
+          *,
+          playlist_videos (
+            video_id,
+            videos (*)
+          )
+        `)
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setPlaylists(data || []);
+    } catch (error) {
+      console.error('Error fetching playlists:', error);
     }
   };
 
@@ -488,7 +513,7 @@ const UserProfilePage = () => {
               <span className="text-[10px]">Badges</span>
             </button>
           ) : (
-            // Tampilkan repost dan tag untuk profil orang lain (hanya ikon)
+            // Tampilkan repost, tag, dan playlist untuk profil orang lain (hanya ikon)
             <>
               <button 
                 className={`flex-1 py-3 text-center font-medium border-b-2 transition-all ${
@@ -509,6 +534,16 @@ const UserProfilePage = () => {
                 onClick={() => setActiveTab('tag')}
               >
                 <Tag className="w-5 h-5 mx-auto" />
+              </button>
+              <button 
+                className={`flex-1 py-3 text-center font-medium border-b-2 transition-all ${
+                  activeTab === 'playlist' 
+                    ? 'border-primary text-primary' 
+                    : 'border-transparent text-muted-foreground hover:text-foreground'
+                }`}
+                onClick={() => setActiveTab('playlist')}
+              >
+                <List className="w-5 h-5 mx-auto" />
               </button>
             </>
           )}
@@ -704,6 +739,62 @@ const UserProfilePage = () => {
               </div>
             )}
           </div>
+        </div>
+      ) : activeTab === 'playlist' ? (
+        <div className="p-4">
+          {playlists.length > 0 ? (
+            <div className="space-y-4">
+              {playlists.map((playlist) => (
+                <div key={playlist.id} className="border rounded-lg overflow-hidden">
+                  <div className="p-3 bg-muted/30">
+                    <h3 className="font-semibold">{playlist.name}</h3>
+                    {playlist.description && (
+                      <p className="text-sm text-muted-foreground mt-1">{playlist.description}</p>
+                    )}
+                    <p className="text-xs text-muted-foreground mt-1">
+                      {playlist.playlist_videos?.length || 0} videos
+                    </p>
+                  </div>
+                  
+                  {playlist.playlist_videos && playlist.playlist_videos.length > 0 && (
+                    <div className="grid grid-cols-3 gap-0.5">
+                      {playlist.playlist_videos.slice(0, 6).map((pv: any) => {
+                        const video = pv.videos;
+                        if (!video) return null;
+                        
+                        return (
+                          <div
+                            key={pv.video_id}
+                            className="cursor-pointer"
+                            onClick={() => handleContentClick(video, 0)}
+                          >
+                            <div className="relative aspect-[3/5] bg-muted overflow-hidden">
+                              <img
+                                src={video.thumbnail_url || video.video_url || '/placeholder.svg'}
+                                alt={video.title}
+                                className="w-full h-full object-cover"
+                              />
+                              <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end p-2">
+                                <span className="text-white text-xs flex items-center gap-1">
+                                  <Heart className="w-3 h-3" fill="white" />
+                                  {formatNumber(video.like_count || 0)}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-12 text-muted-foreground border rounded-lg">
+              <List className="w-12 h-12 mx-auto mb-2 opacity-50" />
+              <p>No playlists yet</p>
+            </div>
+          )}
         </div>
       ) : null}
 
