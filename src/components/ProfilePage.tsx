@@ -443,7 +443,8 @@ const ProfilePage = ({ onNavigateToSettings }: ProfilePageProps) => {
 
           {/* Edit Profile button */}
           <Button 
-            variant="outline" 
+            variant="outline"
+            size="sm"
             className="w-full" 
             onClick={() => setIsEditModalOpen(true)}
           >
