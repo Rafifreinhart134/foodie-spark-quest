@@ -360,6 +360,7 @@ export type Database = {
           duration: number | null
           expires_at: string
           id: string
+          is_archived: boolean | null
           is_public: boolean | null
           media_type: string
           media_url: string
@@ -371,6 +372,7 @@ export type Database = {
           duration?: number | null
           expires_at?: string
           id?: string
+          is_archived?: boolean | null
           is_public?: boolean | null
           media_type: string
           media_url: string
@@ -382,6 +384,7 @@ export type Database = {
           duration?: number | null
           expires_at?: string
           id?: string
+          is_archived?: boolean | null
           is_public?: boolean | null
           media_type?: string
           media_url?: string

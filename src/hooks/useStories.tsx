@@ -13,6 +13,7 @@ export interface Story {
   created_at: string;
   expires_at: string;
   is_public: boolean;
+  is_archived?: boolean;
   profiles?: {
     display_name: string;
     avatar_url: string;
@@ -211,6 +212,62 @@ export const useStories = () => {
     }
   };
 
+  const archiveStory = async (storyId: string) => {
+    if (!user) return;
+
+    try {
+      const { error } = await supabase
+        .from('stories')
+        .update({ is_archived: true })
+        .eq('id', storyId)
+        .eq('user_id', user.id);
+
+      if (error) throw error;
+
+      toast({
+        title: 'Success',
+        description: 'Story archived successfully'
+      });
+
+      fetchStories();
+    } catch (error) {
+      console.error('Error archiving story:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to archive story',
+        variant: 'destructive'
+      });
+    }
+  };
+
+  const unarchiveStory = async (storyId: string) => {
+    if (!user) return;
+
+    try {
+      const { error } = await supabase
+        .from('stories')
+        .update({ is_archived: false })
+        .eq('id', storyId)
+        .eq('user_id', user.id);
+
+      if (error) throw error;
+
+      toast({
+        title: 'Success',
+        description: 'Story unarchived successfully'
+      });
+
+      fetchStories();
+    } catch (error) {
+      console.error('Error unarchiving story:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to unarchive story',
+        variant: 'destructive'
+      });
+    }
+  };
+
   useEffect(() => {
     fetchStories();
 
@@ -241,6 +298,8 @@ export const useStories = () => {
     createStory,
     markStoryAsViewed,
     deleteStory,
+    archiveStory,
+    unarchiveStory,
     refreshStories: fetchStories
   };
 };

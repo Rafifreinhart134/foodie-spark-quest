@@ -15,7 +15,7 @@ interface SavedPageProps {
 const SavedPage = ({ onStoryOpenChange }: SavedPageProps) => {
   const navigate = useNavigate();
   const { savedVideos, loading } = useSavedVideos();
-  const { stories, loading: storiesLoading, markStoryAsViewed, deleteStory } = useStories();
+  const { stories, loading: storiesLoading, markStoryAsViewed, deleteStory, archiveStory, unarchiveStory } = useStories();
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isViewerModalOpen, setIsViewerModalOpen] = useState(false);
   const [selectedStoryIndex, setSelectedStoryIndex] = useState(0);
@@ -130,6 +130,8 @@ const SavedPage = ({ onStoryOpenChange }: SavedPageProps) => {
           initialStoryIndex={0}
           onMarkAsViewed={markStoryAsViewed}
           onDeleteStory={deleteStory}
+          onArchiveStory={archiveStory}
+          onUnarchiveStory={unarchiveStory}
         />
       )}
     </div>
